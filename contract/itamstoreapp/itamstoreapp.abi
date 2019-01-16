@@ -1,0 +1,318 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jan 16 10:56:30 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "claimsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "delsellitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "modsellitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itemdesc",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "msettlename",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "receiptrans",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gameid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "asset"
+                },
+                {
+                    "name": "notititle",
+                    "type": "string"
+                },
+                {
+                    "name": "notitext",
+                    "type": "string"
+                },
+                {
+                    "name": "notistr",
+                    "type": "string"
+                },
+                {
+                    "name": "options",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "regsellitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itemdesc",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "regsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "resetsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "rmsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "settle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "sitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itemdesc",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "test",
+            "base": "",
+            "fields": [
+                {
+                    "name": "cmd",
+                    "type": "uint64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "claimsettle",
+            "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delsellitem",
+            "type": "delsellitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modsellitem",
+            "type": "modsellitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "msettlename",
+            "type": "msettlename",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "receiptrans",
+            "type": "receiptrans",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "regsellitem",
+            "type": "regsellitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "regsettle",
+            "type": "regsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "resetsettle",
+            "type": "resetsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rmsettle",
+            "type": "rmsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "test",
+            "type": "test",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "settles",
+            "type": "settle",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "sitems",
+            "type": "sitem",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}

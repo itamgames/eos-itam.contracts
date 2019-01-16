@@ -1,0 +1,228 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Jan 15 16:15:37 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "createitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "itemopt",
+                    "type": "string"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "edititem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "itemopt",
+                    "type": "string"
+                },
+                {
+                    "name": "holder",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "item",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "itemopt",
+                    "type": "string"
+                },
+                {
+                    "name": "istatus",
+                    "type": "uint64"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "receiptrans",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gid",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemname",
+                    "type": "string"
+                },
+                {
+                    "name": "itemopt",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "removeitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "holder",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "revokeorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "sellorder",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "eosvalue",
+                    "type": "asset"
+                },
+                {
+                    "name": "itamvalue",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "test",
+            "base": "",
+            "fields": [
+                {
+                    "name": "cmd",
+                    "type": "uint64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "createitem",
+            "type": "createitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "edititem",
+            "type": "edititem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "receiptrans",
+            "type": "receiptrans",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "removeitem",
+            "type": "removeitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "revokeorder",
+            "type": "revokeorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "sellorder",
+            "type": "sellorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "test",
+            "type": "test",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "items",
+            "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}
