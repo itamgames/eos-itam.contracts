@@ -1,6 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
+#include "json.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -10,6 +11,8 @@ CONTRACT itamstoreapp : public eosio::contract {
         using contract::contract;
 
         const uint64_t RATE_SELL =              70;
+
+        using json = nlohmann::json;
 
         ACTION test(uint64_t cmd);
         ACTION regsellitem(uint64_t gid, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc);
@@ -21,6 +24,7 @@ CONTRACT itamstoreapp : public eosio::contract {
         ACTION resetsettle(uint64_t gid);
         ACTION rmsettle(uint64_t gid);
         ACTION claimsettle(uint64_t gid, name from);
+        ACTION mregsellitem(string jsonstr);
        
     private:
         struct [[eosio::table]] sitem {

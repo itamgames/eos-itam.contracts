@@ -16,6 +16,14 @@ ACTION itamstoreapp::test(uint64_t cmd)
             }
             break;
         }
+        case 2: {
+            sitems_t sellitem(_self,_self.value);
+            for(auto itr=sellitem.begin();itr!=sellitem.end();)
+            {
+                itr=sellitem.erase(itr);
+            }
+            break;
+        }
         default: {
             break;
         }
@@ -37,6 +45,27 @@ ACTION itamstoreapp::regsellitem(uint64_t gid, uint64_t itemid, string itemname,
         s.itamvalue = itamvalue;
         s.itemdesc = itemdesc;
     });
+}
+
+ACTION itamstoreapp::mregsellitem(string jsonstr)
+{
+    require_auth(_self);
+    sitems_t sellitem(_self,_self.value);
+    auto j = json::parse(jsonstr);    
+
+    for(int i=0;i<j.size();i++)
+    {
+        sellitem.emplace(_self,[&](auto& s){
+            s.id = stoull(j[i]["itemid"].get<std::string>(),0,10);
+            s.gid = stoull(j[i]["gid"].get<std::string>(),0,10);
+            s.itemname = j[i]["itemname"].get<std::string>();
+            s.eosvalue.amount = stoull(j[i]["eosvalue"].get<std::string>(),0,10);
+            s.eosvalue.symbol = symbol("EOS", 4);
+            s.itamvalue.amount = stoull(j[i]["itamvalue"].get<std::string>(),0,10);
+            s.itamvalue.symbol = symbol("ITAM", 4);
+            s.itemdesc = j[i]["itemdesc"].get<std::string>();
+        });
+	}
 }
 
 ACTION itamstoreapp::regsettle(uint64_t gid, name account)
@@ -207,7 +236,7 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
     }
 
     st_memo msg;
-    parseMemo(transfer_data.memo, &msg, "|");
+    parse_memo(transfer_data.memo, &msg, "|");
 
     auto sitem_itr = sellitem.require_find(stoull(msg.itemid, 0, 10), "no matched id.");
     eosio_assert(sitem_itr->itemname == msg.itemname, "not valid item name");
@@ -265,7 +294,7 @@ void itamstoreapp::parse_memo(string memo, st_memo* msg, string delimiter)
     }
 }
 
-//EOSIO_DISPATCH( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle) )
+//EOSIO_DISPATCH( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle)(mregsellitem) )
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
@@ -283,4 +312,4 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(transfer)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle) )
+EOSIO_DISPATCH_EX( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(transfer)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle)(mregsellitem) )

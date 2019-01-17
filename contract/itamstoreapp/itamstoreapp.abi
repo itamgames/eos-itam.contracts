@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jan 16 10:56:30 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jan 17 12:26:55 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -56,6 +56,16 @@
                 },
                 {
                     "name": "itemdesc",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "mregsellitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "jsonstr",
                     "type": "string"
                 }
             ]
@@ -258,6 +268,11 @@
         {
             "name": "modsellitem",
             "type": "modsellitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "mregsellitem",
+            "type": "mregsellitem",
             "ricardian_contract": ""
         },
         {
