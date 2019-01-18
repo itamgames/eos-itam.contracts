@@ -51,10 +51,26 @@ ACTION itamstoreapp::mregsellitem(string jsonstr)
 {
     require_auth(_self);
     sitems_t sellitem(_self,_self.value);
-    auto j = json::parse(jsonstr);    
+    auto j = json::parse(jsonstr);
 
+    eosio_assert(strcmp(j[0]["gid"].get<std::string>().c_str(),""),"gid not valid");
+    for(auto itr=sellitem.begin();itr!=sellitem.end();)
+    {
+        if(itr->gid == stoull(j[0]["gid"].get<std::string>(),0,10))
+        {
+            itr=sellitem.erase(itr);
+        }
+        else
+        {
+            itr++;
+        }
+    }
+
+    uint64_t ngid = stoull(j[0]["gid"].get<std::string>(),0,10);
     for(int i=0;i<j.size();i++)
     {
+        eosio_assert(ngid == stoull(j[i]["gid"].get<std::string>(),0,10),"multiple gid insert not allowed");
+
         sellitem.emplace(_self,[&](auto& s){
             s.id = stoull(j[i]["itemid"].get<std::string>(),0,10);
             s.gid = stoull(j[i]["gid"].get<std::string>(),0,10);
