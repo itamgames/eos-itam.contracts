@@ -51,10 +51,26 @@ ACTION itamstoreapp::mregsellitem(string jsonstr)
 {
     require_auth(_self);
     sitems_t sellitem(_self,_self.value);
-    auto j = json::parse(jsonstr);    
+    auto j = json::parse(jsonstr);
 
+    eosio_assert(strcmp(j[0]["gid"].get<std::string>().c_str(),""),"gid not valid");
+    for(auto itr=sellitem.begin();itr!=sellitem.end();)
+    {
+        if(itr->gid == stoull(j[0]["gid"].get<std::string>(),0,10))
+        {
+            itr=sellitem.erase(itr);
+        }
+        else
+        {
+            itr++;
+        }
+    }
+
+    uint64_t ngid = stoull(j[0]["gid"].get<std::string>(),0,10);
     for(int i=0;i<j.size();i++)
     {
+        eosio_assert(ngid == stoull(j[i]["gid"].get<std::string>(),0,10),"multiple gid insert not allowed");
+
         sellitem.emplace(_self,[&](auto& s){
             s.id = stoull(j[i]["itemid"].get<std::string>(),0,10);
             s.gid = stoull(j[i]["gid"].get<std::string>(),0,10);
@@ -66,6 +82,24 @@ ACTION itamstoreapp::mregsellitem(string jsonstr)
             s.itemdesc = j[i]["itemdesc"].get<std::string>();
         });
 	}
+}
+
+ACTION itamstoreapp::mdelsellitem(string jsonstr)
+{
+    require_auth(_self);
+    sitems_t sellitem(_self,_self.value);
+    auto j = json::parse(jsonstr);
+
+    for(int i=0;i<j.size();i++)
+    {
+        #ifdef DEBUG_MODE
+            auto sitem_itr = sellitem.require_find(stoull(j[i]["itemid"].get<std::string>(),0,10), "no matched id");
+            eosio_assert(sitem_itr->gid == stoull(j[i]["gid"].get<std::string>(), 0, 10), "not valid gid");
+        #else
+            auto sitem_itr = sellitem.find(stoull(j[i]["itemid"].get<std::string>(),0,10));
+        #endif
+        sellitem.erase(sitem_itr);
+    }
 }
 
 ACTION itamstoreapp::regsettle(uint64_t gid, name account)
@@ -116,7 +150,8 @@ ACTION itamstoreapp::modsellitem(uint64_t gid, uint64_t itemid, string itemname,
     });
 }
 
-ACTION itamstoreapp::receiptrans(uint64_t gameid, uint64_t itemid, string itemname, name from, asset value, string notititle ,string notitext ,string notistr, string options)
+ACTION itamstoreapp::receiptrans(uint64_t gameid, uint64_t itemid, string itemname, name from, asset value, string notititle
+                                 ,string notitext ,string notistr, string options)
 {
     require_auth(_self);
     require_recipient(_self);
@@ -294,7 +329,8 @@ void itamstoreapp::parse_memo(string memo, st_memo* msg, string delimiter)
     }
 }
 
-//EOSIO_DISPATCH( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle)(mregsellitem) )
+//EOSIO_DISPATCH( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(receiptrans)(regsettle)(msettlename)
+// (resetsettle)(rmsettle)(claimsettle)(mregsellitem)(mdelsellitem) ) 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
@@ -312,4 +348,5 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(transfer)(receiptrans)(regsettle)(msettlename)(resetsettle)(rmsettle)(claimsettle)(mregsellitem) )
+EOSIO_DISPATCH_EX( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(transfer)(receiptrans)(regsettle)(msettlename)
+                                    (resetsettle)(rmsettle)(claimsettle)(mregsellitem)(mdelsellitem) )
