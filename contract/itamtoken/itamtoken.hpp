@@ -16,36 +16,6 @@ CONTRACT itamtoken : public contract {
         ACTION unstaking(name owner, asset quantity);
         ACTION defrefund(name owner);
         ACTION menualrefund(name owner);
-        ACTION test(name owner, asset quantity)
-        {
-            refund_table refunds(_self, owner.value);
-            auto refund = refunds.find(owner.value);
-
-            if(refund != refunds.end())
-            {
-                refunds.erase(refund);
-                print("refund erase!");
-            }
-
-            account_table accounts(_self, owner.value);
-            auto account = accounts.find(quantity.symbol.code().raw());
-
-            if(account != accounts.end())
-            {
-                accounts.erase(account);
-                print("account erase!");
-            }
-            
-
-            stake_table stakes(_self, owner.value);
-            auto stake = stakes.find(owner.value);
-
-            if(stake != stakes.end())
-            {
-                stakes.erase(stake);
-                print("stake erase");
-            }
-        }
 
     private:
         const uint64_t SEC_REFUND_DELAY = 10;

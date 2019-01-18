@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Jan 18 18:49:55 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Jan 18 19:17:43 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -143,20 +143,6 @@
             ]
         },
         {
-            "name": "test",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -218,11 +204,6 @@
         {
             "name": "staking",
             "type": "staking",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "test",
-            "type": "test",
             "ricardian_contract": ""
         },
         {

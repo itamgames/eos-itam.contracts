@@ -262,4 +262,4 @@ extern "C" { \
    } \
 } \
 
-EOSIO_DISPATCH_EX( itamtoken, (test)(create)(issue)(transfer)(staking)(unstaking)(defrefund)(menualrefund) )
+EOSIO_DISPATCH_EX( itamtoken, (create)(issue)(transfer)(staking)(unstaking)(defrefund)(menualrefund) )
