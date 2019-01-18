@@ -25,6 +25,7 @@ CONTRACT itamstoreapp : public eosio::contract {
         ACTION rmsettle(uint64_t gid);
         ACTION claimsettle(uint64_t gid, name from);
         ACTION mregsellitem(string jsonstr);
+        ACTION mdelsellitem(string jsonstr);
        
     private:
         struct [[eosio::table]] sitem {
