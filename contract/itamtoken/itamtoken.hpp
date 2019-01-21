@@ -13,7 +13,7 @@ CONTRACT itamtoken : public contract {
         ACTION issue(name to, asset quantity, string memo);
         ACTION transfer(name from, name to, asset amount, string memo);
         ACTION staking(name owner, asset value);
-        ACTION unstaking(name owner, asset quantity);
+        ACTION unstaking(name owner, asset value);
         ACTION defrefund(name owner);
         ACTION menualrefund(name owner);
 
