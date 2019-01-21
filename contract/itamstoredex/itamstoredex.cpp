@@ -25,7 +25,8 @@ ACTION itamstoredex::test(uint64_t cmd)
 
 ACTION itamstoredex::createitem(uint64_t id, uint64_t gid, string itemname, string itemopt, name to)
 {
-    eosio_assert(is_account(to),"invalid account.");
+    require_auth(_self);
+    eosio_assert(is_account(to), "invalid account.");
 
     items_t item(_self, to.value);
     item.emplace(_self, [&](auto& s){
@@ -60,13 +61,12 @@ ACTION itamstoredex::edititem(uint64_t id, uint64_t gid, string itemname, string
 
 ACTION itamstoredex::removeitem(uint64_t id, name holder)
 {
-    eosio_assert(is_account(holder), "invalid account.");
     require_auth(_self);
 
-    items_t item(_self,holder.value);
-    auto item_itr = item.require_find(id, "no matched id.");
-
-    item.erase(item_itr);
+    items_t items(_self, holder.value);
+    
+    auto item = items.require_find(id, "no matched id.");
+    items.erase(item);
 }
 
 ACTION itamstoredex::sellorder(uint64_t id, name from, asset eosvalue, asset itamvalue)
