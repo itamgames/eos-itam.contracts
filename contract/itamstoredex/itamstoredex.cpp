@@ -25,7 +25,8 @@ ACTION itamstoredex::test(uint64_t cmd)
 
 ACTION itamstoredex::createitem(uint64_t id, uint64_t gid, string itemname, string itemopt, name to)
 {
-    eosio_assert(is_account(to),"invalid account.");
+    require_auth(_self);
+    eosio_assert(is_account(to), "invalid account.");
 
     items_t item(_self, to.value);
     item.emplace(_self, [&](auto& s){
