@@ -1,4 +1,4 @@
-#include "itamstoreapp.hpp"
+#include "include/itamstoreapp.hpp"
 
 #define DEBUG_MODE
 
@@ -17,10 +17,10 @@ ACTION itamstoreapp::test(uint64_t cmd)
             break;
         }
         case 2: {
-            sitems_t sellitem(_self,_self.value);
-            for(auto itr=sellitem.begin();itr!=sellitem.end();)
+            sellItemTable sellItems(_self,_self.value);
+            for(auto itr=sellItems.begin();itr!=sellItems.end();)
             {
-                itr=sellitem.erase(itr);
+                itr=sellItems.erase(itr);
             }
             break;
         }
@@ -32,83 +32,63 @@ ACTION itamstoreapp::test(uint64_t cmd)
     print("test action");
 }
 
-ACTION itamstoreapp::regsellitem(uint64_t gid, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc)
+ACTION itamstoreapp::regsellitem(string params)
 {
-    require_auth(_self);
+    eosio_assert(has_auth(_self) || has_auth("itampayapp"_n), "Missing required authority");
 
-    sitems_t sellitem(_self,_self.value);
-    sellitem.emplace(_self,[&](auto& s){
-        s.id = itemid;
-        s.gid = gid;
-        s.itemname = itemname;
-        s.eosvalue = eosvalue;
-        s.itamvalue = itamvalue;
-        s.itemdesc = itemdesc;
-    });
-}
+    auto parsedParams = json::parse(params);
 
-ACTION itamstoreapp::mregsellitem(string jsonstr)
-{
-    require_auth(_self);
-    sitems_t sellitem(_self,_self.value);
-    auto j = json::parse(jsonstr);
+    if(parsedParams.count("appId") == 0 || parsedParams.count("items") == 0) return;
 
-    eosio_assert(strcmp(j[0]["gid"].get<std::string>().c_str(),""),"gid not valid");
-    for(auto itr=sellitem.begin();itr!=sellitem.end();)
+    uint64_t appId = parsedParams["appId"];
+    auto items = parsedParams["items"];
+    
+    sellItemTable sellItems(_self, appId);
+
+    for(auto iter = sellItems.begin(); iter != sellItems.end(); iter++)
     {
-        if(itr->gid == stoull(j[0]["gid"].get<std::string>(),0,10))
-        {
-            itr=sellitem.erase(itr);
-        }
-        else
-        {
-            itr++;
-        }
+        sellItems.erase(iter);
     }
 
-    uint64_t ngid = stoull(j[0]["gid"].get<std::string>(),0,10);
-    for(int i=0;i<j.size();i++)
+    for(int i = 0; i < items.size(); i++)
     {
-        eosio_assert(ngid == stoull(j[i]["gid"].get<std::string>(),0,10),"multiple gid insert not allowed");
-
-        sellitem.emplace(_self,[&](auto& s){
-            s.id = stoull(j[i]["itemid"].get<std::string>(),0,10);
-            s.gid = stoull(j[i]["gid"].get<std::string>(),0,10);
-            s.itemname = j[i]["itemname"].get<std::string>();
-            s.eosvalue.amount = stoull(j[i]["eosvalue"].get<std::string>(),0,10);
-            s.eosvalue.symbol = symbol("EOS", 4);
-            s.itamvalue.amount = stoull(j[i]["itamvalue"].get<std::string>(),0,10);
-            s.itamvalue.symbol = symbol("ITAM", 4);
-            s.itemdesc = j[i]["itemdesc"].get<std::string>();
+        sellItems.emplace(_self, [&](auto &s) {
+            s.itemId = items[i]["itemId"];
+            s.itemName = items[i]["itemName"];
+            s.eos.amount = stoull(items[i]["eos"].get<std::string>(), 0, 10);
+            s.eos.symbol = symbol("EOS", 4);
+            s.itam.amount = stoull(items[i]["itam"].get<std::string>(), 0, 10);
+            s.itam.symbol = symbol("ITAM", 4);
+            s.description = items[i]["description"];
         });
-	}
+    }
 }
 
 ACTION itamstoreapp::mdelsellitem(string jsonstr)
 {
     require_auth(_self);
-    sitems_t sellitem(_self,_self.value);
+    sellItemTable sellItems(_self, _self.value);
     auto j = json::parse(jsonstr);
 
-    for(int i=0;i<j.size();i++)
+    for(int i = 0; i < j.size(); i++)
     {
         #ifdef DEBUG_MODE
-            auto sitem_itr = sellitem.require_find(stoull(j[i]["itemid"].get<std::string>(),0,10), "no matched id");
-            eosio_assert(sitem_itr->gid == stoull(j[i]["gid"].get<std::string>(), 0, 10), "not valid gid");
+            auto sellItem = sellItems.require_find(stoull(j[i]["itemId"].get<std::string>(),0,10), "no matched id");
+            eosio_assert(sellItem->itemId == stoull(j[i]["itemId"].get<std::string>(), 0, 10), "not valid appId");
         #else
-            auto sitem_itr = sellitem.find(stoull(j[i]["itemid"].get<std::string>(),0,10));
+            auto sellItem = sellItems.find(stoull(j[i]["itemId"].get<std::string>(),0,10));
         #endif
-        sellitem.erase(sitem_itr);
+        sellItems.erase(sellItem);
     }
 }
 
-ACTION itamstoreapp::regsettle(uint64_t gid, name account)
+ACTION itamstoreapp::regsettle(uint64_t appId, name account)
 {
     require_auth(_self);
 
     settle_t settle(_self, _self.value);
     settle.emplace(_self, [&](auto& s) {
-        s.gid = gid;
+        s.appId = appId;
         s.account = account;
         s.eosvalue.amount = 0;
         s.eosvalue.symbol = symbol("EOS", 4);
@@ -117,36 +97,36 @@ ACTION itamstoreapp::regsettle(uint64_t gid, name account)
     });
 }
 
-ACTION itamstoreapp::delsellitem(uint64_t gid, uint64_t itemid)
+ACTION itamstoreapp::delsellitem(uint64_t appId, uint64_t itemid)
 {
     require_auth(_self);
-    sitems_t sellitem(_self,_self.value);
+    sellItemTable sellItems(_self, _self.value);
 
     #ifdef DEBUG_MODE
-        auto sitem_itr = sellitem.require_find(itemid, "no matched id");
+        auto sellItem = sellItems.require_find(itemid, "no matched id");
     #else
-        auto sitem_itr = sellitem.find(itemid);
+        auto sellItem = sellItems.find(itemid);
     #endif
 
-    sellitem.erase(sitem_itr);
+    sellItems.erase(sellItem);
 }
 
-ACTION itamstoreapp::modsellitem(uint64_t gid, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc)
+ACTION itamstoreapp::modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc)
 {
     require_auth(_self);
-    sitems_t sellitem(_self,_self.value);
+    sellItemTable sellItems(_self, _self.value);
 
     #ifdef DEBUG_MODE
-        auto sitem_itr = sellitem.require_find(itemid, "no matched id.");
+        auto sellItem = sellItems.require_find(itemid, "no matched id.");
     #else
-        auto sitem_itr = sellitem.find(itemid);
+        auto sellItem = sellItems.find(itemid);
     #endif
 
-    sellitem.modify(sitem_itr, _self, [&](auto& s){
-        s.itemname = itemname;
-        s.eosvalue = eosvalue;
-        s.itamvalue = itamvalue;
-        s.itemdesc = itemdesc;
+    sellItems.modify(sellItem, _self, [&](auto& s){
+        s.itemName = itemname;
+        s.eos = eosvalue;
+        s.itam = itamvalue;
+        s.description = itemdesc;
     });
 }
 
@@ -157,7 +137,7 @@ ACTION itamstoreapp::receiptrans(uint64_t gameid, uint64_t itemid, string itemna
     require_recipient(_self);
 }
 
-ACTION itamstoreapp::msettlename(uint64_t gid, name account)
+ACTION itamstoreapp::msettlename(uint64_t appId, name account)
 {
     require_auth(_self);
     eosio_assert(is_account(account), "invalid account.");
@@ -165,9 +145,9 @@ ACTION itamstoreapp::msettlename(uint64_t gid, name account)
     settle_t settle(_self,_self.value);
 
     #ifdef DEBUG_MODE
-        auto settle_itr = settle.require_find(gid, "not valid gid");
+        auto settle_itr = settle.require_find(appId, "not valid appId");
     #else
-        auto settle_itr = settle.find(gid);
+        auto settle_itr = settle.find(appId);
     #endif
     
     settle.modify(settle_itr, _self, [&](auto& s) {
@@ -175,15 +155,15 @@ ACTION itamstoreapp::msettlename(uint64_t gid, name account)
     });
 }
 
-ACTION itamstoreapp::resetsettle(uint64_t gid)
+ACTION itamstoreapp::resetsettle(uint64_t appId)
 {
     require_auth(_self);
     settle_t settle(_self, _self.value);
     
     #ifdef DEBUG_MODE
-        auto settle_itr = settle.require_find(gid, "not valid gid");
+        auto settle_itr = settle.require_find(appId, "not valid appId");
     #else
-        auto settle_itr = settle.find(gid);
+        auto settle_itr = settle.find(appId);
     #endif
     
     settle.modify(settle_itr, _self, [&](auto& s){
@@ -192,29 +172,29 @@ ACTION itamstoreapp::resetsettle(uint64_t gid)
     });
 }
 
-ACTION itamstoreapp::rmsettle(uint64_t gid)
+ACTION itamstoreapp::rmsettle(uint64_t appId)
 {
     require_auth(_self);
     settle_t settle(_self,_self.value);
     
     #ifdef DEBUG_MODE
-        auto settle_itr = settle.require_find(gid, "not valid gid");
+        auto settle_itr = settle.require_find(appId, "not valid appId");
     #else
-        auto settle_itr = settle.find(gid);
+        auto settle_itr = settle.find(appId);
     #endif
 
     settle.erase(settle_itr);
 }
 
-ACTION itamstoreapp::claimsettle(uint64_t gid, name from)
+ACTION itamstoreapp::claimsettle(uint64_t appId, name from)
 {
     require_auth(from);
     settle_t settle(_self,_self.value);
 
     #ifdef DEBUG_MODE
-        auto settle_itr = settle.require_find(gid, "no matched gid.");
+        auto settle_itr = settle.require_find(appId, "no matched appId.");
     #else
-        auto settle_itr = settle.find(gid);
+        auto settle_itr = settle.find(appId);
     #endif
 
     asset eos_settle(settle_itr->eosvalue.amount * 70 / 100, symbol("EOS", 4));
@@ -262,8 +242,8 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
 {
     auto transfer_data = unpack_action_data<tdata>();
     
-    sitems_t sellitem(_self,_self.value);
-    settle_t settle(_self,_self.value);
+    sellItemTable sellItems(_self, _self.value);
+    settle_t settle(_self, _self.value);
 
     if (transfer_data.from == _self || transfer_data.to != _self)
     {
@@ -273,21 +253,21 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
     st_memo msg;
     parse_memo(transfer_data.memo, &msg, "|");
 
-    auto sitem_itr = sellitem.require_find(stoull(msg.itemid, 0, 10), "no matched id.");
-    eosio_assert(sitem_itr->itemname == msg.itemname, "not valid item name");
-    eosio_assert(sitem_itr->gid == stoull(msg.gid, 0, 10), "not valid gid");
+    auto sellItem = sellItems.require_find(stoull(msg.itemId, 0, 10), "no matched id.");
+    eosio_assert(sellItem->itemName == msg.itemname, "not valid item name");
+    eosio_assert(sellItem->itemId == stoull(msg.itemId, 0, 10), "not valid appId");
 
-    auto s_itr = settle.require_find(stoull(msg.gid, 0, 10), "not valid gid settle info");
+    auto s_itr = settle.require_find(stoull(msg.itemId, 0, 10), "not valid appId settle info");
 
     settle.modify(s_itr, _self, [&](auto& s){
-        if(sitem_itr->eosvalue.amount > 0)
+        if(sellItem->eos.amount > 0)
         {
-            eosio_assert(sitem_itr->eosvalue == transfer_data.quantity, "invalid purchase value");
+            eosio_assert(sellItem->eos == transfer_data.quantity, "invalid purchase value");
             s.eosvalue += transfer_data.quantity;
         }
         else
         {
-            eosio_assert(sitem_itr->itamvalue == transfer_data.quantity, "invalid purchase value");
+            eosio_assert(sellItem->itam == transfer_data.quantity, "invalid purchase value");
             s.itamvalue += transfer_data.quantity;
         }
     });
@@ -297,15 +277,15 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
         _self, 
         name("receiptrans"),
         make_tuple(
-            stoull(msg.itemid,0,10),
-            stoull(msg.gid,0,10), 
+            stoull(msg.itemId,0,10),
+            stoull(msg.appId,0,10), 
             msg.itemname,
             transfer_data.from,
             transfer_data.quantity,
             msg.notititle,
             msg.notitext,
             msg.notikey,
-            sitem_itr->itemdesc
+            sellItem->description
         )
     ).send();
 }
@@ -336,7 +316,7 @@ extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
         bool can_call_transfer = code == name("eosio.token").value || code == name("itamtokenadm").value; \
         \
-        if( code == receiver || can_call_transfer ) { \
+        if( code == receiver || can_call_transfer || code == name("itampayapp").value ) { \
             if(action == name("transfer").value) { \
                 eosio_assert(can_call_transfer, "eosio.token or itamtokenadm can call internal transfer"); \
             } \
@@ -349,4 +329,4 @@ extern "C" { \
 } \
 
 EOSIO_DISPATCH_EX( itamstoreapp, (test)(regsellitem)(delsellitem)(modsellitem)(transfer)(receiptrans)(regsettle)(msettlename)
-                                    (resetsettle)(rmsettle)(claimsettle)(mregsellitem)(mdelsellitem) )
+                                    (resetsettle)(rmsettle)(claimsettle)(mdelsellitem) )

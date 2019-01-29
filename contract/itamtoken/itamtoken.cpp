@@ -253,7 +253,7 @@ void itamtoken::add_balance(name owner, asset value, name ram_payer)
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-      if( code == receiver || code == name("itamstoreapp").value || code == name("itamstoredex").value ) { \
+        if( code == receiver || code == name("itamstoreapp").value || code == name("itamstoredex").value || code == name("itampayapp").value ) { \
          switch( action ) { \
             EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
          } \
