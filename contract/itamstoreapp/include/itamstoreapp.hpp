@@ -17,8 +17,8 @@ CONTRACT itamstoreapp : public eosio::contract {
         ACTION test(uint64_t cmd);
         ACTION regsellitem(string params);
         ACTION delsellitem(uint64_t appId, uint64_t itemid);
-        ACTION modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc);
-        ACTION receiptrans(uint64_t appId, uint64_t itemid, string itemname, name from, asset value, string notititle, string notitext, string notistr, string options);
+        ACTION modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue);
+        ACTION receiptrans(uint64_t appId, uint64_t itemid, string itemname, name from, asset value, string notititle, string notitext, string notistr);
         ACTION regsettle(uint64_t appId, name account);
         ACTION msettlename(uint64_t appId, name account);
         ACTION resetsettle(uint64_t appId);
@@ -32,7 +32,6 @@ CONTRACT itamstoreapp : public eosio::contract {
             string              itemName;
             asset               eos;
             asset               itam;
-            string              description;
 
             uint64_t primary_key() const { return itemId; }
         };

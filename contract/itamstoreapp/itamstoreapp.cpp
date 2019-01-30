@@ -59,7 +59,6 @@ ACTION itamstoreapp::regsellitem(string params)
             s.eos.symbol = symbol("EOS", 4);
             s.itam.amount = stoull(items[i]["itam"].get<std::string>(), 0, 10);
             s.itam.symbol = symbol("ITAM", 4);
-            s.description = items[i]["description"];
         });
     }
 }
@@ -111,27 +110,22 @@ ACTION itamstoreapp::delsellitem(uint64_t appId, uint64_t itemid)
     sellItems.erase(sellItem);
 }
 
-ACTION itamstoreapp::modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue, string itemdesc)
+ACTION itamstoreapp::modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue)
 {
     require_auth(_self);
     sellItemTable sellItems(_self, _self.value);
 
-    #ifdef DEBUG_MODE
-        auto sellItem = sellItems.require_find(itemid, "no matched id.");
-    #else
-        auto sellItem = sellItems.find(itemid);
-    #endif
+    auto sellItem = sellItems.require_find(itemid, "no matched id.");
 
     sellItems.modify(sellItem, _self, [&](auto& s){
         s.itemName = itemname;
         s.eos = eosvalue;
         s.itam = itamvalue;
-        s.description = itemdesc;
     });
 }
 
 ACTION itamstoreapp::receiptrans(uint64_t gameid, uint64_t itemid, string itemname, name from, asset value, string notititle
-                                 ,string notitext ,string notistr, string options)
+                                 ,string notitext ,string notistr)
 {
     require_auth(_self);
     require_recipient(_self);
@@ -284,8 +278,7 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
             transfer_data.quantity,
             msg.notititle,
             msg.notitext,
-            msg.notikey,
-            sellItem->description
+            msg.notikey
         )
     ).send();
 }
