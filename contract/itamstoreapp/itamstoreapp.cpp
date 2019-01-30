@@ -1,4 +1,4 @@
-#include "include/itamstoreapp.hpp"
+#include "itamstoreapp.hpp"
 
 #define DEBUG_MODE
 
@@ -45,9 +45,9 @@ ACTION itamstoreapp::regsellitem(string params)
     
     sellItemTable sellItems(_self, appId);
 
-    for(auto iter = sellItems.begin(); iter != sellItems.end(); iter++)
+    for(auto iter = sellItems.begin(); iter != sellItems.end();)
     {
-        sellItems.erase(iter);
+        iter = sellItems.erase(iter);
     }
 
     for(int i = 0; i < items.size(); i++)
@@ -55,9 +55,9 @@ ACTION itamstoreapp::regsellitem(string params)
         sellItems.emplace(_self, [&](auto &s) {
             s.itemId = items[i]["itemId"];
             s.itemName = items[i]["itemName"];
-            s.eos.amount = stoull(items[i]["eos"].get<std::string>(), 0, 10);
+            s.eos.amount = stoull(items[i]["eos"].get<std::string>(), 0, 10) * 10000;
             s.eos.symbol = symbol("EOS", 4);
-            s.itam.amount = stoull(items[i]["itam"].get<std::string>(), 0, 10);
+            s.itam.amount = stoull(items[i]["itam"].get<std::string>(), 0, 10) * 10000;
             s.itam.symbol = symbol("ITAM", 4);
         });
     }

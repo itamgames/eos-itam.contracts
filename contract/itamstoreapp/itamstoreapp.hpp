@@ -1,7 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../../include/json.hpp"
+#include "../include/json.hpp"
 
 using namespace eosio;
 using namespace std;
