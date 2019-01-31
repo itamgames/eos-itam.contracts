@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jan 30 13:33:58 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jan 31 11:37:03 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -89,11 +89,19 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "itemid",
+                    "name": "itemId",
                     "type": "uint64"
                 },
                 {
-                    "name": "itemname",
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "name": "packageName",
+                    "type": "string"
+                },
+                {
+                    "name": "token",
                     "type": "string"
                 },
                 {
@@ -101,20 +109,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "value",
+                    "name": "price",
                     "type": "asset"
-                },
-                {
-                    "name": "notititle",
-                    "type": "string"
-                },
-                {
-                    "name": "notitext",
-                    "type": "string"
-                },
-                {
-                    "name": "notistr",
-                    "type": "string"
                 }
             ]
         },

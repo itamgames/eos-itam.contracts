@@ -124,11 +124,11 @@ ACTION itamstoreapp::modsellitem(uint64_t appId, uint64_t itemid, string itemnam
     });
 }
 
-ACTION itamstoreapp::receiptrans(uint64_t gameid, uint64_t itemid, string itemname, name from, asset value, string notititle
-                                 ,string notitext ,string notistr)
+ACTION itamstoreapp::receiptrans(uint64_t appId, uint64_t itemId, string itemName, string packageName, string token, name from, asset price)
 {
     require_auth(_self);
-    require_recipient(_self);
+    require_recipient(from);
+    require_recipient(_code);
 }
 
 ACTION itamstoreapp::msettlename(uint64_t appId, name account)
@@ -235,9 +235,6 @@ ACTION itamstoreapp::claimsettle(uint64_t appId, name from)
 void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
 {
     auto transfer_data = unpack_action_data<tdata>();
-    
-    sellItemTable sellItems(_self, _self.value);
-    settle_t settle(_self, _self.value);
 
     if (transfer_data.from == _self || transfer_data.to != _self)
     {
@@ -247,11 +244,15 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
     st_memo msg;
     parse_memo(transfer_data.memo, &msg, "|");
 
-    auto sellItem = sellItems.require_find(stoull(msg.itemId, 0, 10), "no matched id.");
-    eosio_assert(sellItem->itemName == msg.itemname, "not valid item name");
-    eosio_assert(sellItem->itemId == stoull(msg.itemId, 0, 10), "not valid appId");
+    uint64_t appId = stoull(msg.appId, 0, 10);
+    uint64_t itemId = stoull(msg.itemId, 0, 10);
 
-    auto s_itr = settle.require_find(stoull(msg.itemId, 0, 10), "not valid appId settle info");
+    sellItemTable sellItems(_self, appId);
+    settle_t settle(_self, _self.value);
+    auto sellItem = sellItems.require_find(itemId, "no matched item id");
+    eosio_assert(sellItem->itemName == msg.itemName, "not valid item name");
+
+    auto s_itr = settle.require_find(appId, "not valid appId settle info");
 
     settle.modify(s_itr, _self, [&](auto& s){
         if(sellItem->eos.amount > 0)
@@ -271,14 +272,13 @@ void itamstoreapp::transfer(uint64_t sender, uint64_t receiver)
         _self, 
         name("receiptrans"),
         make_tuple(
-            stoull(msg.itemId,0,10),
-            stoull(msg.appId,0,10), 
-            msg.itemname,
+            appId,
+            itemId, 
+            msg.itemName,
+            msg.packageName,
+            msg.token,
             transfer_data.from,
-            transfer_data.quantity,
-            msg.notititle,
-            msg.notitext,
-            msg.notikey
+            transfer_data.quantity
         )
     ).send();
 }

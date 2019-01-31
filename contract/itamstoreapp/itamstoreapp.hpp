@@ -18,7 +18,7 @@ CONTRACT itamstoreapp : public eosio::contract {
         ACTION regsellitem(string params);
         ACTION delsellitem(uint64_t appId, uint64_t itemid);
         ACTION modsellitem(uint64_t appId, uint64_t itemid, string itemname, asset eosvalue, asset itamvalue);
-        ACTION receiptrans(uint64_t appId, uint64_t itemid, string itemname, name from, asset value, string notititle, string notitext, string notistr);
+        ACTION receiptrans(uint64_t appId, uint64_t itemId, string itemName, string packageName, string token, name from, asset price);
         ACTION regsettle(uint64_t appId, name account);
         ACTION msettlename(uint64_t appId, name account);
         ACTION resetsettle(uint64_t appId);
@@ -58,12 +58,11 @@ CONTRACT itamstoreapp : public eosio::contract {
 
         // to store parse string transfered memo
         struct st_memo {
-            string          itemId;
             string          appId;
-            string          itemname;
-            string          notititle;
-            string          notitext;
-            string          notikey;
+            string          itemId;
+            string          itemName;
+            string          packageName;
+            string          token;
         };
 
     public:
