@@ -1,33 +1,3 @@
-// regist app
-// cleos push action aattt registapp '[1,"itamgameusra","1.0000 EOS","{}"]' -p aattt
-
-// regist item
-// cleos push action aattt registitems '["{\"appId\":1,\"items\":[{\"itemId\":2,\"itemName\":\"test item\",\"eos\":\"1.0000 EOS\",\"itam\":\"0.0000 ITAM\"},{\"itemId\":3,\"itemName\":\"book\",\"eos\":\"0.0000 EOS\",\"itam\":\"1.0000 ITAM\"}]}"]' -p aattt
-
-// set config
-// cleos push action aattt setconfig '[85,1]' -p aattt
-
-// buy app
-// cleos push action eosio.token transfer '["itamgameusrb","aattt","1.0000 EOS","{\"category\":\"app\",\"appId\":1}"]' -p itamgameusrb
-
-// refund app
-// cleos push action aattt refundapp '[1,"itamgameusrb"]' -p aattt
-
-// buy item
-// cleos push action eosio.token transfer '["itamgameusrb","aattt","1.0000 EOS","{\"category\":\"item\",\"appId\":1,\"itemId\":2,\"itemName\":\"test item\",\"packageName\":\"test\",\"token\":\"test\"}"]' -p itamgameusrb
-
-// refund item
-// cleos push action aattt refunditem '[1,2,"itamgameusrb"]' -p aattt
-
-// confirm
-// cleos push action aattt menconfirm '[1]' -p aattt
-
-// regist settle
-// cleos push action aattt registsettle '[1,"itamgameusra"]' -p aattt
-
-// claim settle
-// cleos push action aattt claimsettle '[1]' -p aattt
-
 #include "itamapp.hpp"
 
 ACTION itamapp::registitems(string params)
