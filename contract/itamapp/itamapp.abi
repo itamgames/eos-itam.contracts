@@ -1,0 +1,474 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Feb  7 16:42:35 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "app",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "claimsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "config",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "name"
+                },
+                {
+                    "name": "ratio",
+                    "type": "uint64"
+                },
+                {
+                    "name": "refundableDay",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "defconfirm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deleteapp",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deleteitems",
+            "base": "",
+            "fields": [
+                {
+                    "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "item",
+            "base": "",
+            "fields": [
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "name": "eos",
+                    "type": "asset"
+                },
+                {
+                    "name": "itam",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "menconfirm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "modifyitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "name": "eos",
+                    "type": "asset"
+                },
+                {
+                    "name": "itam",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "pending",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "pendingList",
+                    "type": "pendingInfo[]"
+                }
+            ]
+        },
+        {
+            "name": "pendingInfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "settleAmount",
+                    "type": "asset"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "receiptapp",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "receiptitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "name": "packageName",
+                    "type": "string"
+                },
+                {
+                    "name": "token",
+                    "type": "string"
+                },
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "refundapp",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "refunditem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "registapp",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                },
+                {
+                    "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "registitems",
+            "base": "",
+            "fields": [
+                {
+                    "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "setconfig",
+            "base": "",
+            "fields": [
+                {
+                    "name": "ratio",
+                    "type": "uint64"
+                },
+                {
+                    "name": "refundableDay",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "setsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "settle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "eos",
+                    "type": "asset"
+                },
+                {
+                    "name": "itam",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "transfer",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "uint64"
+                },
+                {
+                    "name": "to",
+                    "type": "uint64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "claimsettle",
+            "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "defconfirm",
+            "type": "defconfirm",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deleteapp",
+            "type": "deleteapp",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deleteitems",
+            "type": "deleteitems",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "menconfirm",
+            "type": "menconfirm",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modifyitem",
+            "type": "modifyitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "receiptapp",
+            "type": "receiptapp",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "receiptitem",
+            "type": "receiptitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "refundapp",
+            "type": "refundapp",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "refunditem",
+            "type": "refunditem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "registapp",
+            "type": "registapp",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "registitems",
+            "type": "registitems",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setconfig",
+            "type": "setconfig",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setsettle",
+            "type": "setsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer",
+            "type": "transfer",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "apps",
+            "type": "app",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "configs",
+            "type": "config",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "items",
+            "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "pendings",
+            "type": "pending",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "settles",
+            "type": "settle",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}
