@@ -3,6 +3,7 @@
 #include <eosiolib/multi_index.hpp>
 #include <eosiolib/transaction.hpp>
 #include "../include/json.hpp"
+#include "../include/common.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -29,6 +30,10 @@ CONTRACT itamapp : public contract {
         ACTION registapp(uint64_t appId, name owner, asset amount, string params);
         ACTION deleteapp(uint64_t appId);
         ACTION refundapp(uint64_t appId, name buyer);
+
+        // leader board
+        ACTION registboard(uint64_t boardId, uint64_t appId, name owner);
+        ACTION score(uint64_t boardId, uint64_t appId, string score, name user, string data);
         
         // settle
         void confirm(uint64_t appId);
@@ -69,9 +74,42 @@ CONTRACT itamapp : public contract {
 
 
 
+        // achievement
+        TABLE achievement
+        {
+            id_type id;
+            string name;
+
+            id_type primary_key() const { return id; }
+        };
+        typedef mutli_index<"achievements"_n, achievement> achievementTable
+
+
+
+        // leader board
+        TABLE leaderboard
+        {
+            id_type id;
+            string name;
+            uint64_t precision;
+            string minimumScore;
+            string maximumScore;
+            
+            id_type primary_key() const { return id; }
+        };
+        typedef multi_index<"leaderboards"_n, leaderboard> leaderboardTable;
+
+        TABLE block
+        {
+            name owner;
+            uint64_t primary_key() const { return owner.value; }
+        };
+        typedef multi_index<"blocks"_n, block> blockTable;
+
+
+
         // settle
-        // const uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
-        const uint64_t SECONDS_OF_DAY = 20;
+        const uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
 
         struct pendingInfo
         {
@@ -110,6 +148,9 @@ CONTRACT itamapp : public contract {
             uint64_t primary_key() const { return key.value; }
         };
         typedef multi_index<"configs"_n, config> configTable;
+    
+    private:
+        bool isValidPrecision(string number, uint64_t precision);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \

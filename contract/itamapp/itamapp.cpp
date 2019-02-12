@@ -348,8 +348,55 @@ ACTION itamapp::setconfig(uint64_t ratio, uint64_t refundableDay)
             c.refundableDay = refundableDay;
         });
     }
-    
 }
+
+ACTIONM itamapp::registboard(uint64_t appId, name owner, string boardList)
+{
+    require_auth(_self);
+    eosio_assert(is_account(owner), "Invalid owner");
+
+    leaderboardTable boards(_self, appId);
+    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
+
+    auto& boardList = json::parse(boardList);
+
+    for(const auto& board : boardList)
+    {
+        eosio_assert(isValidPrecision(board->minimumScore, board->precision), "invalid precision of minimum score");
+        eosio_assert(isValidPrecision(board->maximumScore, board->precision), "invalid precision of maximum score");
+
+        boards.emplace(_self, [&](auto &b) {
+            b.id = board->id;
+            b.name = board->name;
+            b.precision = board->precision;
+            b.minimumScore = board->minimumScore;
+            b.maximumScore = board->maximumScore;
+        });
+    }
+}
+
+ACTION itamapp::score(uint64_t boardId, uint64_t appId, string score, name user, string data)
+{
+    require_auth(user);
+    assertIfBlockUser(user);
+
+    leaderboardTable boards(_self, appId);
+    const auto& board = boards.get(boardId, "invalid board id");
+
+    eosio_assert(isValidPrecision(score, board.precision), "invalid precision of score");
+
+    asset scoreOfAdd;
+    stringToAsset(score, scoreOfAdd, board.precision);
+
+    asset minimumScore;
+    stringToAsset(minimumScore, board.minimumScore, board.precision);
+    eosio_assert(scoreOfAdd >= minimumScore, "score must be lower than minimum score");
+
+    asset maximumScore;
+    stringToAsset(maximumScore, board.maximumScore, board.precision);
+    eosio_assert(scoreOfAdd >= maximumScore, "score must be bigger than maximum score");
+}
+
 
 ACTION itamapp::transfer(uint64_t from, uint64_t to)
 {
@@ -445,4 +492,33 @@ ACTION itamapp::receiptitem(uint64_t appId, uint64_t itemId, string itemName, st
 {
     require_auth(_self);
     require_recipient(_self, from);
+}
+
+void itamapp::assertIfBlockUser(name user)
+{
+    blockTable blocks(_self, appId);
+    const auto& block = blocks.find(user.value);
+    eosio_assert(block == blocks.end(), "block user");
+}
+
+bool itamapp::isValidPrecision(string number, uint64_t precision)
+{
+    vector<string> score;
+
+    split(score, number, ".");
+
+    // score.size == 1 : decimal point size is 0
+    // score[1].size() <= precision : check decimal point of precision
+    return score.size == 1 || score[1].size() <= precision;
+}
+
+void itamapp::stringToAsset(asset &result, string number, uint64_t precision)
+{
+    vector<string> amount;
+    split(amount, number, ".");
+
+    uint64_t decimalPointSize = amount.size() == 1 ? 0 : amount[1].size();
+
+    result.symbol = symbol("", precision);
+    result.amount = stoull(amount[0] + amount[1], 0, 10) * pow(10, precision - decimalPointSize);
 }
