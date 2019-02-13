@@ -7,7 +7,7 @@
 using namespace eosio;
 using namespace std;
 
-CONTRACT itamapp : public contract {
+CONTRACT itamstoreapp : public contract {
     public:
         using contract::contract;
         using json = nlohmann::json;
@@ -41,7 +41,7 @@ CONTRACT itamapp : public contract {
         // buy
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, asset quantity);
-        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string packageName, string token, name from, asset quantity);
+        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity);
     private:
         // item
         TABLE item {
@@ -132,4 +132,4 @@ extern "C" { \
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
 #define COMMON_ACTION (transfer)(receiptapp)(receiptitem)
 
-EOSIO_DISPATCH_EX( itamapp, ITEM_ACTION APP_ACTION SETTLE_ACTION COMMON_ACTION )
+EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION COMMON_ACTION )

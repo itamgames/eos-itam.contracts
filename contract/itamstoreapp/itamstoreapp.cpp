@@ -1,6 +1,6 @@
-#include "itamapp.hpp"
+#include "itamstoreapp.hpp"
 
-ACTION itamapp::registitems(string params)
+ACTION itamstoreapp::registitems(string params)
 {
     require_auth(_self);
 
@@ -31,7 +31,7 @@ ACTION itamapp::registitems(string params)
     }
 }
 
-ACTION itamapp::modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam)
+ACTION itamstoreapp::modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam)
 {
     require_auth(_self);
     itemTable items(_self, appId);
@@ -45,7 +45,7 @@ ACTION itamapp::modifyitem(uint64_t appId, uint64_t itemId, string itemName, ass
     });
 }
 
-ACTION itamapp::deleteitems(string params)
+ACTION itamstoreapp::deleteitems(string params)
 {
     require_auth(_self);
     auto parsedParams = json::parse(params);
@@ -62,7 +62,7 @@ ACTION itamapp::deleteitems(string params)
     }
 }
 
-ACTION itamapp::refunditem(uint64_t appId, uint64_t itemId, name buyer)
+ACTION itamstoreapp::refunditem(uint64_t appId, uint64_t itemId, name buyer)
 {
     require_auth(_self);
 
@@ -106,7 +106,7 @@ ACTION itamapp::refunditem(uint64_t appId, uint64_t itemId, name buyer)
     eosio_assert(false, "can't find item");
 }
 
-ACTION itamapp::registapp(uint64_t appId, name owner, asset amount, string params)
+ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset amount, string params)
 {
     require_auth(_self);
 
@@ -140,7 +140,7 @@ ACTION itamapp::registapp(uint64_t appId, name owner, asset amount, string param
     }
 }
 
-ACTION itamapp::deleteapp(uint64_t appId)
+ACTION itamstoreapp::deleteapp(uint64_t appId)
 {
     require_auth(_self);
 
@@ -157,7 +157,7 @@ ACTION itamapp::deleteapp(uint64_t appId)
     for(auto item = items.begin(); item != items.end(); item = items.erase(item));
 }
 
-ACTION itamapp::refundapp(uint64_t appId, name buyer)
+ACTION itamstoreapp::refundapp(uint64_t appId, name buyer)
 {
     require_auth(_self);
 
@@ -202,7 +202,7 @@ ACTION itamapp::refundapp(uint64_t appId, name buyer)
     eosio_assert(false, "can't find app");
 }
 
-ACTION itamapp::setsettle(uint64_t appId, name account)
+ACTION itamstoreapp::setsettle(uint64_t appId, name account)
 {
     require_auth(_self);
 
@@ -226,7 +226,7 @@ ACTION itamapp::setsettle(uint64_t appId, name account)
     }
 }
 
-ACTION itamapp::claimsettle(uint64_t appId)
+ACTION itamstoreapp::claimsettle(uint64_t appId)
 {
     require_auth(_self);
 
@@ -269,17 +269,17 @@ ACTION itamapp::claimsettle(uint64_t appId)
     });
 }
 
-ACTION itamapp::defconfirm(uint64_t appId)
+ACTION itamstoreapp::defconfirm(uint64_t appId)
 {
     confirm(appId);
 }
 
-ACTION itamapp::menconfirm(uint64_t appId)
+ACTION itamstoreapp::menconfirm(uint64_t appId)
 {
     confirm(appId);
 }
 
-void itamapp::confirm(uint64_t appId)
+void itamstoreapp::confirm(uint64_t appId)
 {
     require_auth(_self);
 
@@ -326,7 +326,7 @@ void itamapp::confirm(uint64_t appId)
     }
 }
 
-ACTION itamapp::setconfig(uint64_t ratio, uint64_t refundableDay)
+ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
 {
     require_auth(_self);
 
@@ -351,7 +351,7 @@ ACTION itamapp::setconfig(uint64_t ratio, uint64_t refundableDay)
     
 }
 
-ACTION itamapp::transfer(uint64_t from, uint64_t to)
+ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
     if (data.from == _self || data.to != _self) return;
@@ -381,10 +381,6 @@ ACTION itamapp::transfer(uint64_t from, uint64_t to)
         itemTable items(_self, appId);
         const auto &item = items.get(itemId, "Invalid item id");
 
-        string itemName = params["itemName"];
-        eosio_assert(item.itemName == itemName, "Wrong item name");
-
-        string packageName = params["packageName"];
         string pushToken = params["token"];
         amount = item.eos.amount > 0 ? item.eos : item.itam;
 
@@ -392,7 +388,7 @@ ACTION itamapp::transfer(uint64_t from, uint64_t to)
             permission_level{_self, name("active")},
             _self, 
             name("receiptitem"),
-            make_tuple(appId, itemId, itemName, packageName, pushToken, data.from, data.quantity)
+            make_tuple(appId, itemId, item.itemName, pushToken, data.from, data.quantity)
         ).send();
     }
     else
@@ -435,13 +431,13 @@ ACTION itamapp::transfer(uint64_t from, uint64_t to)
     tx.send(now(), _self);
 }
 
-ACTION itamapp::receiptapp(uint64_t appId, name from, asset quantity)
+ACTION itamstoreapp::receiptapp(uint64_t appId, name from, asset quantity)
 {
     require_auth(_self);
     require_recipient(_self, from);
 }
 
-ACTION itamapp::receiptitem(uint64_t appId, uint64_t itemId, string itemName, string packageName, string token, name from, asset quantity)
+ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity)
 {
     require_auth(_self);
     require_recipient(_self, from);
