@@ -1,7 +1,43 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Feb  7 16:42:35 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Feb 13 17:50:32 2019",
     "version": "eosio::abi/1.1",
     "structs": [
+        {
+            "name": "achievement",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "acquisition",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achieveId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "data",
+                    "type": "string"
+                }
+            ]
+        },
         {
             "name": "app",
             "base": "",
@@ -21,12 +57,70 @@
             ]
         },
         {
+            "name": "block",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "blockuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "claimsettle",
             "base": "",
             "fields": [
                 {
                     "name": "appId",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "cnlachieve",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achieveId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
                 }
             ]
         },
@@ -97,6 +191,32 @@
                 {
                     "name": "itam",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "leaderboard",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "precision",
+                    "type": "uint64"
+                },
+                {
+                    "name": "minimumScore",
+                    "type": "string"
+                },
+                {
+                    "name": "maximumScore",
+                    "type": "string"
                 }
             ]
         },
@@ -207,10 +327,6 @@
                     "type": "string"
                 },
                 {
-                    "name": "packageName",
-                    "type": "string"
-                },
-                {
                     "name": "token",
                     "type": "string"
                 },
@@ -257,6 +373,24 @@
             ]
         },
         {
+            "name": "regachieve",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "achievementList",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "registapp",
             "base": "",
             "fields": [
@@ -279,11 +413,55 @@
             ]
         },
         {
+            "name": "registboard",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "boardList",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "registitems",
             "base": "",
             "fields": [
                 {
                     "name": "params",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "score",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "boardId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "score",
+                    "type": "string"
+                },
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "data",
                     "type": "string"
                 }
             ]
@@ -351,13 +529,42 @@
                     "type": "uint64"
                 }
             ]
+        },
+        {
+            "name": "unblockuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "user",
+                    "type": "name"
+                }
+            ]
         }
     ],
     "types": [],
     "actions": [
         {
+            "name": "acquisition",
+            "type": "acquisition",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "blockuser",
+            "type": "blockuser",
+            "ricardian_contract": ""
+        },
+        {
             "name": "claimsettle",
             "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cnlachieve",
+            "type": "cnlachieve",
             "ricardian_contract": ""
         },
         {
@@ -406,13 +613,28 @@
             "ricardian_contract": ""
         },
         {
+            "name": "regachieve",
+            "type": "regachieve",
+            "ricardian_contract": ""
+        },
+        {
             "name": "registapp",
             "type": "registapp",
             "ricardian_contract": ""
         },
         {
+            "name": "registboard",
+            "type": "registboard",
+            "ricardian_contract": ""
+        },
+        {
             "name": "registitems",
             "type": "registitems",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "score",
+            "type": "score",
             "ricardian_contract": ""
         },
         {
@@ -429,12 +651,31 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
+        },
+        {
+            "name": "unblockuser",
+            "type": "unblockuser",
+            "ricardian_contract": ""
         }
     ],
     "tables": [
         {
+            "name": "achievements",
+            "type": "achievement",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "apps",
             "type": "app",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "blocks",
+            "type": "block",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -449,6 +690,13 @@
         {
             "name": "items",
             "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "leaderboards",
+            "type": "leaderboard",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

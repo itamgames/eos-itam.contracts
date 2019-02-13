@@ -2,16 +2,19 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/multi_index.hpp>
 #include <eosiolib/transaction.hpp>
+#include <vector>
+#include <map>
 #include "../include/json.hpp"
 #include "../include/common.hpp"
 
 using namespace eosio;
 using namespace std;
+using namespace nlohmann;
 
-CONTRACT itamapp : public contract {
+CONTRACT itamstoreapp : public contract {
     public:
-        using contract::contract;
-        using json = nlohmann::json;
+        itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
+        configs(_self, _self.value){}
 
         struct transferData {
             name from;
@@ -32,8 +35,13 @@ CONTRACT itamapp : public contract {
         ACTION refundapp(uint64_t appId, name buyer);
 
         // leader board
-        ACTION registboard(uint64_t boardId, uint64_t appId, name owner);
-        ACTION score(uint64_t boardId, uint64_t appId, string score, name user, string data);
+        ACTION registboard(uint64_t appId, name owner, string boardList);
+        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string data);
+
+        // achievement
+        ACTION regachieve(uint64_t appId, name owner, string achievementList);
+        ACTION acquisition(uint64_t appId, uint64_t achieveId, name user, string data);
+        ACTION cnlachieve(uint64_t appId, uint64_t achieveId, name user, string reason);
         
         // settle
         void confirm(uint64_t appId);
@@ -43,10 +51,14 @@ CONTRACT itamapp : public contract {
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
 
+        // block
+        ACTION blockuser(uint64_t appId, name user, string reason);
+        ACTION unblockuser(uint64_t appId, name user);
+
         // buy
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, asset quantity);
-        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string packageName, string token, name from, asset quantity);
+        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity);
     private:
         // item
         TABLE item {
@@ -58,7 +70,6 @@ CONTRACT itamapp : public contract {
             uint64_t primary_key() const { return itemId; }
         };
         typedef multi_index<"items"_n, item> itemTable;
-
 
 
         // app
@@ -73,39 +84,37 @@ CONTRACT itamapp : public contract {
         typedef multi_index<"apps"_n, app> appTable;
 
 
-
-        // achievement
-        TABLE achievement
-        {
-            id_type id;
-            string name;
-
-            id_type primary_key() const { return id; }
-        };
-        typedef mutli_index<"achievements"_n, achievement> achievementTable
-
-
-
         // leader board
         TABLE leaderboard
         {
-            id_type id;
+            uint64_t id;
             string name;
             uint64_t precision;
             string minimumScore;
             string maximumScore;
-            
-            id_type primary_key() const { return id; }
+
+            uint64_t primary_key() const { return id; }
         };
         typedef multi_index<"leaderboards"_n, leaderboard> leaderboardTable;
 
+        TABLE achievement
+        {
+            uint64_t id;
+            string name;
+
+            uint64_t primary_key() const { return id; }
+        };
+        typedef multi_index<"achievements"_n, achievement> achievementTable;
+
         TABLE block
         {
-            name owner;
-            uint64_t primary_key() const { return owner.value; }
+            name user;
+            uint64_t timestamp;
+            string reason;
+
+            uint64_t primary_key() const { return user.value; }
         };
         typedef multi_index<"blocks"_n, block> blockTable;
-
 
 
         // settle
@@ -148,8 +157,16 @@ CONTRACT itamapp : public contract {
             uint64_t primary_key() const { return key.value; }
         };
         typedef multi_index<"configs"_n, config> configTable;
+        configTable configs;
     
     private:
+        void assertIfBlockUser(name user, uint64_t appId);
+        void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
+        void stringToAsset(asset &result, string number, uint64_t precision);
+        template<typename T>
+        void transferApp(uint64_t appId, transferData& data, T params);
+        template<typename T>
+        void transferItem(uint64_t appId, transferData& data, T params);
         bool isValidPrecision(string number, uint64_t precision);
 };
 
@@ -171,6 +188,10 @@ extern "C" { \
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
+#define LEADERBOARD_ACTION (registboard)(score)
+#define ACHIEVEMENT_ACTION (regachieve)(acquisition)(cnlachieve)
+#define BLOCK_ACTION (blockuser)(unblockuser)
 #define COMMON_ACTION (transfer)(receiptapp)(receiptitem)
 
-EOSIO_DISPATCH_EX( itamapp, ITEM_ACTION APP_ACTION SETTLE_ACTION COMMON_ACTION )
+EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION COMMON_ACTION
+                                 LEADERBOARD_ACTION ACHIEVEMENT_ACTION BLOCK_ACTION )
