@@ -50,6 +50,7 @@ CONTRACT itamstoreapp : public contract {
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
+        ACTION delservice(uint64_t appId);
 
         // block
         ACTION blockuser(uint64_t appId, name user, string reason);

@@ -568,6 +568,17 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 
+ACTION itamstoreapp::delservice(uint64_t appId)
+{
+    require_auth(_self);
+
+    leaderboardTable boards(_self, appId);
+    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
+
+    achievementTable achievements(_self, appId);
+    for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
+}
+
 void itamstoreapp::assertIfBlockUser(name user, uint64_t appId)
 {
     blockTable blocks(_self, appId);
