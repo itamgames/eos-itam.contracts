@@ -23,9 +23,9 @@ ACTION itamstoreapp::registitems(string params)
         items.emplace(_self, [&](auto &item) {
             item.itemId = registItems[i]["itemId"];
             item.itemName = registItems[i]["itemName"];
-            item.eos.amount = stoull(registItems[i]["eos"].get<std::string>(), 0, 10) * 10000;
+            item.eos.amount = stoull(replaceAll(registItems[i]["eos"], ".", ""), 0, 10);
             item.eos.symbol = eosSymbol;
-            item.itam.amount = stoull(registItems[i]["itam"].get<std::string>(), 0, 10) * 10000;
+            item.itam.amount = stoull(replaceAll(registItems[i]["itam"], ".", ""), 0, 10);
             item.itam.symbol = itamSymbol;
         });
     }
