@@ -462,7 +462,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     if (data.from == _self || data.to != _self) return;
     
     memoData memo;
-    parseMemo(&memo, data.memo, ",");
+    parseMemo(&memo, data.memo, "|");
 
     if(memo.category == "app")
     {
