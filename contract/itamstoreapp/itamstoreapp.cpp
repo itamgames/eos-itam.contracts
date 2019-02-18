@@ -460,77 +460,76 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
     if (data.from == _self || data.to != _self) return;
+    
+    memoData memo;
+    parseMemo(&memo, data.memo, ",");
 
-    auto params = json::parse(data.memo);
-    uint64_t appId = params["appId"];
-    string category = params["category"];
-
-    if(category == "app")
+    if(memo.category == "app")
     {
-        transferApp(appId, data, params);
+        transferApp(data, memo);
     }
-    else if(category == "item")
+    else if(memo.category == "item")
     {
-        transferItem(appId, data, params);
+        transferItem(data, memo);
     }
     else
     {
         eosio_assert(false, "invalid category");
     }
+    
 
     transaction tx;
     tx.actions.emplace_back(
         permission_level(_self, name("active")),
         _self,
         name("defconfirm"),
-        make_tuple(appId)
+        make_tuple(memo.appId)
     );
 
     const auto& config = configs.get(_self.value, "refundable day must be set first");
     
-
     tx.delay_sec = config.refundableDay * SECONDS_OF_DAY;
     tx.send(now(), _self);
 }
 
-template <typename T>
-void itamstoreapp::transferApp(uint64_t appId, transferData& data, T params)
+void itamstoreapp::transferApp(transferData& txData, memoData& memo)
 {
+    uint64_t appId = stoull(memo.appId, 0, 10);
     appTable apps(_self, _self.value);
     const auto& app = apps.get(appId, "Invalid app id");
 
-    eosio_assert(data.quantity == app.amount, "Invalid purchase value");
+    eosio_assert(txData.quantity == app.amount, "Invalid purchase value");
 
     action(
         permission_level{_self, name("active")},
         _self, 
         name("receiptapp"),
-        make_tuple(appId, data.from, data.quantity)
+        make_tuple(appId, txData.from, txData.quantity)
     ).send();
 
-    setPendingTable(appId, NULL, data.from, data.quantity);
+    setPendingTable(appId, NULL, txData.from, txData.quantity);
 }
 
-template <typename T>
-void itamstoreapp::transferItem(uint64_t appId, transferData& data, T params)
+void itamstoreapp::transferItem(transferData& txData, memoData& memo)
 {
-    uint64_t itemId = params["itemId"];
+    uint64_t appId = stoull(memo.appId, 0, 10);
+    uint64_t itemId = stoull(memo.itemId, 0, 10);
+
     itemTable items(_self, appId);
     const auto& item = items.get(itemId, "Invalid item id");
 
-    string pushToken = params["token"];
     asset amount = item.eos.amount > 0 ? item.eos : item.itam;
 
-    eosio_assert(data.quantity == amount, "Invalid purchase value");
+    eosio_assert(txData.quantity == amount, "Invalid purchase value");
 
     action(
         permission_level{_self, name("active")},
         _self, 
         name("receiptitem"),
-        make_tuple(appId, itemId, item.itemName, pushToken, data.from, data.quantity)
+        make_tuple(appId, itemId, item.itemName, memo.token, txData.from, txData.quantity)
     ).send();
 
-    setPendingTable(appId, itemId, data.from, data.quantity);
+    setPendingTable(appId, itemId, txData.from, txData.quantity);
 }
 
 void itamstoreapp::setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity)

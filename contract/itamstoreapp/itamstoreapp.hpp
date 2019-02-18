@@ -23,6 +23,13 @@ CONTRACT itamstoreapp : public contract {
             string memo;
         };
 
+        struct memoData {
+            string category;
+            string appId;
+            string itemId;
+            string token;
+        };
+
         // item 
         ACTION registitems(string params);
         ACTION deleteitems(string params);
@@ -164,10 +171,8 @@ CONTRACT itamstoreapp : public contract {
         void assertIfBlockUser(name user, uint64_t appId);
         void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
         void stringToAsset(asset &result, string number, uint64_t precision);
-        template<typename T>
-        void transferApp(uint64_t appId, transferData& data, T params);
-        template<typename T>
-        void transferItem(uint64_t appId, transferData& data, T params);
+        void transferApp(transferData& txData, memoData& memo);
+        void transferItem(transferData& txData, memoData& memo);
         bool isValidPrecision(string number, uint64_t precision);
 };
 
