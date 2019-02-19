@@ -25,13 +25,15 @@ CONTRACT itamdigasset : contract
         }
 
         ACTION create(name issuer, string name, uint64_t appId, string itemStructs);
-        ACTION issue(name to, asset quantity, uint64_t itemId, string itemName, bool fungible, string itemDetail, string memo);
+        ACTION issue(name to, asset quantity, uint64_t itemId, string itemName, string category, bool fungible, string option, string memo);
         ACTION transfer(name from, name to, asset quantity, uint64_t itemId, string memo);
-        ACTION burn(name user, asset quantity, uint64_t itemId);
+        ACTION addcategory(string symbolName, string categoryName, vector<string> fields);
+        ACTION modify(name owner, string symbolName, uint64_t itemId, string itemName, string option);
+        ACTION burn(name owner, asset quantity, uint64_t itemId);
     private:
-        struct itemStruct
+        struct category
         {
-            string category;
+            string name;
             vector<string> fields;
         };
 
@@ -40,7 +42,7 @@ CONTRACT itamdigasset : contract
             name issuer;
             asset supply;
             uint64_t appId;
-            vector<itemStruct> itemStructs;
+            vector<category> categories;
 
             uint64_t primary_key() const { return supply.symbol.code().raw(); }
         };
@@ -49,6 +51,7 @@ CONTRACT itamdigasset : contract
 
         struct item
         {
+            string category;
             string itemName;
             bool fungible;
             uint64_t count;
@@ -64,10 +67,10 @@ CONTRACT itamdigasset : contract
         };
         typedef multi_index<"accounts"_n, account> accountTable;
 
-        void addBalance(name owner, name ramPayer, asset quantity, uint64_t itemId, const string& itemName, bool fungible, const string& data);
+        void addBalance(name owner, name ramPayer, asset quantity, string category, uint64_t itemId, const string& itemName, bool fungible, const string& data);
         void subBalance(name to, asset quantity, uint64_t itemId);
-        inline void validateItemDetail(const vector<itemStruct>& itemStructs, const string& itemDetail);
-        vector<string> getItemStruct(const vector<itemStruct>& itemStructs, const string& category);
+        inline void validateItemDetail(const vector<category>& categories, const string& categoryName, const string& itemDetail);
+        vector<string> getFields(const vector<category>& categories, const string& category);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
@@ -81,4 +84,4 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX(itamdigasset, (test)(create)(issue)(burn)(transfer))
+EOSIO_DISPATCH_EX(itamdigasset, (test)(create)(issue)(burn)(transfer)(modify)(addcategory))

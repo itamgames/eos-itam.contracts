@@ -1,6 +1,6 @@
 #include "itamdigasset.hpp"
 
-ACTION itamdigasset::create(name issuer, string name, uint64_t appId, string itemStructs)
+ACTION itamdigasset::create(name issuer, string name, uint64_t appId, string categories)
 {
     require_auth(_self);
 
@@ -9,29 +9,28 @@ ACTION itamdigasset::create(name issuer, string name, uint64_t appId, string ite
     eosio_assert(gameSymbol.is_valid(), "Invalid symbol");
     eosio_assert(is_account(issuer), "Invalid issuer");
 
-    currencyTable currencies(_self, _self.value);
     const auto& currency = currencies.find(gameSymbol.code().raw());
     eosio_assert(currency == currencies.end(), "Already token created");
 
-    auto parsedItemStructs = json::parse(itemStructs);
+    auto parsedCategories = json::parse(categories);
 
     currencies.emplace(_self, [&](auto &c) {
         c.issuer = issuer;
         c.supply = asset(0, gameSymbol);
         c.appId = appId;
 
-        for(int i = 0; i < parsedItemStructs.size(); i++)
+        for(int i = 0; i < parsedCategories.size(); i++)
         {
-            auto parsedItemStruct = parsedItemStructs[i];
-            string category = parsedItemStruct["category"];
-            vector<string> fields = parsedItemStruct["fields"];
+            auto parsedCategory = parsedCategories[i];
+            string categoryName = parsedCategory["category"];
+            vector<string> fields = parsedCategory["fields"];
 
-            c.itemStructs.push_back(itemStruct{category, fields});
+            c.categories.push_back(category{categoryName, fields});
         }
     });
 }
 
-ACTION itamdigasset::issue(name to, asset quantity, uint64_t itemId, string itemName, bool fungible, string itemDetail, string memo)
+ACTION itamdigasset::issue(name to, asset quantity, uint64_t itemId, string itemName, string category, bool fungible, string itemDetail, string memo)
 {
     eosio_assert(quantity.amount > 0, "must issue positive quantity");
     eosio_assert(!(fungible == false && quantity.amount > 1), "invalid fungible value");
@@ -45,13 +44,44 @@ ACTION itamdigasset::issue(name to, asset quantity, uint64_t itemId, string item
         c.supply += quantity;
     });
 
-    validateItemDetail(currency->itemStructs, itemDetail);
-    addBalance(currency->issuer, currency->issuer, quantity, itemId, itemName, fungible, itemDetail);
+    validateItemDetail(currency->categories, category, itemDetail);
+    addBalance(currency->issuer, currency->issuer, quantity, category, itemId, itemName, fungible, itemDetail);
 
     if(to != currency->issuer)
     {
         SEND_INLINE_ACTION(*this, transfer, {currency->issuer,"active"_n}, {currency->issuer, to, quantity, itemId, memo});
     }
+}
+
+ACTION itamdigasset::addcategory(string symbolName, string categoryName, vector<string> fields)
+{
+    require_auth(_self);
+
+    const auto& currency = currencies.require_find(symbol(symbolName, 0).code().raw(), "invalid symbol");
+    for(auto iter = currency->categories.begin(); iter != currency->categories.end(); iter++)
+    {
+        eosio_assert(iter->name != categoryName, "Duplicate category name");
+    }
+
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.categories.push_back(category{categoryName, fields});
+    });
+}
+
+ACTION itamdigasset::modify(name owner, string symbolName, uint64_t itemId, string itemName, string option)
+{
+    require_auth(_self);
+
+    accountTable accounts(_self, owner.value);
+    const auto& account = accounts.require_find(symbol{symbolName, 0}.code().raw(), "invalid symbol");
+
+    map<uint64_t, item> items = account->items;
+    eosio_assert(items.count(itemId) > 0, "no item object found");
+
+    accounts.modify(account, _self, [&](auto &a) {
+        a.items[itemId].itemName = itemName;
+        a.items[itemId].option = option;
+    });    
 }
 
 ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t itemId, string memo)
@@ -70,21 +100,21 @@ ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t itemI
     map<uint64_t, item> items = fromAccount->items;
     item fromItem = items[itemId];
     
-    addBalance(to, from, quantity, itemId, fromItem.itemName, fromItem.fungible, fromItem.option);
+    addBalance(to, from, quantity, fromItem.category, itemId, fromItem.itemName, fromItem.fungible, fromItem.option);
     subBalance(from, quantity, itemId);
     
     require_recipient(from);
     require_recipient(to);
 }
 
-ACTION itamdigasset::burn(name user, asset quantity, uint64_t itemId)
+ACTION itamdigasset::burn(name owner, asset quantity, uint64_t itemId)
 {
     require_auth(_self);
     eosio_assert(quantity.amount > 0, "quantity must be positive");
-    subBalance(user, quantity, itemId);
+    subBalance(owner, quantity, itemId);
 }
 
-void itamdigasset::addBalance(name owner, name ramPayer, asset quantity, uint64_t itemId, const string& itemName, bool fungible, const string& data)
+void itamdigasset::addBalance(name owner, name ramPayer, asset quantity, string category, uint64_t itemId, const string& itemName, bool fungible, const string& data)
 {
     accountTable accounts(_self, owner.value);
     const auto& account = accounts.find(quantity.symbol.code().raw());
@@ -92,7 +122,7 @@ void itamdigasset::addBalance(name owner, name ramPayer, asset quantity, uint64_
     bool isAlreadyItem = account->items.count(itemId) > 0;
 
     eosio_assert(!(fungible == false && isAlreadyItem), "Already issued item id");
-    item i { itemName, fungible, (uint64_t)quantity.amount, data };
+    item i { category, itemName, fungible, (uint64_t)quantity.amount, data };
 
     if(account == accounts.end())
     {
@@ -105,9 +135,9 @@ void itamdigasset::addBalance(name owner, name ramPayer, asset quantity, uint64_
     {
         accounts.modify(account, ramPayer, [&](auto &a) {
             a.balance += quantity;
-
             if(isAlreadyItem)
             {
+                eosio_assert(a.items[itemId].category == category, "invalid category");
                 a.items[itemId].count += quantity.amount;
             }
             else
@@ -140,13 +170,10 @@ void itamdigasset::subBalance(name to, asset quantity, uint64_t itemId)
     });
 }
 
-void itamdigasset::validateItemDetail(const vector<itemStruct>& itemStructs, const string& itemDetail)
+void itamdigasset::validateItemDetail(const vector<category>& categories, const string& categoryName, const string& itemDetail)
 {
-    auto parsedItemDetail = json::parse(itemDetail);
-
-    string category = parsedItemDetail["category"];
-    auto requestedFields = parsedItemDetail["fields"];
-    vector<string> requireFields = getItemStruct(itemStructs, category);
+    auto requestedFields = json::parse(itemDetail);
+    vector<string> requireFields = getFields(categories, categoryName);
 
     eosio_assert(requestedFields.size() == requireFields.size(), "invalid item detail");
     for(auto iter = requireFields.begin(); iter != requireFields.end(); iter++)
@@ -155,11 +182,11 @@ void itamdigasset::validateItemDetail(const vector<itemStruct>& itemStructs, con
     }
 }
 
-vector<string> itamdigasset::getItemStruct(const vector<itemStruct>& itemStructs, const string& category)
+vector<string> itamdigasset::getFields(const vector<category>& categories, const string& category)
 {
-    for(auto iter = itemStructs.begin(); iter != itemStructs.end(); iter++)
+    for(auto iter = categories.begin(); iter != categories.end(); iter++)
     {
-        if(iter->category == category)
+        if(iter->name == category)
         {
             return iter->fields;
         }

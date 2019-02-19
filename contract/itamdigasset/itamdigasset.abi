@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 09:50:10 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 17:34:27 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -17,11 +17,29 @@
             ]
         },
         {
+            "name": "addcategory",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbolName",
+                    "type": "string"
+                },
+                {
+                    "name": "categoryName",
+                    "type": "string"
+                },
+                {
+                    "name": "fields",
+                    "type": "string[]"
+                }
+            ]
+        },
+        {
             "name": "burn",
             "base": "",
             "fields": [
                 {
-                    "name": "user",
+                    "name": "owner",
                     "type": "name"
                 },
                 {
@@ -31,6 +49,20 @@
                 {
                     "name": "itemId",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "category",
+            "base": "",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "fields",
+                    "type": "string[]"
                 }
             ]
         },
@@ -73,8 +105,8 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "itemStructs",
-                    "type": "itemStruct[]"
+                    "name": "categories",
+                    "type": "category[]"
                 }
             ]
         },
@@ -99,11 +131,15 @@
                     "type": "string"
                 },
                 {
+                    "name": "category",
+                    "type": "string"
+                },
+                {
                     "name": "fungible",
                     "type": "bool"
                 },
                 {
-                    "name": "itemDetail",
+                    "name": "option",
                     "type": "string"
                 },
                 {
@@ -116,6 +152,10 @@
             "name": "item",
             "base": "",
             "fields": [
+                {
+                    "name": "category",
+                    "type": "string"
+                },
                 {
                     "name": "itemName",
                     "type": "string"
@@ -135,16 +175,28 @@
             ]
         },
         {
-            "name": "itemStruct",
+            "name": "modify",
             "base": "",
             "fields": [
                 {
-                    "name": "category",
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "symbolName",
                     "type": "string"
                 },
                 {
-                    "name": "fields",
-                    "type": "string[]"
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemName",
+                    "type": "string"
+                },
+                {
+                    "name": "option",
+                    "type": "string"
                 }
             ]
         },
@@ -197,6 +249,11 @@
     "types": [],
     "actions": [
         {
+            "name": "addcategory",
+            "type": "addcategory",
+            "ricardian_contract": ""
+        },
+        {
             "name": "burn",
             "type": "burn",
             "ricardian_contract": ""
@@ -209,6 +266,11 @@
         {
             "name": "issue",
             "type": "issue",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modify",
+            "type": "modify",
             "ricardian_contract": ""
         },
         {
