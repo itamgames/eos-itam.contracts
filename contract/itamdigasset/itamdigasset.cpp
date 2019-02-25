@@ -1,41 +1,41 @@
 #include "itamdigasset.hpp"
 
-ACTION itamdigasset::create(name issuer, string name, uint64_t appId, string categories)
+ACTION itamdigasset::create(name issuer, name symbol_name, uint64_t app_id, string structs)
 {
     require_auth(_self);
 
-    symbol gameSymbol(name, 0);
+    symbol game_symbol(symbol_name.to_string(), 0);
     
-    eosio_assert(gameSymbol.is_valid(), "Invalid symbol");
+    eosio_assert(game_symbol.is_valid(), "Invalid symbol");
     eosio_assert(is_account(issuer), "Invalid issuer");
 
-    const auto& currency = currencies.find(gameSymbol.code().raw());
+    const auto& currency = currencies.find(game_symbol.code().raw());
     eosio_assert(currency == currencies.end(), "Already token created");
 
-    auto parsedCategories = json::parse(categories);
+    auto parsed_structs = json::parse(structs);
 
     currencies.emplace(_self, [&](auto &c) {
         c.issuer = issuer;
-        c.supply = asset(0, gameSymbol);
-        c.appId = appId;
+        c.supply = asset(0, game_symbol);
+        c.app_id = app_id;
 
-        for(int i = 0; i < parsedCategories.size(); i++)
+        for(int i = 0; i < parsed_structs.size(); i++)
         {
-            auto parsedCategory = parsedCategories[i];
-            string categoryName = parsedCategory["category"];
-            vector<string> fields = parsedCategory["fields"];
+            auto parsed_category = parsed_structs[i];
+            string category_name = parsed_category["category"];
+            vector<string> fields = parsed_category["fields"];
 
-            c.categories.push_back(category{categoryName, fields});
+            c.categories.push_back(category{category_name, fields});
         }
     });
 }
 
-ACTION itamdigasset::issue(name to, asset quantity, uint64_t itemId, string itemName, string category, bool fungible, string itemDetail, string memo)
+ACTION itamdigasset::issue(name to, asset quantity, uint64_t token_id, string token_name, string category, bool fungible, string options, string reason)
 {
     eosio_assert(quantity.amount > 0, "must issue positive quantity");
     eosio_assert(!(fungible == false && quantity.amount > 1), "invalid fungible value");
-    eosio_assert(quantity.symbol.precision() == 0, "precision must be set 0");
-    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    // eosio_assert(quantity.symbol.precision() == 0, "precision must be set 0");
+    eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
     eosio_assert(has_auth(currency->issuer) || has_auth(name("itamstoreapp")), "Not allowed account");
@@ -44,145 +44,169 @@ ACTION itamdigasset::issue(name to, asset quantity, uint64_t itemId, string item
         c.supply += quantity;
     });
 
-    validateItemDetail(currency->categories, category, itemDetail);
-    addBalance(currency->issuer, currency->issuer, quantity, category, itemId, itemName, fungible, itemDetail);
+    validate_options(currency->categories, category, options);
+    add_balance(currency->issuer, currency->issuer, quantity, category, token_id, token_name, fungible, options);
 
     if(to != currency->issuer)
     {
-        SEND_INLINE_ACTION(*this, transfer, {currency->issuer,"active"_n}, {currency->issuer, to, quantity, itemId, memo});
+        SEND_INLINE_ACTION(*this, transfer, {currency->issuer,"active"_n}, {currency->issuer, to, quantity, token_id, reason});
     }
 }
 
-ACTION itamdigasset::addcategory(string symbolName, string categoryName, vector<string> fields)
+ACTION itamdigasset::addcategory(name symbol_name, string category_name, vector<string> fields)
 {
     require_auth(_self);
 
-    const auto& currency = currencies.require_find(symbol(symbolName, 0).code().raw(), "invalid symbol");
+    const auto& currency = currencies.require_find(symbol(symbol_name.to_string(), 0).code().raw(), "invalid symbol");
     for(auto iter = currency->categories.begin(); iter != currency->categories.end(); iter++)
     {
-        eosio_assert(iter->name != categoryName, "Duplicate category name");
+        eosio_assert(iter->name != category_name, "Duplicate category name");
     }
 
     currencies.modify(currency, _self, [&](auto &c) {
-        c.categories.push_back(category{categoryName, fields});
+        c.categories.push_back(category{category_name, fields});
     });
 }
 
-ACTION itamdigasset::modify(name owner, string symbolName, uint64_t itemId, string itemName, string option)
+ACTION itamdigasset::modify(name owner, name symbol_name, uint64_t token_id, string token_name, string options, string reason)
 {
     require_auth(_self);
 
-    accountTable accounts(_self, owner.value);
-    const auto& account = accounts.require_find(symbol{symbolName, 0}.code().raw(), "invalid symbol");
+    account_table accounts(_self, owner.value);
+    const auto& account = accounts.require_find(symbol(symbol_name.to_string(), 0).code().raw(), "invalid symbol");
 
-    map<uint64_t, item> items = account->items;
-    eosio_assert(items.count(itemId) > 0, "no item object found");
+    map<uint64_t, token> tokens = account->tokens;
+    eosio_assert(tokens.count(token_id) > 0, "no item object found");
 
     accounts.modify(account, _self, [&](auto &a) {
-        a.items[itemId].itemName = itemName;
-        a.items[itemId].option = option;
+        a.tokens[token_id].token_name = token_name;
+        a.tokens[token_id].options = options;
     });    
 }
 
-ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t itemId, string memo)
+ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t token_id, string memo)
 {
     require_auth(from);
 
     eosio_assert(from != to, "cannot transfer to self");
     eosio_assert(is_account(to), "to account does not exist");
     eosio_assert(quantity.amount > 0, "must transfer positive quantity");
-    eosio_assert(quantity.symbol.precision() == 0, "precision must be set 0");
+    // eosio_assert(quantity.symbol.precision() == 0, "precision must be set 0");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
-    accountTable accounts(_self, from.value);
-    const auto& fromAccount = accounts.require_find(quantity.symbol.code().raw(), "not enough balance");
+    account_table accounts(_self, from.value);
+    const auto& from_account = accounts.require_find(quantity.symbol.code().raw(), "not enough balance");
     
-    map<uint64_t, item> items = fromAccount->items;
-    item fromItem = items[itemId];
+    map<uint64_t, token> tokens = from_account->tokens;
+    token from_token = tokens[token_id];
     
-    addBalance(to, from, quantity, fromItem.category, itemId, fromItem.itemName, fromItem.fungible, fromItem.option);
-    subBalance(from, quantity, itemId);
+    add_balance(to, from, quantity, from_token.category, token_id, from_token.token_name, from_token.fungible, from_token.options);
+    sub_balance(from, quantity, token_id);
     
     require_recipient(from);
     require_recipient(to);
 }
 
-ACTION itamdigasset::burn(name owner, asset quantity, uint64_t itemId)
+ACTION itamdigasset::transfernft(name from, name to, name symbol_name, vector<uint64_t> token_ids, string memo)
+{
+    require_auth(from);
+
+    eosio_assert(from != to, "cannot transfer to self");
+    eosio_assert(is_account(to), "to account does not exist");
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+    // currenc
+    // for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
+    // {
+    //     add_balance(to, from, );
+    //     sub_balance(from, )
+    // }
+
+    // eosio_assert(from != to, "cannot transfer to self");
+}
+
+ACTION itamdigasset::burn(name owner, asset quantity, uint64_t token_id, string reason)
 {
     require_auth(_self);
     eosio_assert(quantity.amount > 0, "quantity must be positive");
-    subBalance(owner, quantity, itemId);
+    sub_balance(owner, quantity, token_id);
 }
 
-void itamdigasset::addBalance(name owner, name ramPayer, asset quantity, string category, uint64_t itemId, const string& itemName, bool fungible, const string& data)
+ACTION itamdigasset::burnnft(name owner, asset quantity, vector<uint64_t> token_ids, string reason)
 {
-    accountTable accounts(_self, owner.value);
+
+}
+
+void itamdigasset::add_balance(name owner, name ram_payer, asset quantity, string category, uint64_t token_id, const string& token_name, bool fungible, const string& options)
+{
+    account_table accounts(_self, owner.value);
     const auto& account = accounts.find(quantity.symbol.code().raw());
 
-    bool isAlreadyItem = account->items.count(itemId) > 0;
+    bool is_already_item = account->tokens.count(token_id) > 0;
 
-    eosio_assert(!(fungible == false && isAlreadyItem), "Already issued item id");
-    item i { category, itemName, fungible, (uint64_t)quantity.amount, data };
+    eosio_assert(!(fungible == false && is_already_item), "Already issued item id");
+    token t { category, token_name, fungible, (uint64_t)quantity.amount, options };
 
     if(account == accounts.end())
     {
-        accounts.emplace(ramPayer, [&](auto &a) {
+        accounts.emplace(ram_payer, [&](auto &a) {
             a.balance = quantity;
-            a.items[itemId] = i;
+            a.tokens[token_id] = t;
         });
     }
     else
     {
-        accounts.modify(account, ramPayer, [&](auto &a) {
+        accounts.modify(account, ram_payer, [&](auto &a) {
             a.balance += quantity;
-            if(isAlreadyItem)
+            if(is_already_item)
             {
-                eosio_assert(a.items[itemId].category == category, "invalid category");
-                a.items[itemId].count += quantity.amount;
+                eosio_assert(a.tokens[token_id].category == category, "invalid category");
+                a.tokens[token_id].count += quantity.amount;
             }
             else
             {
-                a.items[itemId] = i;
+                a.tokens[token_id] = t;
             }
         });
     }
 }
 
-void itamdigasset::subBalance(name to, asset quantity, uint64_t itemId)
+void itamdigasset::sub_balance(name to, asset quantity, uint64_t token_id)
 {
-    accountTable accounts(_self, to.value);
+    account_table accounts(_self, to.value);
     const auto& account = accounts.require_find(quantity.symbol.code().raw(), "not enough balance");
-    map<uint64_t, item> items = account->items;
+    map<uint64_t, token> tokens = account->tokens;
     
-    eosio_assert(items.count(itemId) > 0, "no item object found");
-    eosio_assert(items[itemId].count >= quantity.amount, "quantity must below than items count");
+    eosio_assert(tokens.count(token_id) > 0, "no item object found");
+    eosio_assert(tokens[token_id].count >= quantity.amount, "quantity must below than items count");
 
     accounts.modify(account, _self, [&](auto &a) {
         a.balance -= quantity;
-        if(a.items.count(itemId) > 0 && a.items[itemId].count - quantity.amount == 0)
+        if(a.tokens.count(token_id) > 0 && a.tokens[token_id].count - quantity.amount == 0)
         {
-            a.items.erase(itemId);
+            a.tokens.erase(token_id);
         }
         else
         {
-            a.items[itemId].count -= quantity.amount;
+            a.tokens[token_id].count -= quantity.amount;
         }
     });
 }
 
-void itamdigasset::validateItemDetail(const vector<category>& categories, const string& categoryName, const string& itemDetail)
+void itamdigasset::validate_options(const vector<category>& categories, const string& category_name, const string& options)
 {
-    auto requestedFields = json::parse(itemDetail);
-    vector<string> requireFields = getFields(categories, categoryName);
+    auto requested_fields = json::parse(options);
+    vector<string> require_fields = get_fields(categories, category_name);
 
-    eosio_assert(requestedFields.size() == requireFields.size(), "invalid item detail");
-    for(auto iter = requireFields.begin(); iter != requireFields.end(); iter++)
+    eosio_assert(requested_fields.size() == require_fields.size(), "invalid item detail");
+    
+    for(auto iter = require_fields.begin(); iter != require_fields.end(); iter++)
     {
-        eosio_assert(requestedFields.count(*iter) > 0, "invalid item detail");
+        eosio_assert(requested_fields.count(*iter) > 0, "invalid item detail");
     }
 }
 
-vector<string> itamdigasset::getFields(const vector<category>& categories, const string& category)
+vector<string> itamdigasset::get_fields(const vector<category>& categories, const string& category)
 {
     for(auto iter = categories.begin(); iter != categories.end(); iter++)
     {

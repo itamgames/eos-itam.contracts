@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Feb 19 17:34:27 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Feb 25 16:13:39 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -11,8 +11,8 @@
                     "type": "asset"
                 },
                 {
-                    "name": "items",
-                    "type": "pair_uint64_item[]"
+                    "name": "tokens",
+                    "type": "pair_uint64_token[]"
                 }
             ]
         },
@@ -21,11 +21,11 @@
             "base": "",
             "fields": [
                 {
-                    "name": "symbolName",
-                    "type": "string"
+                    "name": "symbol_name",
+                    "type": "name"
                 },
                 {
-                    "name": "categoryName",
+                    "name": "category_name",
                     "type": "string"
                 },
                 {
@@ -47,8 +47,34 @@
                     "type": "asset"
                 },
                 {
-                    "name": "itemId",
+                    "name": "token_id",
                     "type": "uint64"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "burnnft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "token_ids",
+                    "type": "uint64[]"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
                 }
             ]
         },
@@ -75,15 +101,15 @@
                     "type": "name"
                 },
                 {
-                    "name": "name",
-                    "type": "string"
+                    "name": "symbol_name",
+                    "type": "name"
                 },
                 {
-                    "name": "appId",
+                    "name": "app_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "itemStructs",
+                    "name": "structs",
                     "type": "string"
                 }
             ]
@@ -101,7 +127,7 @@
                     "type": "asset"
                 },
                 {
-                    "name": "appId",
+                    "name": "app_id",
                     "type": "uint64"
                 },
                 {
@@ -123,11 +149,11 @@
                     "type": "asset"
                 },
                 {
-                    "name": "itemId",
+                    "name": "token_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "itemName",
+                    "name": "token_name",
                     "type": "string"
                 },
                 {
@@ -139,37 +165,11 @@
                     "type": "bool"
                 },
                 {
-                    "name": "option",
+                    "name": "options",
                     "type": "string"
                 },
                 {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "item",
-            "base": "",
-            "fields": [
-                {
-                    "name": "category",
-                    "type": "string"
-                },
-                {
-                    "name": "itemName",
-                    "type": "string"
-                },
-                {
-                    "name": "fungible",
-                    "type": "bool"
-                },
-                {
-                    "name": "count",
-                    "type": "uint64"
-                },
-                {
-                    "name": "option",
+                    "name": "reason",
                     "type": "string"
                 }
             ]
@@ -183,25 +183,29 @@
                     "type": "name"
                 },
                 {
-                    "name": "symbolName",
-                    "type": "string"
+                    "name": "symbol_name",
+                    "type": "name"
                 },
                 {
-                    "name": "itemId",
+                    "name": "token_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "itemName",
+                    "name": "token_name",
                     "type": "string"
                 },
                 {
-                    "name": "option",
+                    "name": "options",
+                    "type": "string"
+                },
+                {
+                    "name": "reason",
                     "type": "string"
                 }
             ]
         },
         {
-            "name": "pair_uint64_item",
+            "name": "pair_uint64_token",
             "base": "",
             "fields": [
                 {
@@ -210,7 +214,7 @@
                 },
                 {
                     "name": "value",
-                    "type": "item"
+                    "type": "token"
                 }
             ]
         },
@@ -218,6 +222,32 @@
             "name": "test",
             "base": "",
             "fields": []
+        },
+        {
+            "name": "token",
+            "base": "",
+            "fields": [
+                {
+                    "name": "category",
+                    "type": "string"
+                },
+                {
+                    "name": "token_name",
+                    "type": "string"
+                },
+                {
+                    "name": "fungible",
+                    "type": "bool"
+                },
+                {
+                    "name": "count",
+                    "type": "uint64"
+                },
+                {
+                    "name": "options",
+                    "type": "string"
+                }
+            ]
         },
         {
             "name": "transfer",
@@ -236,12 +266,48 @@
                     "type": "asset"
                 },
                 {
-                    "name": "itemId",
+                    "name": "token_id",
                     "type": "uint64"
                 },
                 {
                     "name": "memo",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "transfernft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "name"
+                },
+                {
+                    "name": "token_ids",
+                    "type": "uint64[]"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "whitelist",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
                 }
             ]
         }
@@ -256,6 +322,11 @@
         {
             "name": "burn",
             "type": "burn",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "burnnft",
+            "type": "burnnft",
             "ricardian_contract": ""
         },
         {
@@ -282,6 +353,11 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
+        },
+        {
+            "name": "transfernft",
+            "type": "transfernft",
+            "ricardian_contract": ""
         }
     ],
     "tables": [
@@ -295,6 +371,13 @@
         {
             "name": "currencies",
             "type": "currency",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "whitelists",
+            "type": "whitelist",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

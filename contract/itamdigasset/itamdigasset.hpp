@@ -14,22 +14,23 @@ CONTRACT itamdigasset : contract
 
         ACTION test()
         {
-            currencyTable currencies(_self, _self.value);
-            for(auto iter = currencies.begin(); iter != currencies.end(); iter = currencies.erase(iter));
+            // for(auto iter = currencies.begin(); iter != currencies.end(); iter = currencies.erase(iter));
 
-            accountTable accounts(_self, name("itamgameusra").value);
-            for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
+            // account_table accounts(_self, name("itamgameusra").value
+            // for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
 
-            accountTable accounts2(_self, name("itamgameusrb").value);
-            for(auto iter = accounts2.begin(); iter != accounts2.end(); iter = accounts2.erase(iter));
+            // account_table accounts2(_self, name("itamgameusrb").value);
+            // for(auto iter = accounts2.begin(); iter != accounts2.end(); iter = accounts2.erase(iter));
         }
 
-        ACTION create(name issuer, string name, uint64_t appId, string itemStructs);
-        ACTION issue(name to, asset quantity, uint64_t itemId, string itemName, string category, bool fungible, string option, string memo);
-        ACTION transfer(name from, name to, asset quantity, uint64_t itemId, string memo);
-        ACTION addcategory(string symbolName, string categoryName, vector<string> fields);
-        ACTION modify(name owner, string symbolName, uint64_t itemId, string itemName, string option);
-        ACTION burn(name owner, asset quantity, uint64_t itemId);
+        ACTION create(name issuer, name symbol_name, uint64_t app_id, string structs);
+        ACTION issue(name to, asset quantity, uint64_t token_id, string token_name, string category, bool fungible, string options, string reason);
+        ACTION transfer(name from, name to, asset quantity, uint64_t token_id, string memo);
+        ACTION transfernft(name from, name to, name symbol_name, vector<uint64_t> token_ids, string memo);
+        ACTION burn(name owner, asset quantity, uint64_t token_id, string reason);
+        ACTION burnnft(name owner, asset quantity, vector<uint64_t> token_ids, string reason);
+        ACTION addcategory(name symbol_name, string category_name, vector<string> fields);
+        ACTION modify(name owner, name symbol_name, uint64_t token_id, string token_name, string options, string reason);
     private:
         struct category
         {
@@ -41,36 +42,43 @@ CONTRACT itamdigasset : contract
         {
             name issuer;
             asset supply;
-            uint64_t appId;
+            uint64_t app_id;
             vector<category> categories;
 
             uint64_t primary_key() const { return supply.symbol.code().raw(); }
         };
-        typedef multi_index<"currencies"_n, currency> currencyTable;
-        currencyTable currencies;
+        typedef multi_index<"currencies"_n, currency> currency_table;
+        currency_table currencies;
 
-        struct item
+        struct token
         {
             string category;
-            string itemName;
+            string token_name;
             bool fungible;
             uint64_t count;
-            string option;
+            string options;
         };
 
         TABLE account
         {
             asset balance;
-            map<uint64_t, item> items;
+            map<uint64_t, token> tokens;
 
             uint64_t primary_key() const { return balance.symbol.code().raw(); }
         };
-        typedef multi_index<"accounts"_n, account> accountTable;
+        typedef multi_index<"accounts"_n, account> account_table;
 
-        void addBalance(name owner, name ramPayer, asset quantity, string category, uint64_t itemId, const string& itemName, bool fungible, const string& data);
-        void subBalance(name to, asset quantity, uint64_t itemId);
-        inline void validateItemDetail(const vector<category>& categories, const string& categoryName, const string& itemDetail);
-        vector<string> getFields(const vector<category>& categories, const string& category);
+        TABLE whitelist
+        {
+            name user;
+            uint64_t primary_key() const { return user.value; }
+        };
+        typedef multi_index<"whitelists"_n, whitelist> whitelist_table;
+
+        void add_balance(name owner, name ram_payer, asset quantity, string category, uint64_t token_id, const string& token_name, bool fungible, const string& options);
+        void sub_balance(name to, asset quantity, uint64_t token_id);
+        inline void validate_options(const vector<category>& categories, const string& category_name, const string& options);
+        inline vector<string> get_fields(const vector<category>& categories, const string& category);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
@@ -84,4 +92,4 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX(itamdigasset, (test)(create)(issue)(burn)(transfer)(modify)(addcategory))
+EOSIO_DISPATCH_EX(itamdigasset, (test)(create)(issue)(burn)(burnnft)(transfer)(transfernft)(modify)(addcategory))
