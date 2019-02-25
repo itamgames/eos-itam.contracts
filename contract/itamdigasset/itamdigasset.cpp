@@ -97,8 +97,8 @@ ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t token
     account_table accounts(_self, from.value);
     const auto& from_account = accounts.require_find(quantity.symbol.code().raw(), "not enough balance");
     
-    map<uint64_t, token> tokens = from_account->tokens;
-    token from_token = tokens[token_id];
+    map<uint64_t, token> from_tokens = from_account->tokens;
+    token from_token = from_tokens[token_id];
     
     add_balance(to, from, quantity, from_token.category, token_id, from_token.token_name, from_token.fungible, from_token.options);
     sub_balance(from, quantity, token_id);
@@ -114,15 +114,22 @@ ACTION itamdigasset::transfernft(name from, name to, name symbol_name, vector<ui
     eosio_assert(from != to, "cannot transfer to self");
     eosio_assert(is_account(to), "to account does not exist");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    
+    account_table accounts(_self, from.value);
+    const auto& from_account = accounts.require_find(symbol_name.value, "not enough balance");
 
-    // currenc
-    // for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
-    // {
-    //     add_balance(to, from, );
-    //     sub_balance(from, )
-    // }
+    map<uint64_t, token> from_tokens = from_account->tokens;
 
-    // eosio_assert(from != to, "cannot transfer to self");
+    for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
+    {
+        uint64_t token_id = *iter;
+        token from_token = from_tokens[token_id];
+        
+        eosio_assert(from_token.fungible, "transfernft is not ");
+
+        // add_balance(to, from, );
+        // sub_balance(from, )
+    }
 }
 
 ACTION itamdigasset::burn(name owner, asset quantity, uint64_t token_id, string reason)
@@ -182,7 +189,7 @@ void itamdigasset::sub_balance(name to, asset quantity, uint64_t token_id)
 
     accounts.modify(account, _self, [&](auto &a) {
         a.balance -= quantity;
-        if(a.tokens.count(token_id) > 0 && a.tokens[token_id].count - quantity.amount == 0)
+        if(a.tokens[token_id].count - quantity.amount == 0)
         {
             a.tokens.erase(token_id);
         }
