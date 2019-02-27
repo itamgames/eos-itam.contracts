@@ -63,9 +63,6 @@ CONTRACT itamdigasset : contract
         void sub_balance(name owner, asset quantity, uint64_t token_id);
         void sub_nft_balance(name owner, const symbol& sym, uint64_t token_id);
 
-        // void add_balance(name owner, name ram_payer, asset quantity, string category, uint64_t token_id, const string& token_name, bool fungible, const string& options);
-        // void sub_balance(name to, asset quantity, uint64_t token_id, bool fungible);
-        // inline void validate_options(const vector<category>& categories, const string& category_name, const string& options);
         inline void validate_options(const vector<category>& categories, const string& category_name, const string& options);
         inline vector<string> get_fields(const vector<category>& categories, const string& category);
 };
