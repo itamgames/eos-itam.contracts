@@ -131,8 +131,10 @@ ACTION itamdigasset::transfer(name from, name to, asset quantity, uint64_t token
     
     map<uint64_t, token> from_tokens = from_account->tokens;
     token from_token = from_tokens[token_id];
+
+    name ram_payer = has_auth(to) ? to : from;
     
-    add_balance(to, from, quantity, from_token.category, token_id, from_token.token_name, from_token.options);
+    add_balance(to, ram_payer, quantity, from_token.category, token_id, from_token.token_name, from_token.options);
     sub_balance(from, quantity, token_id);
     
     require_recipient(from);
