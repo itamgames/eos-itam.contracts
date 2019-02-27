@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Feb 25 16:38:45 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Feb 27 13:01:35 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -22,7 +22,7 @@
             "fields": [
                 {
                     "name": "symbol_name",
-                    "type": "name"
+                    "type": "string"
                 },
                 {
                     "name": "category_name",
@@ -65,8 +65,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "quantity",
-                    "type": "asset"
+                    "name": "symbol_name",
+                    "type": "string"
                 },
                 {
                     "name": "token_ids",
@@ -102,7 +102,7 @@
                 },
                 {
                     "name": "symbol_name",
-                    "type": "name"
+                    "type": "string"
                 },
                 {
                     "name": "app_id",
@@ -133,6 +133,10 @@
                 {
                     "name": "categories",
                     "type": "category[]"
+                },
+                {
+                    "name": "sequence",
+                    "type": "uint64"
                 }
             ]
         },
@@ -147,10 +151,6 @@
                 {
                     "name": "quantity",
                     "type": "asset"
-                },
-                {
-                    "name": "token_id",
-                    "type": "uint64"
                 },
                 {
                     "name": "token_name",
@@ -184,7 +184,7 @@
                 },
                 {
                     "name": "symbol_name",
-                    "type": "name"
+                    "type": "string"
                 },
                 {
                     "name": "token_id",
@@ -289,7 +289,7 @@
                 },
                 {
                     "name": "symbol_name",
-                    "type": "name"
+                    "type": "string"
                 },
                 {
                     "name": "token_ids",
@@ -298,16 +298,6 @@
                 {
                     "name": "memo",
                     "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "whitelist",
-            "base": "",
-            "fields": [
-                {
-                    "name": "user",
-                    "type": "name"
                 }
             ]
         }
@@ -371,13 +361,6 @@
         {
             "name": "currencies",
             "type": "currency",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "whitelists",
-            "type": "whitelist",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
