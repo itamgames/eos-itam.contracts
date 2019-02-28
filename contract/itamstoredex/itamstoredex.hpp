@@ -4,55 +4,58 @@
 using namespace eosio;
 using namespace std;
 
-CONTRACT itamstoredex : public eosio::contract {
+CONTRACT itamstoredex : public contract {
     public:
-        const uint64_t ISTAT_ACTIVE =       1; // normal status
-        const uint64_t ISTAT_4SALE =        2; // for sale status
-
         using contract::contract;
-        
-        ACTION test(uint64_t cmd);
-        ACTION createitem(uint64_t id, uint64_t gid, string itemname, string itemopt, name to);
-        ACTION edititem(uint64_t id, uint64_t gid, string itemname, string itemopt, name holder);
-        ACTION removeitem(uint64_t id, name holder);
-        ACTION sellorder(uint64_t id, name from, asset eosvalue, asset itamvalue);
-        ACTION revokeorder(uint64_t id, name from);
-        ACTION receiptrans(uint64_t id, uint64_t gid, string itemname, string itemopt);
-
+        ACTION sellorder(name owner, symbol_code symbol_name, uint64_t token_id);
+        ACTION cancelorder(symbol_code symbol_name, uint64_t token_id);
+        ACTION transfer(uint64_t from, uint64_t to);
+        ACTION addcompany(name account, string company_name);
     private:
-        struct [[eosio::table]] item {
-            uint64_t            id;
-            uint64_t            gid;
-            string              itemname;
-            string              itemopt;
-            uint64_t            istatus;
-            asset               eosvalue;
-            asset               itamvalue;
-            name                owner;
+        TABLE order
+        {
+            uint64_t token_id;
+            name owner;
+            asset price;
+            name group_name;
 
-            uint64_t primary_key()const { return id; }
+            uint64_t primary_key() const { return token_id; }
+        };
+        typedef multi_index<"orders", order> order_table;
+
+        TABLE ownergroup
+        {
+            name group_name;
+
+            uint64_t primary_key() const {  return owner.value; } 
+        }
+        typedef multi_index<"ownergroups", ownergroup> ownergroup_table;
+
+        struct token
+        {
+            name owner;
+            name owner_group;
+            string category;
+            string token_name;
+            bool fungible;
+            uint64_t count;
+            string options;
         };
 
-        typedef eosio::multi_index<"items"_n, item> items_t;
+        struct account
+        {
+            asset balance;
+            map<uint64_t, token> tokens;
 
-		struct tdata {
-            name  	        from;
-            name  	        to;
-            asset         	quantity;
-            string   		memo;
+            uint64_t primary_key() const { return balance.symbol.code().raw(); }
         };
+        typedef multi_index<"accounts", account> account_table;
 
-        // to store parse string transfered memo
-        struct st_memo {
-            string          itemid;
-            string          gid;
-            string          itemname;
-            string          notititle;
-            string          notitext;
-            string          notikey;
+        struct transfer_data
+        {
+            name from;
+            name to;
+            asset quantity;
+            string memo;
         };
-
-    public:
-        void transfer(uint64_t sender, uint64_t receiver);
-        void parseMemo(string memo, st_memo* msg, string delimiter);
 };
