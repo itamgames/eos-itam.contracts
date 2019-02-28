@@ -373,7 +373,7 @@ ACTION itamstoreapp::registboard(uint64_t appId, name owner, string boardList)
 
 ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string data)
 {
-    require_auth(user);
+    require_auth(_self);
     assertIfBlockUser(user, appId);
 
     leaderboardTable boards(_self, appId);
@@ -414,7 +414,7 @@ ACTION itamstoreapp::regachieve(uint64_t appId, name owner, string achievementLi
 
 ACTION itamstoreapp::acquisition(uint64_t appId, uint64_t achieveId, name user, string data)
 {
-    require_auth(user);
+    require_auth(_self);
     assertIfBlockUser(user, appId);
 
     achievementTable achievements(_self, appId);
