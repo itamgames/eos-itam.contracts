@@ -379,7 +379,7 @@ ACTION itamstoreapp::registboard(uint64_t appId, name owner, string boardList)
     }
 }
 
-ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string period, string data)
+ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data)
 {
     require_auth(_self);
     assertIfBlockUser(user, appId);
@@ -399,6 +399,12 @@ ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name 
     asset maximumScore;
     stringToAsset(maximumScore, board.maximumScore, board.precision);
     eosio_assert(scoreOfAdd <= maximumScore, "score must be bigger than maximum score");
+}
+
+ACTION itamstoreapp::rank(uint64_t appId, uint64_t boardId, string ranks, string period)
+{
+    require_auth(_self);
+    leaderboardTable(_self, appId).get(boardId, "invalid board id");
 }
 
 ACTION itamstoreapp::regachieve(uint64_t appId, name owner, string achievementList)

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 10:22:34 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 10:44:31 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -307,6 +307,28 @@
             ]
         },
         {
+            "name": "rank",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "boardId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "ranks",
+                    "type": "string"
+                },
+                {
+                    "name": "period",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "receiptapp",
             "base": "",
             "fields": [
@@ -483,10 +505,6 @@
                     "type": "string"
                 },
                 {
-                    "name": "period",
-                    "type": "string"
-                },
-                {
                     "name": "data",
                     "type": "string"
                 }
@@ -639,6 +657,11 @@
         {
             "name": "modifyitem",
             "type": "modifyitem",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rank",
+            "type": "rank",
             "ricardian_contract": ""
         },
         {

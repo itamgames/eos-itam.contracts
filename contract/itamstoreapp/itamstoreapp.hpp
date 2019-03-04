@@ -44,9 +44,10 @@ CONTRACT itamstoreapp : public contract {
 
         // leader board
         ACTION registboard(uint64_t appId, name owner, string boardList);
-        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string period, string data);
+        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data);
+        ACTION rank(uint64_t appId, uint64_t boardId, string ranks, string period);
 
-        // achievement
+        // achievements
         ACTION regachieve(uint64_t appId, name owner, string achievementList);
         ACTION acquisition(uint64_t appId, uint64_t achieveId, name user, string user_type, string data);
         ACTION cnlachieve(uint64_t appId, uint64_t achieveId, name user, string reason);
@@ -195,7 +196,7 @@ extern "C" { \
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
-#define LEADERBOARD_ACTION (registboard)(score)
+#define LEADERBOARD_ACTION (registboard)(score)(rank)
 #define ACHIEVEMENT_ACTION (regachieve)(acquisition)(cnlachieve)
 #define BLOCK_ACTION (blockuser)(unblockuser)
 #define COMMON_ACTION (transfer)(receiptapp)(receiptitem)
