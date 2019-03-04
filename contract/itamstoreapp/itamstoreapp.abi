@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Feb 27 11:55:42 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 09:54:30 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -31,6 +31,10 @@
                 {
                     "name": "user",
                     "type": "name"
+                },
+                {
+                    "name": "user_type",
+                    "type": "string"
                 },
                 {
                     "name": "data",
@@ -469,6 +473,18 @@
                 {
                     "name": "user",
                     "type": "name"
+                },
+                {
+                    "name": "user_type",
+                    "type": "string"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
+                },
+                {
+                    "name": "period",
+                    "type": "string"
                 },
                 {
                     "name": "data",

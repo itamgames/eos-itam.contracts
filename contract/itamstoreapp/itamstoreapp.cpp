@@ -371,7 +371,7 @@ ACTION itamstoreapp::registboard(uint64_t appId, name owner, string boardList)
     }
 }
 
-ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data)
+ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string period, string data)
 {
     require_auth(_self);
     assertIfBlockUser(user, appId);

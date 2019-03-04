@@ -43,7 +43,7 @@ CONTRACT itamstoreapp : public contract {
 
         // leader board
         ACTION registboard(uint64_t appId, name owner, string boardList);
-        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data);
+        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string period, string data);
 
         // achievement
         ACTION regachieve(uint64_t appId, name owner, string achievementList);
