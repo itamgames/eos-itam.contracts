@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 10:44:31 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 14:12:16 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -29,11 +29,11 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
-                    "type": "name"
+                    "name": "owner",
+                    "type": "string"
                 },
                 {
-                    "name": "user_type",
+                    "name": "owner_group",
                     "type": "string"
                 },
                 {
@@ -65,7 +65,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "user",
+                    "name": "owner",
                     "type": "name"
                 },
                 {
@@ -87,7 +87,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "owner",
                     "type": "name"
                 },
                 {
@@ -119,8 +119,12 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
-                    "type": "name"
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "owner_group",
+                    "type": "string"
                 },
                 {
                     "name": "reason",
@@ -417,10 +421,6 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
                     "name": "achievementList",
                     "type": "string"
                 }
@@ -457,10 +457,6 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
                     "name": "boardList",
                     "type": "string"
                 }
@@ -493,11 +489,11 @@
                     "type": "string"
                 },
                 {
-                    "name": "user",
-                    "type": "name"
+                    "name": "owner",
+                    "type": "string"
                 },
                 {
-                    "name": "user_type",
+                    "name": "owner_group",
                     "type": "string"
                 },
                 {
@@ -583,7 +579,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "owner",
                     "type": "name"
                 }
             ]

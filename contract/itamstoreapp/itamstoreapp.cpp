@@ -354,10 +354,9 @@ ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
     }
 }
 
-ACTION itamstoreapp::registboard(uint64_t appId, name owner, string boardList)
+ACTION itamstoreapp::registboard(uint64_t appId, string boardList)
 {
     require_auth(_self);
-    eosio_assert(is_account(owner), "Invalid owner");
 
     leaderboardTable boards(_self, appId);
     for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
@@ -379,10 +378,10 @@ ACTION itamstoreapp::registboard(uint64_t appId, name owner, string boardList)
     }
 }
 
-ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data)
+ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, string owner, string ownerGroup, string nickname, string data)
 {
     require_auth(_self);
-    assertIfBlockUser(user, appId);
+    assertIfBlockUser(owner, appId);
 
     leaderboardTable boards(_self, appId);
     const auto& board = boards.get(boardId, "invalid board id");
@@ -407,10 +406,9 @@ ACTION itamstoreapp::rank(uint64_t appId, uint64_t boardId, string ranks, string
     leaderboardTable(_self, appId).get(boardId, "invalid board id");
 }
 
-ACTION itamstoreapp::regachieve(uint64_t appId, name owner, string achievementList)
+ACTION itamstoreapp::regachieve(uint64_t appId, string achievementList)
 {
     require_auth(_self);
-    eosio_assert(is_account(owner), "Invalid owner");
 
     achievementTable achievements(_self, appId);
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
@@ -426,46 +424,46 @@ ACTION itamstoreapp::regachieve(uint64_t appId, name owner, string achievementLi
     }
 }
 
-ACTION itamstoreapp::acquisition(uint64_t appId, uint64_t achieveId, name user, string user_type, string data)
+ACTION itamstoreapp::acquisition(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string data)
 {
     require_auth(_self);
-    assertIfBlockUser(user, appId);
+    assertIfBlockUser(owner, appId);
 
     achievementTable achievements(_self, appId);
     achievements.get(achieveId, "invalid achieve id");
 }
 
-ACTION itamstoreapp::cnlachieve(uint64_t appId, uint64_t achieveId, name user, string reason)
+ACTION itamstoreapp::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string reason)
 {
-    require_auth(user);
-    assertIfBlockUser(user, appId);
+    require_auth(_self);
+    assertIfBlockUser(owner, appId);
 
     achievementTable achievements(_self, appId);
     achievements.get(achieveId, "invalid achieve id");
 }
 
-ACTION itamstoreapp::blockuser(uint64_t appId, name user, string reason)
+ACTION itamstoreapp::blockuser(uint64_t appId, name owner, string reason)
 {
     require_auth(_self);
 
     blockTable blocks(_self, appId);
-    const auto& block = blocks.find(user.value);
+    const auto& block = blocks.find(owner.value);
 
     eosio_assert(block == blocks.end(), "Already block user");
 
     blocks.emplace(_self, [&](auto &b) {
-        b.user = user;
+        b.owner = owner;
         b.timestamp = now();
         b.reason = reason;
     });
 }
 
-ACTION itamstoreapp::unblockuser(uint64_t appId, name user)
+ACTION itamstoreapp::unblockuser(uint64_t appId, name owner)
 {
     require_auth(_self);
 
     blockTable blocks(_self, appId);
-    const auto& block = blocks.require_find(user.value, "Already unblock");
+    const auto& block = blocks.require_find(owner.value, "Already unblock");
 
     blocks.erase(block);
 }
@@ -592,10 +590,10 @@ ACTION itamstoreapp::delservice(uint64_t appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-void itamstoreapp::assertIfBlockUser(name user, uint64_t appId)
+void itamstoreapp::assertIfBlockUser(string owner, uint64_t appId)
 {
     blockTable blocks(_self, appId);
-    const auto& block = blocks.find(user.value);
+    const auto& block = blocks.find(name(owner).value);
     eosio_assert(block == blocks.end(), "block user");
 }
 

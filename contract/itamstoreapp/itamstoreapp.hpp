@@ -43,14 +43,14 @@ CONTRACT itamstoreapp : public contract {
         ACTION refundapp(uint64_t appId, name buyer);
 
         // leader board
-        ACTION registboard(uint64_t appId, name owner, string boardList);
-        ACTION score(uint64_t appId, uint64_t boardId, string score, name user, string user_type, string nickname, string data);
+        ACTION registboard(uint64_t appId, string boardList);
+        ACTION score(uint64_t appId, uint64_t boardId, string score, string owner, string ownerGroup, string nickname, string data);
         ACTION rank(uint64_t appId, uint64_t boardId, string ranks, string period);
 
         // achievements
-        ACTION regachieve(uint64_t appId, name owner, string achievementList);
-        ACTION acquisition(uint64_t appId, uint64_t achieveId, name user, string user_type, string data);
-        ACTION cnlachieve(uint64_t appId, uint64_t achieveId, name user, string reason);
+        ACTION regachieve(uint64_t appId, string achievementList);
+        ACTION acquisition(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string data);
+        ACTION cnlachieve(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string reason);
         
         // settle
         void confirm(uint64_t appId);
@@ -62,8 +62,8 @@ CONTRACT itamstoreapp : public contract {
         ACTION delservice(uint64_t appId);
 
         // block
-        ACTION blockuser(uint64_t appId, name user, string reason);
-        ACTION unblockuser(uint64_t appId, name user);
+        ACTION blockuser(uint64_t appId, name owner, string reason);
+        ACTION unblockuser(uint64_t appId, name owner);
 
         // buy
         ACTION transfer(uint64_t from, uint64_t to);
@@ -118,11 +118,11 @@ CONTRACT itamstoreapp : public contract {
 
         TABLE block
         {
-            name user;
+            name owner;
             uint64_t timestamp;
             string reason;
 
-            uint64_t primary_key() const { return user.value; }
+            uint64_t primary_key() const { return owner.value; }
         };
         typedef multi_index<"blocks"_n, block> blockTable;
 
@@ -170,7 +170,7 @@ CONTRACT itamstoreapp : public contract {
         configTable configs;
     
     private:
-        void assertIfBlockUser(name user, uint64_t appId);
+        void assertIfBlockUser(string owner, uint64_t appId);
         void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
         void stringToAsset(asset &result, string number, uint64_t precision);
         void transferApp(transferData& txData, memoData& memo);
