@@ -35,6 +35,7 @@ CONTRACT itamstoreapp : public contract {
         ACTION deleteitems(string params);
         ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);
         ACTION refunditem(uint64_t appId, uint64_t itemId, name buyer);
+        ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
 
         // app
         ACTION registapp(uint64_t appId, name owner, asset amount, string params);
@@ -191,7 +192,7 @@ extern "C" { \
     } \
 } \
 
-#define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)
+#define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
 #define LEADERBOARD_ACTION (registboard)(score)

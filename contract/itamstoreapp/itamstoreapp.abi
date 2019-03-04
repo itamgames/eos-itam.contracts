@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 09:54:30 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 10:22:34 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -569,6 +569,24 @@
                     "type": "name"
                 }
             ]
+        },
+        {
+            "name": "useitem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
         }
     ],
     "types": [],
@@ -686,6 +704,11 @@
         {
             "name": "unblockuser",
             "type": "unblockuser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "useitem",
+            "type": "useitem",
             "ricardian_contract": ""
         }
     ],

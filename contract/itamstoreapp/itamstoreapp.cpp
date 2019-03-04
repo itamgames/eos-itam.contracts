@@ -105,6 +105,14 @@ ACTION itamstoreapp::refunditem(uint64_t appId, uint64_t itemId, name buyer)
     eosio_assert(false, "can't find item");
 }
 
+ACTION itamstoreapp::useitem(uint64_t appId, uint64_t itemId, string memo)
+{
+    require_auth(_self);
+    
+    itemTable items(_self, appId);
+    items.get(itemId, "invalid item");
+}
+
 ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset amount, string params)
 {
     require_auth(_self);
