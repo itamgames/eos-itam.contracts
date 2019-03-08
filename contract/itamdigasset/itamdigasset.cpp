@@ -51,7 +51,7 @@ ACTION itamdigasset::issue(string to, name to_group, symbol_code symbol_name, ui
     }
 }
 
-ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, string token_name, string options, string reason)
+ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason)
 {
     require_auth(_self);
     
@@ -69,6 +69,7 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
     eosio_assert(owner_token.owner == owner, "different owner");
 
     accounts.modify(account, _self, [&](auto &a) {
+        a.tokens[token_id].group_id = group_id;
         a.tokens[token_id].token_name = token_name;
         a.tokens[token_id].options = options;
     });    
@@ -99,9 +100,9 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
     }
 }
 
-ACTION itamdigasset::burn(string owner, name group_name, symbol_code symbol_name, vector<uint64_t> token_ids, string reason)
+ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> token_ids, string reason)
 {
-    name payer = has_auth(group_name) ? group_name : _self;
+    name payer = has_auth(owner_group) ? owner_group : _self;
     eosio_assert(has_auth(payer), "Unauthorized Error");
     uint64_t symbol_raw = symbol_name.raw();
 
@@ -112,7 +113,7 @@ ACTION itamdigasset::burn(string owner, name group_name, symbol_code symbol_name
 
     for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
     {
-        sub_balance(owner, group_name, symbol_raw, *iter);
+        sub_balance(owner, owner_group, symbol_raw, *iter);
     }
 }
 

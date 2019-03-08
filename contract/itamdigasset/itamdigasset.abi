@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar  8 11:09:24 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar  8 16:48:18 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -43,7 +43,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "group_name",
+                    "name": "owner_group",
                     "type": "name"
                 },
                 {
@@ -173,11 +173,11 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "group_id",
+                    "name": "token_id",
                     "type": "uint64"
                 },
                 {
-                    "name": "token_id",
+                    "name": "group_id",
                     "type": "uint64"
                 },
                 {

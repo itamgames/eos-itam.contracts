@@ -20,9 +20,9 @@ CONTRACT itamdigasset : contract
         }
         ACTION create(name issuer, symbol_code symbol_name, uint64_t app_id);
         ACTION issue(string to, name to_group, symbol_code symbol_name, uint64_t group_id, string token_name, string options, string reason);
-        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, string token_name, string options, string reason);
+        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason);
         ACTION transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo);
-        ACTION burn(string owner, name group_name, symbol_code symbol_name, vector<uint64_t> token_ids, string reason);
+        ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> token_ids, string reason);
         ACTION addcategory(symbol_code symbol_name, string first_category, string second_category);
 
         ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
