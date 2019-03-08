@@ -1,6 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include "../include/json.hpp"
+#include "../include/common.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -11,41 +12,41 @@ CONTRACT itamdigasset : contract
         itamdigasset(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         currencies(_self, _self.value) {}
         using json = nlohmann::json;
-
-        ACTION create(name issuer, string symbol_name, uint64_t app_id, string structs);
-        ACTION issue(name to, asset quantity, string token_name, string category, bool fungible, string options, string reason);
-        ACTION transfer(name from, name to, asset quantity, uint64_t token_id, string memo);
-        ACTION transfernft(name from, name to, string symbol_name, vector<uint64_t> token_ids, string memo);
-        ACTION burn(name owner, asset quantity, uint64_t token_id, string reason);
-        ACTION burnnft(name owner, string symbol_name, vector<uint64_t> token_ids, string reason);
-        ACTION addcategory(string symbol_name, string category_name, vector<string> fields);
-        ACTION modify(name owner, string symbol_name, uint64_t token_id, string token_name, string options, string reason);
-    private:
-        struct category
+        
+        ACTION test()
         {
-            string name;
-            vector<string> fields;
-        };
+            account_table accounts(_self, _self.value);
+            for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
+        }
+        ACTION create(name issuer, symbol_code symbol_name, uint64_t app_id);
+        ACTION issue(string to, name to_group, symbol_code symbol_name, uint64_t group_id, string token_name, string options, string reason);
+        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, string token_name, string options, string reason);
+        ACTION transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo);
+        ACTION burn(string owner, name group_name, symbol_code symbol_name, vector<uint64_t> token_ids, string reason);
+        ACTION addcategory(symbol_code symbol_name, string first_category, string second_category);
 
+        ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
+        ACTION modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
+        ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id);
+        ACTION transfer(uint64_t from, uint64_t to);
+    private:
         TABLE currency
         {
             name issuer;
             asset supply;
             uint64_t app_id;
-            vector<category> categories;
             uint64_t sequence;
 
             uint64_t primary_key() const { return supply.symbol.code().raw(); }
         };
-        typedef multi_index<"currencies"_n, currency> currency_table;
+        typedef multi_index<name("currencies"), currency> currency_table;
         currency_table currencies;
 
         struct token
         {
-            string category;
+            string owner;
+            uint64_t group_id;
             string token_name;
-            bool fungible;
-            uint64_t count;
             string options;
         };
 
@@ -56,21 +57,42 @@ CONTRACT itamdigasset : contract
 
             uint64_t primary_key() const { return balance.symbol.code().raw(); }
         };
-        typedef multi_index<"accounts"_n, account> account_table;
+        typedef multi_index<name("accounts"), account> account_table;
 
-        void add_balance(name owner, name ram_payer, asset quantity, const string& category, uint64_t token_id, string token_name, const string& options);
-        void add_nft_balance(name owner, name ram_payer, const symbol& sym, const string& category, uint64_t token_id, const string& token_name, const string& options);
-        void sub_balance(name owner, asset quantity, uint64_t token_id);
-        void sub_nft_balance(name owner, const symbol& sym, uint64_t token_id);
+        TABLE order
+        {
+            uint64_t token_id;
+            string owner;
+            name owner_group;
+            asset price;
 
-        inline void validate_options(const vector<category>& categories, const string& category_name, const string& options);
-        inline vector<string> get_fields(const vector<category>& categories, const string& category);
+            uint64_t primary_key() const { return token_id; }
+        };
+        typedef multi_index<name("orders"), order> order_table;
+
+        struct transfer_data
+        {
+            name from;
+            name to;
+            asset quantity;
+            string memo;
+        };
+
+        struct memo_data
+        {
+            string buyer;
+            string symbol_name;
+            string token_id;
+        };
+
+        void add_balance(const string& owner, name group_name, name ram_payer, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, const string& token_name, const string& options);
+        void sub_balance(const string& owner, name group_name, uint64_t symbol_raw, uint64_t token_id);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        if( code == receiver || code == name("itamstoreapp").value ) { \
+        if( code == receiver || code == name("eosio.token").value ) { \
             switch( action ) { \
                 EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
             } \
@@ -78,4 +100,4 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX(itamdigasset, (test)(create)(issue)(burn)(burnnft)(transfer)(transfernft)(modify)(addcategory))
+EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(transfer))
