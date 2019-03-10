@@ -54,6 +54,7 @@ ACTION itamdigasset::issue(string to, name to_group, symbol_code symbol_name, ui
 ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason)
 {
     require_auth(_self);
+    eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
     
     uint64_t symbol_raw = symbol_name.raw();
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
@@ -105,6 +106,8 @@ ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_nam
     name payer = has_auth(owner_group) ? owner_group : _self;
     eosio_assert(has_auth(payer), "Unauthorized Error");
     uint64_t symbol_raw = symbol_name.raw();
+
+    eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
     currencies.modify(currency, payer, [&](auto &c) {
