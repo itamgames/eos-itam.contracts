@@ -197,7 +197,7 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
         make_tuple(_self, order->owner_group, order->price - (order->price * ratio / 100), string("test"))
     ).send();
 
-    // // send nft token to buyer
+    // send nft token to buyer
     SEND_INLINE_ACTION(
         *this,
         transfernft,
