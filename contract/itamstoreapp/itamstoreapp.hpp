@@ -19,7 +19,7 @@ CONTRACT itamstoreapp : public contract
         ACTION refundapp(uint64_t appId, name buyer);
         ACTION registitems(string params);
         ACTION deleteitems(string params);
-        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);\
+        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);
         ACTION refunditem(uint64_t appId, uint64_t itemId, name buyer);
         ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
         ACTION transfer(uint64_t from, uint64_t to);
