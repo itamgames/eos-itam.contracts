@@ -1,0 +1,352 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 11 13:54:40 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "achievement",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "acquisition",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achieveId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "data",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "block",
+            "base": "",
+            "fields": [
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "owners",
+                    "type": "pair_string_blockInfo[]"
+                }
+            ]
+        },
+        {
+            "name": "blockInfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "blockuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "cnlachieve",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achieveId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "delservice",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "leaderboard",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "precision",
+                    "type": "uint64"
+                },
+                {
+                    "name": "minimumScore",
+                    "type": "string"
+                },
+                {
+                    "name": "maximumScore",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "pair_string_blockInfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "blockInfo"
+                }
+            ]
+        },
+        {
+            "name": "rank",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "boardId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "ranks",
+                    "type": "string"
+                },
+                {
+                    "name": "period",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "regachieve",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "achievementList",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "registboard",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "boardList",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "score",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "boardId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "score",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
+                },
+                {
+                    "name": "data",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "unblockuser",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "acquisition",
+            "type": "acquisition",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "blockuser",
+            "type": "blockuser",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cnlachieve",
+            "type": "cnlachieve",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "delservice",
+            "type": "delservice",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rank",
+            "type": "rank",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "regachieve",
+            "type": "regachieve",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "registboard",
+            "type": "registboard",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "score",
+            "type": "score",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unblockuser",
+            "type": "unblockuser",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "achievements",
+            "type": "achievement",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "blocks",
+            "type": "block",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "leaderboards",
+            "type": "leaderboard",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}

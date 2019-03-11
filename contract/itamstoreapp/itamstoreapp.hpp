@@ -1,9 +1,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/multi_index.hpp>
 #include <eosiolib/transaction.hpp>
-#include <vector>
-#include <map>
 #include "../include/json.hpp"
 #include "../include/common.hpp"
 
@@ -11,64 +8,29 @@ using namespace eosio;
 using namespace std;
 using namespace nlohmann;
 
-CONTRACT itamstoreapp : public contract {
+CONTRACT itamstoreapp : public contract
+{
     public:
         itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         configs(_self, _self.value){}
-
-        struct transferData {
-            name from;
-            name to;
-            asset quantity;
-            string memo;
-        };
-
-        struct memoData {
-            string category;
-            string appId;
-            string itemId;
-            string token;
-        };
-
-        // item 
-        ACTION registitems(string params);
-        ACTION deleteitems(string params);
-        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);
-        ACTION refunditem(uint64_t appId, uint64_t itemId, name buyer);
-        ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
-
-        // app
+        
         ACTION registapp(uint64_t appId, name owner, asset amount, string params);
         ACTION deleteapp(uint64_t appId);
         ACTION refundapp(uint64_t appId, name buyer);
-
-        // leader board
-        ACTION registboard(uint64_t appId, string boardList);
-        ACTION score(uint64_t appId, uint64_t boardId, string score, string owner, string ownerGroup, string nickname, string data);
-        ACTION rank(uint64_t appId, uint64_t boardId, string ranks, string period);
-
-        // achievements
-        ACTION regachieve(uint64_t appId, string achievementList);
-        ACTION acquisition(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string data);
-        ACTION cnlachieve(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string reason);
-        
-        // settle
-        void confirm(uint64_t appId);
+        ACTION registitems(string params);
+        ACTION deleteitems(string params);
+        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);\
+        ACTION refunditem(uint64_t appId, uint64_t itemId, name buyer);
+        ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
+        ACTION transfer(uint64_t from, uint64_t to);
+        ACTION receiptapp(uint64_t appId, name from, asset quantity);
+        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity);
         ACTION defconfirm(uint64_t appId);
         ACTION menconfirm(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
         ACTION delservice(uint64_t appId);
-
-        // block
-        ACTION blockuser(uint64_t appId, name owner, string reason);
-        ACTION unblockuser(uint64_t appId, name owner);
-
-        // buy
-        ACTION transfer(uint64_t from, uint64_t to);
-        ACTION receiptapp(uint64_t appId, name from, asset quantity);
-        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity);
     private:
         // item
         TABLE item {
@@ -92,40 +54,6 @@ CONTRACT itamstoreapp : public contract {
             uint64_t primary_key() const { return appId; }
         };
         typedef multi_index<"apps"_n, app> appTable;
-
-
-        // leader board
-        TABLE leaderboard
-        {
-            uint64_t id;
-            string name;
-            uint64_t precision;
-            string minimumScore;
-            string maximumScore;
-
-            uint64_t primary_key() const { return id; }
-        };
-        typedef multi_index<"leaderboards"_n, leaderboard> leaderboardTable;
-
-        TABLE achievement
-        {
-            uint64_t id;
-            string name;
-
-            uint64_t primary_key() const { return id; }
-        };
-        typedef multi_index<"achievements"_n, achievement> achievementTable;
-
-        TABLE block
-        {
-            name owner;
-            uint64_t timestamp;
-            string reason;
-
-            uint64_t primary_key() const { return owner.value; }
-        };
-        typedef multi_index<"blocks"_n, block> blockTable;
-
 
         // settle
         const uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
@@ -168,14 +96,25 @@ CONTRACT itamstoreapp : public contract {
         };
         typedef multi_index<"configs"_n, config> configTable;
         configTable configs;
-    
-    private:
-        void assertIfBlockUser(string owner, uint64_t appId);
-        void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
-        void stringToAsset(asset &result, string number, uint64_t precision);
+
+        struct transferData {
+            name from;
+            name to;
+            asset quantity;
+            string memo;
+        };
+
+        struct memoData {
+            string category;
+            string appId;
+            string itemId;
+            string token;
+        };
+
+        void confirm(uint64_t appId);
         void transferApp(transferData& txData, memoData& memo);
         void transferItem(transferData& txData, memoData& memo);
-        bool isValidPrecision(string number, uint64_t precision);
+        void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
@@ -196,10 +135,6 @@ extern "C" { \
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
-#define LEADERBOARD_ACTION (registboard)(score)(rank)
-#define ACHIEVEMENT_ACTION (regachieve)(acquisition)(cnlachieve)
-#define BLOCK_ACTION (blockuser)(unblockuser)
-#define COMMON_ACTION (transfer)(receiptapp)(receiptitem)
+#define BUY_ACTION (transfer)(receiptapp)(receiptitem)
 
-EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION COMMON_ACTION
-                                 LEADERBOARD_ACTION ACHIEVEMENT_ACTION BLOCK_ACTION )
+EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION BUY_ACTION )

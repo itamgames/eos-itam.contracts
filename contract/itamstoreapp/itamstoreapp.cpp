@@ -5,11 +5,14 @@ ACTION itamstoreapp::registitems(string params)
     require_auth(_self);
 
     auto parsedParams = json::parse(params);
+    
+    auto iter = parsedParams.find("appId");
+    if(iter == parsedParams.end()) return;
+    uint64_t appId = *iter;
 
-    if(parsedParams.count("appId") == 0 || parsedParams.count("items") == 0) return;
-
-    uint64_t appId = parsedParams["appId"];
-    auto registItems = parsedParams["items"];
+    iter = parsedParams.find("items");
+    if(iter == parsedParams.end()) return;
+    auto registItems = *iter;
     
     itemTable items(_self, appId);
 
@@ -208,266 +211,6 @@ ACTION itamstoreapp::refundapp(uint64_t appId, name buyer)
     eosio_assert(false, "can't find app");
 }
 
-ACTION itamstoreapp::setsettle(uint64_t appId, name account)
-{
-    require_auth(_self);
-
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appId);
-
-    if(settle == settles.end())
-    {
-        settles.emplace(_self, [&](auto &s) {
-            s.appId = appId;
-            s.account = account;
-            s.eos = asset(0, symbol("EOS", 4));
-            s.itam = asset(0, symbol("ITAM", 4));
-        });
-    }
-    else
-    {
-        settles.modify(settle, _self, [&](auto &s) {
-            s.account = account;
-        });
-    }
-}
-
-ACTION itamstoreapp::claimsettle(uint64_t appId)
-{
-    require_auth(_self);
-
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "Can't find settle table");
-
-    if(settle->eos.amount > 0)
-    {
-        action(
-            permission_level{_self, name("active")},
-            name("eosio.token"),
-            name("transfer"),
-            make_tuple(
-                _self,
-                settle->account,
-                settle->eos,
-                string("ITAM Store settlement")
-            )
-        ).send();
-    };
-
-    if(settle->itam.amount > 0)
-    {
-        action(
-            permission_level{_self, name("active")},
-            name("itamtokenadm"),
-            name("transfer"),
-            make_tuple(
-                _self,
-                settle->account,
-                settle->eos,
-                string("ITAM Store settlement")
-            )
-        ).send();
-    }
-
-    settles.modify(settle, _self, [&](auto &s) {
-        s.eos.amount = 0;
-        s.itam.amount = 0;
-    });
-}
-
-ACTION itamstoreapp::defconfirm(uint64_t appId)
-{
-    confirm(appId);
-}
-
-ACTION itamstoreapp::menconfirm(uint64_t appId)
-{
-    confirm(appId);
-}
-
-void itamstoreapp::confirm(uint64_t appId)
-{
-    require_auth(_self);
-
-    uint64_t currentTimestamp = now();
-
-    const auto& config = configs.get(_self.value, "Can't find refundable day");
-
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "Settlement account not found");
-
-    symbol eosSymbol = symbol("EOS", 4);
-    pendingTable pendings(_self, appId);
-    for(auto pending = pendings.begin(); pending != pendings.end();)
-    {
-        auto& pendingList = pending->pendingList;
-        pendings.modify(pending, _self, [&](auto &p) {
-            for(auto info = pendingList.begin(); info != pendingList.end();)
-            {
-                uint64_t maximumRefundable = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-
-                if(maximumRefundable < currentTimestamp)
-                {
-                    settles.modify(settle, _self, [&](auto &s) {
-                        if(info->settleAmount.symbol == eosSymbol)
-                        {
-                            s.eos += info->settleAmount;
-                        }
-                        else
-                        {
-                            s.itam += info->settleAmount;
-                        }
-                    });
-                    p.pendingList.erase(info);
-                }
-                else
-                {
-                    info++;
-                }
-            }
-        });
-
-        pending = pendingList.size() == 0 ? pendings.erase(pending) : ++pending;
-    }
-}
-
-ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
-{
-    require_auth(_self);
-
-    const auto& config = configs.find(_self.value);
-
-    if(config == configs.end())
-    {
-        configs.emplace(_self, [&](auto& c) {
-            c.key = _self;
-            c.ratio = ratio;
-            c.refundableDay = refundableDay;
-        });
-    }
-    else
-    {
-        configs.modify(config, _self, [&](auto& c) {
-            c.ratio = ratio;
-            c.refundableDay = refundableDay;
-        });
-    }
-}
-
-ACTION itamstoreapp::registboard(uint64_t appId, string boardList)
-{
-    require_auth(_self);
-
-    leaderboardTable boards(_self, appId);
-    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
-
-    auto parsedBoardList = json::parse(boardList);
-
-    for(int i = 0; i < parsedBoardList.size(); i++)
-    {
-        eosio_assert(isValidPrecision(parsedBoardList[i]["minimumScore"], parsedBoardList[i]["precision"]), "invalid precision of minimum score");
-        eosio_assert(isValidPrecision(parsedBoardList[i]["maximumScore"], parsedBoardList[i]["precision"]), "invalid precision of maximum score");
-
-        boards.emplace(_self, [&](auto &b) {
-            b.id = parsedBoardList[i]["id"];
-            b.name = parsedBoardList[i]["name"];
-            b.precision = parsedBoardList[i]["precision"];
-            b.minimumScore = parsedBoardList[i]["minimumScore"];
-            b.maximumScore = parsedBoardList[i]["maximumScore"];
-        });
-    }
-}
-
-ACTION itamstoreapp::score(uint64_t appId, uint64_t boardId, string score, string owner, string ownerGroup, string nickname, string data)
-{
-    require_auth(_self);
-    assertIfBlockUser(owner, appId);
-
-    leaderboardTable boards(_self, appId);
-    const auto& board = boards.get(boardId, "invalid board id");
-
-    eosio_assert(isValidPrecision(score, board.precision), "invalid precision of score");
-
-    asset scoreOfAdd;
-    stringToAsset(scoreOfAdd, score, board.precision);
-
-    asset minimumScore;
-    stringToAsset(minimumScore, board.minimumScore, board.precision);
-    eosio_assert(scoreOfAdd >= minimumScore, "score must be lower than minimum score");
-
-    asset maximumScore;
-    stringToAsset(maximumScore, board.maximumScore, board.precision);
-    eosio_assert(scoreOfAdd <= maximumScore, "score must be bigger than maximum score");
-}
-
-ACTION itamstoreapp::rank(uint64_t appId, uint64_t boardId, string ranks, string period)
-{
-    require_auth(_self);
-    leaderboardTable(_self, appId).get(boardId, "invalid board id");
-}
-
-ACTION itamstoreapp::regachieve(uint64_t appId, string achievementList)
-{
-    require_auth(_self);
-
-    achievementTable achievements(_self, appId);
-    for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
-
-    auto parsedAchievements = json::parse(achievementList);
-
-    for(int i = 0; i < parsedAchievements.size(); i++)
-    {
-        achievements.emplace(_self, [&](auto &a) {
-            a.id = parsedAchievements[i]["id"];
-            a.name = parsedAchievements[i]["name"];
-        });
-    }
-}
-
-ACTION itamstoreapp::acquisition(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string data)
-{
-    require_auth(_self);
-    assertIfBlockUser(owner, appId);
-
-    achievementTable achievements(_self, appId);
-    achievements.get(achieveId, "invalid achieve id");
-}
-
-ACTION itamstoreapp::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, string ownerGroup, string reason)
-{
-    require_auth(_self);
-    assertIfBlockUser(owner, appId);
-
-    achievementTable achievements(_self, appId);
-    achievements.get(achieveId, "invalid achieve id");
-}
-
-ACTION itamstoreapp::blockuser(uint64_t appId, name owner, string reason)
-{
-    require_auth(_self);
-
-    blockTable blocks(_self, appId);
-    const auto& block = blocks.find(owner.value);
-
-    eosio_assert(block == blocks.end(), "Already block user");
-
-    blocks.emplace(_self, [&](auto &b) {
-        b.owner = owner;
-        b.timestamp = now();
-        b.reason = reason;
-    });
-}
-
-ACTION itamstoreapp::unblockuser(uint64_t appId, name owner)
-{
-    require_auth(_self);
-
-    blockTable blocks(_self, appId);
-    const auto& block = blocks.require_find(owner.value, "Already unblock");
-
-    blocks.erase(block);
-}
-
 ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
@@ -544,6 +287,164 @@ void itamstoreapp::transferItem(transferData& txData, memoData& memo)
     setPendingTable(appId, itemId, txData.from, txData.quantity);
 }
 
+ACTION itamstoreapp::receiptapp(uint64_t appId, name from, asset quantity)
+{
+    require_auth(_self);
+    require_recipient(_self, from);
+}
+
+ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity)
+{
+    require_auth(_self);
+    require_recipient(_self, from);
+}
+
+ACTION itamstoreapp::defconfirm(uint64_t appId)
+{
+    confirm(appId);
+}
+
+ACTION itamstoreapp::menconfirm(uint64_t appId)
+{
+    confirm(appId);
+}
+
+void itamstoreapp::confirm(uint64_t appId)
+{
+    require_auth(_self);
+
+    uint64_t currentTimestamp = now();
+
+    const auto& config = configs.get(_self.value, "Can't find refundable day");
+
+    settleTable settles(_self, _self.value);
+    const auto& settle = settles.require_find(appId, "Settlement account not found");
+
+    symbol eosSymbol = symbol("EOS", 4);
+    pendingTable pendings(_self, appId);
+    for(auto pending = pendings.begin(); pending != pendings.end();)
+    {
+        auto& pendingList = pending->pendingList;
+        pendings.modify(pending, _self, [&](auto &p) {
+            for(auto info = pendingList.begin(); info != pendingList.end();)
+            {
+                uint64_t maximumRefundable = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+
+                if(maximumRefundable < currentTimestamp)
+                {
+                    settles.modify(settle, _self, [&](auto &s) {
+                        if(info->settleAmount.symbol == eosSymbol)
+                        {
+                            s.eos += info->settleAmount;
+                        }
+                        else
+                        {
+                            s.itam += info->settleAmount;
+                        }
+                    });
+                    p.pendingList.erase(info);
+                }
+                else
+                {
+                    info++;
+                }
+            }
+        });
+
+        pending = pendingList.size() == 0 ? pendings.erase(pending) : ++pending;
+    }
+}
+
+ACTION itamstoreapp::claimsettle(uint64_t appId)
+{
+    require_auth(_self);
+
+    settleTable settles(_self, _self.value);
+    const auto& settle = settles.require_find(appId, "Can't find settle table");
+
+    if(settle->eos.amount > 0)
+    {
+        action(
+            permission_level{_self, name("active")},
+            name("eosio.token"),
+            name("transfer"),
+            make_tuple(
+                _self,
+                settle->account,
+                settle->eos,
+                string("ITAM Store settlement")
+            )
+        ).send();
+    };
+
+    if(settle->itam.amount > 0)
+    {
+        action(
+            permission_level{_self, name("active")},
+            name("itamtokenadm"),
+            name("transfer"),
+            make_tuple(
+                _self,
+                settle->account,
+                settle->eos,
+                string("ITAM Store settlement")
+            )
+        ).send();
+    }
+
+    settles.modify(settle, _self, [&](auto &s) {
+        s.eos.amount = 0;
+        s.itam.amount = 0;
+    });
+}
+
+ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
+{
+    require_auth(_self);
+
+    const auto& config = configs.find(_self.value);
+
+    if(config == configs.end())
+    {
+        configs.emplace(_self, [&](auto& c) {
+            c.key = _self;
+            c.ratio = ratio;
+            c.refundableDay = refundableDay;
+        });
+    }
+    else
+    {
+        configs.modify(config, _self, [&](auto& c) {
+            c.ratio = ratio;
+            c.refundableDay = refundableDay;
+        });
+    }
+}
+
+ACTION itamstoreapp::setsettle(uint64_t appId, name account)
+{
+    require_auth(_self);
+
+    settleTable settles(_self, _self.value);
+    const auto& settle = settles.find(appId);
+
+    if(settle == settles.end())
+    {
+        settles.emplace(_self, [&](auto &s) {
+            s.appId = appId;
+            s.account = account;
+            s.eos = asset(0, symbol("EOS", 4));
+            s.itam = asset(0, symbol("ITAM", 4));
+        });
+    }
+    else
+    {
+        settles.modify(settle, _self, [&](auto &s) {
+            s.account = account;
+        });
+    }
+}
+
 void itamstoreapp::setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity)
 {
     const auto& config = configs.get(_self.value, "refundable day must be set first");
@@ -565,56 +466,4 @@ void itamstoreapp::setPendingTable(uint64_t appId, uint64_t itemId, name from, a
             p.pendingList.push_back(info);
         });
     }
-}
-
-ACTION itamstoreapp::receiptapp(uint64_t appId, name from, asset quantity)
-{
-    require_auth(_self);
-    require_recipient(_self, from);
-}
-
-ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity)
-{
-    require_auth(_self);
-    require_recipient(_self, from);
-}
-
-ACTION itamstoreapp::delservice(uint64_t appId)
-{
-    require_auth(_self);
-
-    leaderboardTable boards(_self, appId);
-    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
-
-    achievementTable achievements(_self, appId);
-    for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
-}
-
-void itamstoreapp::assertIfBlockUser(string owner, uint64_t appId)
-{
-    blockTable blocks(_self, appId);
-    const auto& block = blocks.find(name(owner).value);
-    eosio_assert(block == blocks.end(), "block user");
-}
-
-bool itamstoreapp::isValidPrecision(string number, uint64_t precision)
-{
-    vector<string> score;
-
-    split(score, number, ".");
-
-    // score.size == 1 : decimal point size is 0
-    // score[1].size() <= precision : check decimal point of precision
-    return score.size() == 1 || score[1].size() <= precision;
-}
-
-void itamstoreapp::stringToAsset(asset &result, string number, uint64_t precision)
-{
-    vector<string> amount;
-    split(amount, number, ".");
-
-    uint64_t decimalPointSize = amount.size() == 1 ? 0 : amount[1].size();
-
-    result.symbol = symbol("", precision);
-    result.amount = stoull(amount[0] + amount[1], 0, 10) * pow(10, precision - decimalPointSize);
 }

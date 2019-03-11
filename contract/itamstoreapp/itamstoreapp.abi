@@ -1,47 +1,7 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar  4 14:12:16 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 11 14:19:25 2019",
     "version": "eosio::abi/1.1",
     "structs": [
-        {
-            "name": "achievement",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "name",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "acquisition",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "achieveId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
-                    "type": "string"
-                },
-                {
-                    "name": "data",
-                    "type": "string"
-                }
-            ]
-        },
         {
             "name": "app",
             "base": "",
@@ -61,74 +21,12 @@
             ]
         },
         {
-            "name": "block",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "timestamp",
-                    "type": "uint64"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "blockuser",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "claimsettle",
             "base": "",
             "fields": [
                 {
                     "name": "appId",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "cnlachieve",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "achieveId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
-                    "type": "string"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
                 }
             ]
         },
@@ -213,32 +111,6 @@
             ]
         },
         {
-            "name": "leaderboard",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "name",
-                    "type": "string"
-                },
-                {
-                    "name": "precision",
-                    "type": "uint64"
-                },
-                {
-                    "name": "minimumScore",
-                    "type": "string"
-                },
-                {
-                    "name": "maximumScore",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "menconfirm",
             "base": "",
             "fields": [
@@ -307,28 +179,6 @@
                 {
                     "name": "timestamp",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "rank",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "boardId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "ranks",
-                    "type": "string"
-                },
-                {
-                    "name": "period",
-                    "type": "string"
                 }
             ]
         },
@@ -413,20 +263,6 @@
             ]
         },
         {
-            "name": "regachieve",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "achievementList",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "registapp",
             "base": "",
             "fields": [
@@ -449,59 +285,11 @@
             ]
         },
         {
-            "name": "registboard",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "boardList",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "registitems",
             "base": "",
             "fields": [
                 {
                     "name": "params",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "score",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "boardId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "score",
-                    "type": "string"
-                },
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
-                    "type": "string"
-                },
-                {
-                    "name": "nickname",
-                    "type": "string"
-                },
-                {
-                    "name": "data",
                     "type": "string"
                 }
             ]
@@ -571,20 +359,6 @@
             ]
         },
         {
-            "name": "unblockuser",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "useitem",
             "base": "",
             "fields": [
@@ -606,23 +380,8 @@
     "types": [],
     "actions": [
         {
-            "name": "acquisition",
-            "type": "acquisition",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "blockuser",
-            "type": "blockuser",
-            "ricardian_contract": ""
-        },
-        {
             "name": "claimsettle",
             "type": "claimsettle",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "cnlachieve",
-            "type": "cnlachieve",
             "ricardian_contract": ""
         },
         {
@@ -656,11 +415,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "rank",
-            "type": "rank",
-            "ricardian_contract": ""
-        },
-        {
             "name": "receiptapp",
             "type": "receiptapp",
             "ricardian_contract": ""
@@ -681,28 +435,13 @@
             "ricardian_contract": ""
         },
         {
-            "name": "regachieve",
-            "type": "regachieve",
-            "ricardian_contract": ""
-        },
-        {
             "name": "registapp",
             "type": "registapp",
             "ricardian_contract": ""
         },
         {
-            "name": "registboard",
-            "type": "registboard",
-            "ricardian_contract": ""
-        },
-        {
             "name": "registitems",
             "type": "registitems",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "score",
-            "type": "score",
             "ricardian_contract": ""
         },
         {
@@ -721,11 +460,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "unblockuser",
-            "type": "unblockuser",
-            "ricardian_contract": ""
-        },
-        {
             "name": "useitem",
             "type": "useitem",
             "ricardian_contract": ""
@@ -733,22 +467,8 @@
     ],
     "tables": [
         {
-            "name": "achievements",
-            "type": "achievement",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "apps",
             "type": "app",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "blocks",
-            "type": "block",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -763,13 +483,6 @@
         {
             "name": "items",
             "type": "item",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "leaderboards",
-            "type": "leaderboard",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
