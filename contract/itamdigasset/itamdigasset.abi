@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar  8 16:48:18 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 11 16:28:57 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -17,20 +17,36 @@
             ]
         },
         {
-            "name": "addcategory",
+            "name": "addgroup",
             "base": "",
             "fields": [
                 {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
+                    "name": "owner",
+                    "type": "name"
                 },
                 {
-                    "name": "first_category",
-                    "type": "string"
-                },
+                    "name": "group_name",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "addwhitelist",
+            "base": "",
+            "fields": [
                 {
-                    "name": "second_category",
-                    "type": "string"
+                    "name": "allow_contract",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "allow",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
                 }
             ]
         },
@@ -195,6 +211,20 @@
             ]
         },
         {
+            "name": "modifygroup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "group_name",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "modifyorder",
             "base": "",
             "fields": [
@@ -239,6 +269,20 @@
                 {
                     "name": "price",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "ownergroup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "group_name",
+                    "type": "name"
                 }
             ]
         },
@@ -361,8 +405,13 @@
     "types": [],
     "actions": [
         {
-            "name": "addcategory",
-            "type": "addcategory",
+            "name": "addgroup",
+            "type": "addgroup",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "addwhitelist",
+            "type": "addwhitelist",
             "ricardian_contract": ""
         },
         {
@@ -388,6 +437,11 @@
         {
             "name": "modify",
             "type": "modify",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modifygroup",
+            "type": "modifygroup",
             "ricardian_contract": ""
         },
         {
@@ -425,6 +479,13 @@
             "key_types": []
         },
         {
+            "name": "allows",
+            "type": "allow",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "currencies",
             "type": "currency",
             "index_type": "i64",
@@ -434,6 +495,13 @@
         {
             "name": "orders",
             "type": "order",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "ownergroups",
+            "type": "ownergroup",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

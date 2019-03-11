@@ -35,11 +35,12 @@ ACTION itamdigasset::issue(string to, name to_group, symbol_code symbol_name, ui
     });
 
     uint64_t token_id = currency->sequence;
+    name eos_name = name("eos");
 
     string stringified_issuer = currency->issuer.to_string();
-    add_balance(stringified_issuer, currency->issuer, _self, symbol_name, group_id, token_id, token_name, options);
+    add_balance(stringified_issuer, eos_name, _self, symbol_name, group_id, token_id, token_name, options);
 
-    if(to != stringified_issuer || to_group != currency->issuer)
+    if(to != stringified_issuer || to_group != eos_name)
     {
         vector<uint64_t> token_ids {token_id};
         SEND_INLINE_ACTION(
@@ -79,6 +80,9 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
 ACTION itamdigasset::transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo)
 {
     require_auth(from_group);
+    
+    allow_table allows(_self, _self.value);
+    eosio_assert(allows.find(from_group.value) != allows.end(), "only allowed accounts can use this action");
 
     eosio_assert(is_account(to_group), "receive group account does not exist");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
@@ -194,7 +198,7 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
         permission_level{ _self, name("active") },
         name("eosio.token"),
         name("transfer"),
-        make_tuple(_self, order->owner_group, order->price - (order->price * ratio / 100), string("test"))
+        make_tuple(_self, order->owner_group, order->price - (order->price * ratio / 100), string("trade complete"))
     ).send();
 
     // send nft token to buyer
@@ -245,5 +249,15 @@ void itamdigasset::sub_balance(const string& owner, name group_name, uint64_t sy
     accounts.modify(account, group_name, [&](auto &a) {
         a.balance.amount -= 1;
         a.tokens.erase(token_id);
+    });
+}
+
+ACTION itamdigasset::addwhitelist(name allow_contract)
+{
+    require_auth(_self);
+
+    allow_table allows(_self, _self.value);
+    allows.emplace(_self, [&](auto &a) {
+        a.owner = allow_contract;
     });
 }

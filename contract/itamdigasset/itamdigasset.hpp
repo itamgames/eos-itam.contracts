@@ -23,12 +23,15 @@ CONTRACT itamdigasset : contract
         ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason);
         ACTION transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo);
         ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> token_ids, string reason);
-        ACTION addcategory(symbol_code symbol_name, string first_category, string second_category);
 
         ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
         ACTION modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
         ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id);
         ACTION transfer(uint64_t from, uint64_t to);
+
+        ACTION addwhitelist(name allow_contract);
+        ACTION addgroup(name owner, name group_name);
+        ACTION modifygroup(name owner, name group_name);
     private:
         TABLE currency
         {
@@ -69,6 +72,22 @@ CONTRACT itamdigasset : contract
             uint64_t primary_key() const { return token_id; }
         };
         typedef multi_index<name("orders"), order> order_table;
+
+        TABLE allow
+        {
+            name owner;
+            uint64_t primary_key() const { return owner.value; }
+        };
+        typedef multi_index<name("allows"), allow> allow_table;
+
+        TABLE ownergroup
+        {
+            name owner;
+            name group_name;
+
+            uint64_t primary_key() const { return owner.value; }  
+        };
+        typedef multi_index<name("ownergroups"), ownergroup> ownergroup_table;
 
         struct transfer_data
         {
