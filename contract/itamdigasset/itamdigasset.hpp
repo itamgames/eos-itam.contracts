@@ -27,7 +27,7 @@ CONTRACT itamdigasset : contract
         ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
-        ACTION addwhitelist(name allow_contract);
+        ACTION addwhitelist(name allow_account);
         ACTION addgroup(name owner, name group_account);
         ACTION modifygroup(name owner, name group_account);
     private:
