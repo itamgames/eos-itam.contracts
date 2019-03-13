@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 11 16:28:57 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 13 18:07:53 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -11,8 +11,8 @@
                     "type": "asset"
                 },
                 {
-                    "name": "tokens",
-                    "type": "pair_uint64_token[]"
+                    "name": "items",
+                    "type": "pair_uint64_item[]"
                 }
             ]
         },
@@ -25,7 +25,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "group_name",
+                    "name": "group_account",
                     "type": "name"
                 }
             ]
@@ -45,7 +45,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "owner",
+                    "name": "account",
                     "type": "name"
                 }
             ]
@@ -67,7 +67,7 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_ids",
+                    "name": "item_ids",
                     "type": "uint64[]"
                 },
                 {
@@ -93,7 +93,7 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_id",
+                    "name": "item_id",
                     "type": "uint64"
                 }
             ]
@@ -151,6 +151,10 @@
                     "type": "name"
                 },
                 {
+                    "name": "nickname",
+                    "type": "string"
+                },
+                {
                     "name": "symbol_name",
                     "type": "symbol_code"
                 },
@@ -159,7 +163,11 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "token_name",
+                    "name": "item_name",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
                     "type": "string"
                 },
                 {
@@ -168,6 +176,36 @@
                 },
                 {
                     "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "item",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
+                },
+                {
+                    "name": "group_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "item_name",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
+                    "type": "string"
+                },
+                {
+                    "name": "options",
                     "type": "string"
                 }
             ]
@@ -189,7 +227,7 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_id",
+                    "name": "item_id",
                     "type": "uint64"
                 },
                 {
@@ -197,7 +235,11 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "token_name",
+                    "name": "item_name",
+                    "type": "string"
+                },
+                {
+                    "name": "category",
                     "type": "string"
                 },
                 {
@@ -219,7 +261,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "group_name",
+                    "name": "group_account",
                     "type": "name"
                 }
             ]
@@ -241,7 +283,7 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_id",
+                    "name": "item_id",
                     "type": "uint64"
                 },
                 {
@@ -255,7 +297,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "token_id",
+                    "name": "item_id",
                     "type": "uint64"
                 },
                 {
@@ -265,6 +307,10 @@
                 {
                     "name": "owner_group",
                     "type": "name"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
                 },
                 {
                     "name": "price",
@@ -281,13 +327,13 @@
                     "type": "name"
                 },
                 {
-                    "name": "group_name",
+                    "name": "account",
                     "type": "name"
                 }
             ]
         },
         {
-            "name": "pair_uint64_token",
+            "name": "pair_uint64_item",
             "base": "",
             "fields": [
                 {
@@ -296,7 +342,7 @@
                 },
                 {
                     "name": "value",
-                    "type": "token"
+                    "type": "item"
                 }
             ]
         },
@@ -317,7 +363,7 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_id",
+                    "name": "item_id",
                     "type": "uint64"
                 },
                 {
@@ -330,28 +376,6 @@
             "name": "test",
             "base": "",
             "fields": []
-        },
-        {
-            "name": "token",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "group_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "token_name",
-                    "type": "string"
-                },
-                {
-                    "name": "options",
-                    "type": "string"
-                }
-            ]
         },
         {
             "name": "transfer",
@@ -388,11 +412,15 @@
                     "type": "name"
                 },
                 {
+                    "name": "to_nickname",
+                    "type": "string"
+                },
+                {
                     "name": "symbol_name",
                     "type": "symbol_code"
                 },
                 {
-                    "name": "token_ids",
+                    "name": "item_ids",
                     "type": "uint64[]"
                 },
                 {

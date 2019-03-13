@@ -1,6 +1,5 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include "../include/json.hpp"
 #include "../include/common.hpp"
 
 using namespace eosio;
@@ -11,7 +10,6 @@ CONTRACT itamdigasset : contract
     public:
         itamdigasset(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         currencies(_self, _self.value) {}
-        using json = nlohmann::json;
         
         ACTION test()
         {
@@ -19,19 +17,19 @@ CONTRACT itamdigasset : contract
             for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
         }
         ACTION create(name issuer, symbol_code symbol_name, uint64_t app_id);
-        ACTION issue(string to, name to_group, symbol_code symbol_name, uint64_t group_id, string token_name, string options, string reason);
-        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason);
-        ACTION transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo);
-        ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> token_ids, string reason);
+        ACTION issue(string to, name to_group, string nickname, symbol_code symbol_name, uint64_t group_id, string item_name, string category, string options, string reason);
+        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, string reason);
+        ACTION transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo);
+        ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason);
 
-        ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
-        ACTION modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price);
-        ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id);
+        ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price);
+        ACTION modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price);
+        ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
         ACTION addwhitelist(name allow_contract);
-        ACTION addgroup(name owner, name group_name);
-        ACTION modifygroup(name owner, name group_name);
+        ACTION addgroup(name owner, name group_account);
+        ACTION modifygroup(name owner, name group_account);
     private:
         TABLE currency
         {
@@ -45,18 +43,20 @@ CONTRACT itamdigasset : contract
         typedef multi_index<name("currencies"), currency> currency_table;
         currency_table currencies;
 
-        struct token
+        struct item
         {
             string owner;
+            string nickname;
             uint64_t group_id;
-            string token_name;
+            string item_name;
+            string category;
             string options;
         };
 
         TABLE account
         {
             asset balance;
-            map<uint64_t, token> tokens;
+            map<uint64_t, item> items;
 
             uint64_t primary_key() const { return balance.symbol.code().raw(); }
         };
@@ -64,28 +64,29 @@ CONTRACT itamdigasset : contract
 
         TABLE order
         {
-            uint64_t token_id;
+            uint64_t item_id;
             string owner;
             name owner_group;
+            string nickname;
             asset price;
 
-            uint64_t primary_key() const { return token_id; }
+            uint64_t primary_key() const { return item_id; }
         };
         typedef multi_index<name("orders"), order> order_table;
 
         TABLE allow
         {
-            name owner;
-            uint64_t primary_key() const { return owner.value; }
+            name account;
+            uint64_t primary_key() const { return account.value; }
         };
         typedef multi_index<name("allows"), allow> allow_table;
 
         TABLE ownergroup
         {
             name owner;
-            name group_name;
+            name account;
 
-            uint64_t primary_key() const { return owner.value; }  
+            uint64_t primary_key() const { return owner.value; }
         };
         typedef multi_index<name("ownergroups"), ownergroup> ownergroup_table;
 
@@ -100,18 +101,25 @@ CONTRACT itamdigasset : contract
         struct memo_data
         {
             string buyer;
+            string buyer_nickname;
+            string buyer_group;
             string symbol_name;
-            string token_id;
+            string item_id;
         };
 
-        void add_balance(const string& owner, name group_name, name ram_payer, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, const string& token_name, const string& options);
-        void sub_balance(const string& owner, name group_name, uint64_t symbol_raw, uint64_t token_id);
+        void add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t);
+        void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
+        name get_group_account(const string& owner, name owner_group);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        if( code == receiver || code == name("eosio.token").value ) { \
+        bool is_allowed_transfer = code == name("eosio.item").value; \
+        if( code == receiver || is_allowed_transfer ) { \
+            if( action == name("transfer").value ) { \
+                eosio_assert(is_allowed_transfer, "only eosio.item can call transfer"); \
+            } \
             switch( action ) { \
                 EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
             } \
@@ -119,4 +127,4 @@ extern "C" { \
     } \
 } \
 
-EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(transfer))
+EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addgroup)(modifygroup)(addwhitelist)(transfer))

@@ -10,7 +10,7 @@ ACTION itamdigasset::create(name issuer, symbol_code symbol_name, uint64_t app_i
     eosio_assert(is_account(issuer), "Invalid issuer");
 
     const auto& currency = currencies.find(symbol_name.raw());
-    eosio_assert(currency == currencies.end(), "Already token created");
+    eosio_assert(currency == currencies.end(), "Already item created");
 
     currencies.emplace(_self, [&](auto &c) {
         c.issuer = issuer;
@@ -20,11 +20,9 @@ ACTION itamdigasset::create(name issuer, symbol_code symbol_name, uint64_t app_i
     });
 }
 
-ACTION itamdigasset::issue(string to, name to_group, symbol_code symbol_name, uint64_t group_id, string token_name, string options, string reason)
+ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_code symbol_name, uint64_t group_id, string item_name, string category, string options, string reason)
 {
     require_auth(_self);
-
-    eosio_assert(is_account(to_group), "to_group account does not exist");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
@@ -34,25 +32,26 @@ ACTION itamdigasset::issue(string to, name to_group, symbol_code symbol_name, ui
         c.sequence += 1;
     });
 
-    uint64_t token_id = currency->sequence;
+    uint64_t item_id = currency->sequence;
+
+    string stringified_self = _self.to_string();
+    item t { stringified_self, nickname, group_id, item_name, category, options };
+    add_balance(_self, _self, symbol_name, item_id, t);
+
     name eos_name = name("eos");
-
-    string stringified_issuer = currency->issuer.to_string();
-    add_balance(stringified_issuer, eos_name, _self, symbol_name, group_id, token_id, token_name, options);
-
-    if(to != stringified_issuer || to_group != eos_name)
+    if(to != stringified_self || to_group != eos_name)
     {
-        vector<uint64_t> token_ids {token_id};
+        vector<uint64_t> item_ids {item_id};
         SEND_INLINE_ACTION(
             *this,
             transfernft,
-            { {currency->issuer, name("active")} },
-            { stringified_issuer, currency->issuer, to, to_group, symbol_name, token_ids, reason }
+            { {_self, name("active")} },
+            { stringified_self, eos_name, to, to_group, nickname, symbol_name, item_ids, reason }
         );
     }
 }
 
-ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, uint64_t group_id, string token_name, string options, string reason)
+ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, string reason)
 {
     require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -60,118 +59,148 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
     uint64_t symbol_raw = symbol_name.raw();
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
 
-    account_table accounts(_self, owner_group.value);
+    name group_account = get_group_account(owner, owner_group);
+
+    account_table accounts(_self, group_account.value);
     const auto& account = accounts.require_find(symbol_raw, "not enough balance");
 
-    map<uint64_t, token> owner_tokens = account->tokens;
-    auto iter = owner_tokens.find(token_id);
-    eosio_assert(iter != owner_tokens.end(), "no item object found");
+    map<uint64_t, item> owner_items = account->items;
+    auto iter = owner_items.find(item_id);
+    eosio_assert(iter != owner_items.end(), "no item object found");
 
-    token owner_token = iter->second;
-    eosio_assert(owner_token.owner == owner, "different owner");
+    item owner_item = iter->second;
+    eosio_assert(owner_item.owner == owner, "different owner");
 
     accounts.modify(account, _self, [&](auto &a) {
-        a.tokens[token_id].group_id = group_id;
-        a.tokens[token_id].token_name = token_name;
-        a.tokens[token_id].options = options;
+        auto& item = a.items[item_id];
+        item.group_id = group_id;
+        item.item_name = item_name;
+        item.category = category;
+        item.options = options;
     });    
 }
 
-ACTION itamdigasset::transfernft(string from, name from_group, string to, name to_group, symbol_code symbol_name, vector<uint64_t> token_ids, string memo)
+ACTION itamdigasset::transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo)
 {
-    require_auth(from_group);
-    
-    allow_table allows(_self, _self.value);
-    eosio_assert(allows.find(from_group.value) != allows.end(), "only allowed accounts can use this action");
+    name from_group_account = get_group_account(from, from_group);
+    require_auth(from_group_account);
 
-    eosio_assert(is_account(to_group), "receive group account does not exist");
+    allow_table allows(_self, _self.value);
+    eosio_assert(allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
+
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
     
+    name to_group_account = get_group_account(to, to_group);
+    eosio_assert(is_account(to_group_account), "to_group_account does not exist");
+    
     uint64_t symbol_raw = symbol_name.raw();
 
-    account_table accounts(_self, from_group.value);
+    account_table accounts(_self, from_group_account.value);
     const auto& from_account = accounts.require_find(symbol_raw, "not enough balance");
 
-    map<uint64_t, token> from_tokens = from_account->tokens;
-    name author = has_auth(to_group) ? to_group : from_group;
-    for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
+    map<uint64_t, item> from_items = from_account->items;
+    name author = has_auth(to_group_account) ? to_group_account : from_group_account;
+
+    for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
     {
-        uint64_t token_id = *iter;
-        token from_token = from_tokens[token_id];
-        
+        uint64_t item_id = *iter;
+
+        item t = from_items[item_id];
+        eosio_assert(t.owner == from, "different from owner");
+
+        t.owner = to;
+        t.nickname = to_nickname;
+
         // Always proceed to this flow.(sub -> add) because from_group can equal to_group
-        sub_balance(from, from_group, symbol_raw, token_id);
-        add_balance(to, to_group, author, symbol_name, from_token.group_id, token_id, from_token.token_name, from_token.options);
+        sub_balance(from, from_group_account, from_group_account, symbol_raw, item_id);
+        add_balance(to_group_account, author, symbol_name, item_id, t);
     }
 }
 
-ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> token_ids, string reason)
+ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
 {
-    name payer = has_auth(owner_group) ? owner_group : _self;
-    eosio_assert(has_auth(payer), "Unauthorized Error");
-    uint64_t symbol_raw = symbol_name.raw();
-
+    name group_account = get_group_account(owner, owner_group);
+    name author = has_auth(group_account) ? group_account : _self;
+    require_auth(author);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
+    uint64_t symbol_raw = symbol_name.raw();
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
-    currencies.modify(currency, payer, [&](auto &c) {
-        c.supply -= asset(token_ids.size(), symbol(symbol_name, 0));
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.supply -= asset(item_ids.size(), symbol(symbol_name, 0));
     });
 
-    for(auto iter = token_ids.begin(); iter != token_ids.end(); iter++)
+    for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
     {
-        sub_balance(owner, owner_group, symbol_raw, *iter);
+        sub_balance(owner, group_account, author, symbol_raw, *iter);
     }
 }
 
-ACTION itamdigasset::sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price)
+ACTION itamdigasset::sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
 {
     eosio_assert(price.symbol == symbol("EOS", 4), "only eos symbol available");
 
+    name group_account = get_group_account(owner, owner_group);
+    require_auth(group_account);
+    
+    account_table accounts(_self, group_account.value);
+    const auto& account = accounts.get(symbol_name.raw(), "item not found");
+    
+    map<uint64_t, item> owner_items = account.items;
+    item owner_item = owner_items[item_id];
+
     order_table orders(_self, symbol_name.raw());
-    orders.emplace(owner_group, [&](auto &o) {
-        o.token_id = token_id;
+    orders.emplace(group_account, [&](auto &o) {
+        o.item_id = item_id;
         o.owner = owner;
         o.owner_group = owner_group;
+        o.nickname = owner_item.nickname;
         o.price = price;
     });
 
-    SEND_INLINE_ACTION(
-        *this,
-        transfernft,
-        { { owner_group, name("active") } },
-        { owner, owner_group, _self.to_string(), _self, symbol_name, vector<uint64_t> { token_id }, string("order") }
-    );
+    owner_item.owner = _self.to_string();
+    
+    // transfernft owner to itam contract
+    sub_balance(owner, group_account, group_account, symbol_name.raw(), item_id);
+    add_balance(_self, group_account, symbol_name, item_id, owner_item);
 }
 
-ACTION itamdigasset::modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id, asset price)
+ACTION itamdigasset::modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
 {
-    require_auth(owner_group);
+    name group_account = get_group_account(owner, owner_group);
+    require_auth(group_account);
     eosio_assert(price.symbol == symbol("EOS", 4), "only eos symbol available");
     
     order_table orders(_self, symbol_name.raw());
-    const auto& order = orders.require_find(token_id, "not found token in orderbook");
+    const auto& order = orders.require_find(item_id, "not found item in orderbook");
     eosio_assert(order->owner == owner, "different owner");
 
-    orders.modify(order, owner_group, [&](auto& o) {
+    orders.modify(order, group_account, [&](auto& o) {
         o.price = price;
     });
 }
 
-ACTION itamdigasset::cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t token_id)
+ACTION itamdigasset::cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id)
 {
     order_table orders(_self, symbol_name.raw());
-    const auto& order = orders.require_find(token_id, "not exists token id");
+    const auto& order = orders.require_find(item_id, "not exists item id");
 
-    require_auth(order->owner_group);
+    name group_account = get_group_account(owner, owner_group);
+
+    require_auth(group_account);
     eosio_assert(order->owner == owner, "different owner");
 
-    SEND_INLINE_ACTION(
-        *this,
-        transfernft,
-        { { _self, name("active") } },
-        { _self.to_string(), _self, order->owner, order->owner_group, symbol_name, vector<uint64_t> { token_id }, string("cancel order") }
-    );
+    account_table accounts(_self, _self.value);
+    const auto& self_account = accounts.get(symbol_name.raw(), "not enough balance");
+
+    map<uint64_t, item> self_items = self_account.items;
+    item t = self_items[item_id];
+    
+    t.owner = owner;
+
+    sub_balance(_self.to_string(), _self, group_account, symbol_name.raw(), item_id);
+    add_balance(group_account, group_account, symbol_name, item_id, t);
+
     orders.erase(order);
 }
 
@@ -184,11 +213,13 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     parseMemo(&message, data.memo, "|");
 
     symbol sym(message.symbol_name, 0);
-    uint64_t token_id = stoull(message.token_id, 0, 10);
+    uint64_t item_id = stoull(message.item_id, 0, 10);
     
     order_table orders(_self, sym.code().raw());
-    const auto& order = orders.require_find(token_id, "token not found in orders");
+    const auto& order = orders.require_find(item_id, "item not found in orders");
     eosio_assert(order->price == data.quantity, "wrong quantity");
+
+    name owner_group_account = get_group_account(order->owner, order->owner_group);
 
     // TODO: save ratio in table
     uint64_t ratio = 15;
@@ -196,68 +227,117 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     // send price - fees to item owner
     action(
         permission_level{ _self, name("active") },
-        name("eosio.token"),
+        name("eosio.item"),
         name("transfer"),
-        make_tuple(_self, order->owner_group, order->price - (order->price * ratio / 100), string("trade complete"))
+        make_tuple(_self, owner_group_account, order->price - (order->price * ratio / 100), string("trade complete"))
     ).send();
 
-    // send nft token to buyer
+    // send nft item to buyer
     SEND_INLINE_ACTION(
         *this,
         transfernft,
         { { _self, name("active") } },
-        { _self.to_string(), _self, message.buyer, data.from, sym.code(), vector<uint64_t> { token_id }, string("trade complete") }
+        { _self.to_string(), name("eos"), message.buyer, name(message.buyer_group), message.buyer_nickname, sym.code(), vector<uint64_t> { item_id }, string("trade complete") }
     );
 
     orders.erase(order);
 }
 
-void itamdigasset::add_balance(const string& owner, name group_name, name ram_payer, symbol_code symbol_name, uint64_t group_id, uint64_t token_id, const string& token_name, const string& options)
+void itamdigasset::add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t)
 {
-    account_table accounts(_self, group_name.value);
+    account_table accounts(_self, group_account.value);
     const auto& account = accounts.find(symbol_name.raw());
 
-    token t { owner, group_id, token_name, options };
     if(account == accounts.end())
     {
         accounts.emplace(ram_payer, [&](auto &a) {
             a.balance.amount = 1;
             a.balance.symbol = symbol(symbol_name, 0);
-            a.tokens[token_id] = t;
+            a.items[item_id] = t; 
         });
     }
     else
     {
         accounts.modify(account, ram_payer, [&](auto &a) {
-            eosio_assert(a.tokens.count(token_id) == 0, "already token id created");
+            eosio_assert(a.items.count(item_id) == 0, "already item id created");
             a.balance.amount += 1;
-            a.tokens[token_id] = t;
+            a.items[item_id] = t;
         });
     }
+    
 }
 
-void itamdigasset::sub_balance(const string& owner, name group_name, uint64_t symbol_raw, uint64_t token_id)
+void itamdigasset::sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id)
 {
-    account_table accounts(_self, group_name.value);
+    account_table accounts(_self, group_account.value);
     const auto& account = accounts.require_find(symbol_raw, "not enough balance");
-    map<uint64_t, token> tokens = account->tokens;
+    map<uint64_t, item> items = account->items;
 
-    const auto& token = tokens.find(token_id);
-    eosio_assert(token != tokens.end(), "no item object found");
-    eosio_assert(token->second.owner == owner, "different owner");
+    const auto& item = items.find(item_id);
+    eosio_assert(item != items.end(), "no item object found");
+    eosio_assert(item->second.owner == owner, "different owner");
 
-    accounts.modify(account, group_name, [&](auto &a) {
+    accounts.modify(account, ram_payer, [&](auto &a) {
         a.balance.amount -= 1;
-        a.tokens.erase(token_id);
+        a.items.erase(item_id);
     });
 }
 
-ACTION itamdigasset::addwhitelist(name allow_contract)
+ACTION itamdigasset::addgroup(name group_name, name group_account)
+{
+    require_auth(_self);
+    eosio_assert(is_account(group_account), "group_account does not exist");
+    
+    ownergroup_table ownergroups(_self, _self.value);
+    ownergroups.emplace(_self, [&](auto &o) {
+        o.owner = group_name;
+        o.account = group_account;
+    });
+}
+
+ACTION itamdigasset::modifygroup(name owner, name group_account)
+{
+    require_auth(_self);
+    eosio_assert(is_account(group_account), "group_account does not exist");
+
+    ownergroup_table ownergroups(_self, _self.value);
+    const auto& ownergroup = ownergroups.require_find(owner.value, "invalid group name");
+
+    account_table before_accounts(_self, ownergroup->account.value);
+    account_table after_accounts(_self, group_account.value);
+
+    for(auto account = before_accounts.begin(); account != before_accounts.end(); account = before_accounts.erase(account))
+    {
+        after_accounts.emplace(_self, [&](auto &a) {
+            a.balance = account->balance;
+            a.items = account->items;
+        });
+    }
+
+    ownergroups.modify(ownergroup, _self, [&](auto &o) {
+        o.account = group_account;
+    });
+}
+
+ACTION itamdigasset::addwhitelist(name allow_account)
 {
     require_auth(_self);
 
     allow_table allows(_self, _self.value);
     allows.emplace(_self, [&](auto &a) {
-        a.owner = allow_contract;
+        a.account = allow_account;
     });
+}
+
+name itamdigasset::get_group_account(const string& owner, name owner_group)
+{
+    if(owner_group.to_string() == "eos")
+    {
+        return name(owner);
+    }
+
+    ownergroup_table ownergroups(_self, _self.value);
+    const auto& ownergroup = ownergroups.get(owner_group.value);
+
+    return ownergroup.account;
 }
