@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 13 18:07:53 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 13 19:00:31 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -35,7 +35,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "allow_contract",
+                    "name": "allow_account",
                     "type": "name"
                 }
             ]
