@@ -227,7 +227,7 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     // send price - fees to item owner
     action(
         permission_level{ _self, name("active") },
-        name("eosio.item"),
+        name("eosio.token"),
         name("transfer"),
         make_tuple(_self, owner_group_account, order->price - (order->price * ratio / 100), string("trade complete"))
     ).send();
