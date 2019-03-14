@@ -64,10 +64,20 @@ CONTRACT itamregistal : public contract {
             uint64_t primary_key() const { return ownerGroup.value; }
         };
         typedef multi_index<name("blocks"), block> blockTable;
+
+        struct ownergroup
+        {
+            name owner;
+            name account;
+
+            uint64_t primary_key() const { return owner.value; }
+        };
+        typedef multi_index<name("ownergroups"), ownergroup> ownergroupTable;
     private:
-        void assertIfBlockUser(uint64_t appId, const string& owner, name ownerGroup);
+        void assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount);
         void stringToAsset(asset &result, const string& number, uint64_t precision);
         bool isValidPrecision(const string& number, uint64_t precision);
+        name getGroupAccount(const string& owner, name ownerGroup);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \

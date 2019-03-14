@@ -27,8 +27,9 @@ ACTION itamregistal::registboard(uint64_t appId, string boardList)
 ACTION itamregistal::score(uint64_t appId, uint64_t boardId, string score, string owner, name ownerGroup, string nickname, string data)
 {
     require_auth(_self);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not account");
-    assertIfBlockUser(appId, owner, ownerGroup);
+    name groupAccount = getGroupAccount(owner, ownerGroup);
+    eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
+    assertIfBlockUser(appId, owner, groupAccount);
 
     leaderboardTable boards(_self, appId);
     const auto& board = boards.get(boardId, "invalid board id");
@@ -74,8 +75,9 @@ ACTION itamregistal::regachieve(uint64_t appId, string achievementList)
 ACTION itamregistal::acquisition(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not account");
-    assertIfBlockUser(appId, owner, ownerGroup);
+    name groupAccount = getGroupAccount(owner, ownerGroup);
+    eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
+    assertIfBlockUser(appId, owner, groupAccount);
 
     achievementTable achievements(_self, appId);
     achievements.get(achieveId, "invalid achieve id");
@@ -84,8 +86,9 @@ ACTION itamregistal::acquisition(uint64_t appId, uint64_t achieveId, string owne
 ACTION itamregistal::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not account");
-    assertIfBlockUser(appId, owner, ownerGroup);
+    name groupAccount = getGroupAccount(owner, ownerGroup);
+    eosio_assert(is_account(ownerGroup), "ownerGroup is not valid");
+    assertIfBlockUser(appId, owner, groupAccount);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     achievementTable achievements(_self, appId);
@@ -95,16 +98,17 @@ ACTION itamregistal::cnlachieve(uint64_t appId, uint64_t achieveId, string owner
 ACTION itamregistal::blockuser(uint64_t appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not account");
+    name groupAccount = getGroupAccount(owner, ownerGroup);
+    eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     blockTable blocks(_self, appId);
-    const auto& block = blocks.find(ownerGroup.value);
+    const auto& block = blocks.find(groupAccount.value);
 
     if(block == blocks.end())
     {
         blocks.emplace(_self, [&](auto &b) {
-            b.ownerGroup = ownerGroup;
+            b.ownerGroup = groupAccount;
             b.owners[owner] = blockInfo { now(), reason };
         });
     }
@@ -120,11 +124,12 @@ ACTION itamregistal::blockuser(uint64_t appId, string owner, name ownerGroup, st
 ACTION itamregistal::unblockuser(uint64_t appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not account");
+    name groupAccount = getGroupAccount(owner, ownerGroup);    
+    eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     blockTable blocks(_self, appId);
-    const auto& block = blocks.require_find(ownerGroup.value, "Already unblock");
+    const auto& block = blocks.require_find(groupAccount.value, "Already unblock");
 
     eosio_assert(block->owners.count(owner) > 0, "Already unblock");
     blocks.modify(block, _self, [&](auto &b) {
@@ -148,11 +153,16 @@ ACTION itamregistal::delservice(uint64_t appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-void itamregistal::assertIfBlockUser(uint64_t appId, const string& owner, name ownerGroup)
+void itamregistal::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
 {
     blockTable blocks(_self, appId);
-    const auto& block = blocks.find(ownerGroup.value);
-    eosio_assert(block == blocks.end(), "block user");
+    const auto& block = blocks.find(groupAccount.value);
+    if(block == blocks.end())
+    {
+        return;
+    }
+
+    eosio_assert(block->owners.count(owner) == 0, "block user");
 }
 
 bool itamregistal::isValidPrecision(const string& number, uint64_t precision)
@@ -175,4 +185,16 @@ void itamregistal::stringToAsset(asset &result, const string& number, uint64_t p
 
     result.symbol = symbol("", precision);
     result.amount = stoull(amount[0] + amount[1], 0, 10) * pow(10, precision - decimalPointSize);
+}
+
+name itamregistal::getGroupAccount(const string& owner, name ownerGroup)
+{
+    if(ownerGroup.to_string() == "eos")
+    {
+        return name(owner);
+    }
+
+    name digitalAssetName = name("itamdigasset");
+    ownergroupTable ownergroups(digitalAssetName, digitalAssetName.value);
+    return ownergroups.get(ownerGroup.value).account;
 }
