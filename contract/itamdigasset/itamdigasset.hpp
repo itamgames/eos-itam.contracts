@@ -115,7 +115,7 @@ CONTRACT itamdigasset : contract
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        bool is_allowed_transfer = code == name("eosio.item").value; \
+        bool is_allowed_transfer = code == name("eosio.token").value; \
         if( code == receiver || is_allowed_transfer ) { \
             if( action == name("transfer").value ) { \
                 eosio_assert(is_allowed_transfer, "only eosio.item can call transfer"); \
