@@ -22,10 +22,9 @@ ACTION itamdigasset::create(name issuer, symbol_code symbol_name, uint64_t app_i
 
 ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_code symbol_name, uint64_t group_id, string item_name, string category, string options, string reason)
 {
-    require_auth(_self);
-    eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
-
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
+    require_auth(currency->issuer);
+    eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     currencies.modify(currency, _self, [&](auto &c) {
         c.supply.amount += 1;
@@ -337,7 +336,7 @@ name itamdigasset::get_group_account(const string& owner, name owner_group)
     }
 
     ownergroup_table ownergroups(_self, _self.value);
-    const auto& ownergroup = ownergroups.get(owner_group.value);
+    const auto& ownergroup = ownergroups.get(owner_group.value, "invalid group name");
 
     return ownergroup.account;
 }
