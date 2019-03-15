@@ -16,40 +16,38 @@ CONTRACT itamstoreapp : public contract
         
         ACTION registapp(uint64_t appId, name owner, asset amount, string params);
         ACTION deleteapp(uint64_t appId);
-        ACTION refundapp(uint64_t appId, name buyer);
+        ACTION refundapp(uint64_t appId, string buyer, name buyerGroup);
         ACTION registitems(string params);
         ACTION deleteitems(string params);
-        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset eos, asset itam);
-        ACTION refunditem(uint64_t appId, uint64_t itemId, name buyer);
+        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset price);
+        ACTION refunditem(uint64_t appId, uint64_t itemId, string buyer, name buyerGroup);
         ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
         ACTION transfer(uint64_t from, uint64_t to);
-        ACTION receiptapp(uint64_t appId, name from, asset quantity);
-        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, string token, name from, asset quantity);
+        ACTION receiptapp(uint64_t appId, name from, string owner, name ownerGroup, asset quantity);
+        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
         ACTION defconfirm(uint64_t appId);
         ACTION menconfirm(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
-        ACTION delservice(uint64_t appId);
     private:
         // item
-        TABLE item {
+        TABLE item
+        {
             uint64_t itemId;
             string itemName;
-            asset eos;
-            asset itam;
+            asset price;
 
             uint64_t primary_key() const { return itemId; }
         };
         typedef multi_index<"items"_n, item> itemTable;
-
 
         // app
         TABLE app
         {
             uint64_t appId;
             name owner;
-            asset amount;
+            asset price;
 
             uint64_t primary_key() const { return appId; }
         };
@@ -62,16 +60,17 @@ CONTRACT itamstoreapp : public contract
         {
             uint64_t appId;
             uint64_t itemId;
+            string owner;
             asset settleAmount;
             uint64_t timestamp;
         };
 
         TABLE pending
         {
-            name buyer;
+            name ownerGroup;
             vector<pendingInfo> pendingList;
 
-            uint64_t primary_key() const { return buyer.value; }
+            uint64_t primary_key() const { return ownerGroup.value; }
         };
         typedef multi_index<"pendings"_n, pending> pendingTable;
 
@@ -79,8 +78,7 @@ CONTRACT itamstoreapp : public contract
         {
             uint64_t appId;
             name account;
-            asset eos;
-            asset itam;
+            asset settleAmount;
 
             uint64_t primary_key() const { return appId; }
         };
@@ -97,30 +95,41 @@ CONTRACT itamstoreapp : public contract
         typedef multi_index<"configs"_n, config> configTable;
         configTable configs;
 
-        struct transferData {
+        struct ownergroup
+        {
+            name owner;
+            name account;
+
+            uint64_t primary_key() const { return owner.value; }
+        };
+        typedef multi_index<name("ownergroups"), ownergroup> ownergroupTable;
+
+        struct transferData
+        {
             name from;
             name to;
             asset quantity;
             string memo;
         };
 
-        struct memoData {
+        struct memoData
+        {
             string category;
+            string owner;
+            string ownerGroup;
             string appId;
             string itemId;
-            string token;
         };
 
         void confirm(uint64_t appId);
-        void transferApp(transferData& txData, memoData& memo);
-        void transferItem(transferData& txData, memoData& memo);
-        void setPendingTable(uint64_t appId, uint64_t itemId, name from, asset quantity);
+        void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
+        name getGroupAccount(const string& owner, name ownerGroup);
 };
 
 #define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        bool isAllowedContract = code == name("eosio.token").value || code == name("itamtokenadm").value; \
+        bool isAllowedContract = code == name("eosio.token").value; \
         if( code == receiver || isAllowedContract ) { \
             if(action == name("transfer").value) { \
                 eosio_assert(isAllowedContract, "eosio.token or itamtokenadm can call internal transfer"); \

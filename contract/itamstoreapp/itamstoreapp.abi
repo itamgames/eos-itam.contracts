@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 11 14:19:25 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar 15 15:20:07 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -15,7 +15,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "amount",
+                    "name": "price",
                     "type": "asset"
                 }
             ]
@@ -79,16 +79,6 @@
             ]
         },
         {
-            "name": "delservice",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "item",
             "base": "",
             "fields": [
@@ -101,11 +91,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "eos",
-                    "type": "asset"
-                },
-                {
-                    "name": "itam",
+                    "name": "price",
                     "type": "asset"
                 }
             ]
@@ -137,11 +123,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "eos",
-                    "type": "asset"
-                },
-                {
-                    "name": "itam",
+                    "name": "price",
                     "type": "asset"
                 }
             ]
@@ -151,7 +133,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "buyer",
+                    "name": "ownerGroup",
                     "type": "name"
                 },
                 {
@@ -173,6 +155,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
                     "name": "settleAmount",
                     "type": "asset"
                 },
@@ -192,6 +178,14 @@
                 },
                 {
                     "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
+                    "name": "ownerGroup",
                     "type": "name"
                 },
                 {
@@ -217,11 +211,15 @@
                     "type": "string"
                 },
                 {
-                    "name": "token",
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "owner",
                     "type": "string"
                 },
                 {
-                    "name": "from",
+                    "name": "ownerGroup",
                     "type": "name"
                 },
                 {
@@ -240,6 +238,10 @@
                 },
                 {
                     "name": "buyer",
+                    "type": "string"
+                },
+                {
+                    "name": "buyerGroup",
                     "type": "name"
                 }
             ]
@@ -258,6 +260,10 @@
                 },
                 {
                     "name": "buyer",
+                    "type": "string"
+                },
+                {
+                    "name": "buyerGroup",
                     "type": "name"
                 }
             ]
@@ -335,11 +341,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "eos",
-                    "type": "asset"
-                },
-                {
-                    "name": "itam",
+                    "name": "settleAmount",
                     "type": "asset"
                 }
             ]
@@ -397,11 +399,6 @@
         {
             "name": "deleteitems",
             "type": "deleteitems",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "delservice",
-            "type": "delservice",
             "ricardian_contract": ""
         },
         {
