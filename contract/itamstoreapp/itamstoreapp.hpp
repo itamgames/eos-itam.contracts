@@ -132,7 +132,7 @@ extern "C" { \
         bool isAllowedContract = code == name("eosio.token").value; \
         if( code == receiver || isAllowedContract ) { \
             if(action == name("transfer").value) { \
-                eosio_assert(isAllowedContract, "eosio.token or itamtokenadm can call internal transfer"); \
+                eosio_assert(isAllowedContract, "only eosio.token can call internal transfer"); \
             } \
             switch( action ) { \
                 EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
