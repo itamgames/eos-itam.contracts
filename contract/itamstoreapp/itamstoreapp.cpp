@@ -288,7 +288,7 @@ ACTION itamstoreapp::confirm(uint64_t appId, name ownerGroup)
 
     vector<pendingInfo> pendingUsers = pending->pendingList;
     pendings.modify(pending, _self, [&](auto &p) {
-        for(auto user = pendingUsers.begin(); user != pendingUsers.end(); user++)
+        for(auto user = pendingUsers.begin(); user != pendingUsers.end();)
         {
             uint64_t refundableTimestamp = user->timestamp + (config.refundableDay * SECONDS_OF_DAY);
             if(refundableTimestamp < currentTimestamp)
