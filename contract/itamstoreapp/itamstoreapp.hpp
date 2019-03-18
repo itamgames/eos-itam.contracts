@@ -3,6 +3,7 @@
 #include <eosiolib/transaction.hpp>
 #include "../include/json.hpp"
 #include "../include/common.hpp"
+#include "../include/dispatcher.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -27,6 +28,7 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
         ACTION defconfirm(uint64_t appId);
         ACTION menconfirm(uint64_t appId);
+        ACTION confirmall(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
@@ -125,21 +127,6 @@ CONTRACT itamstoreapp : public contract
         void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
         name getGroupAccount(const string& owner, name ownerGroup);
 };
-
-#define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
-extern "C" { \
-    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        bool isAllowedContract = code == name("eosio.token").value; \
-        if( code == receiver || isAllowedContract ) { \
-            if(action == name("transfer").value) { \
-                eosio_assert(isAllowedContract, "only eosio.token can call internal transfer"); \
-            } \
-            switch( action ) { \
-                EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
-            } \
-        } \
-    } \
-} \
 
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)

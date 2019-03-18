@@ -1,6 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include "../include/common.hpp"
+#include "../include/dispatcher.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -111,20 +112,5 @@ CONTRACT itamdigasset : contract
         void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
         name get_group_account(const string& owner, name owner_group);
 };
-
-#define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
-extern "C" { \
-    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        bool is_allowed_transfer = code == name("eosio.token").value; \
-        if( code == receiver || is_allowed_transfer ) { \
-            if( action == name("transfer").value ) { \
-                eosio_assert(is_allowed_transfer, "only eosio.item can call transfer"); \
-            } \
-            switch( action ) { \
-                EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
-            } \
-        } \
-    } \
-} \
 
 EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addgroup)(modifygroup)(addwhitelist)(transfer))

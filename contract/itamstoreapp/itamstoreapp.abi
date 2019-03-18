@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 18 07:53:15 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 18 08:59:52 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -44,6 +44,16 @@
                 },
                 {
                     "name": "refundableDay",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "confirmall",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
                     "type": "uint64"
                 }
             ]
@@ -384,6 +394,11 @@
         {
             "name": "claimsettle",
             "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "confirmall",
+            "type": "confirmall",
             "ricardian_contract": ""
         },
         {
