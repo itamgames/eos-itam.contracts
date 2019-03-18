@@ -114,6 +114,8 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
         sub_balance(from, from_group_account, from_group_account, symbol_raw, item_id);
         add_balance(to_group_account, author, symbol_name, item_id, t);
     }
+
+    // TODO: receipt
 }
 
 ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
