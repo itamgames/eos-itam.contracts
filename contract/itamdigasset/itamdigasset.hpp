@@ -1,6 +1,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include "../include/common.hpp"
+#include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
 
 using namespace eosio;

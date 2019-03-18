@@ -2,7 +2,7 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
 #include "../include/json.hpp"
-#include "../include/common.hpp"
+#include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
 
 using namespace eosio;
