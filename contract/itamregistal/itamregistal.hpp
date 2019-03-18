@@ -1,6 +1,5 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include <vector>
 #include "../include/json.hpp"
 #include "../include/common.hpp"
 #include "../include/dispatcher.hpp"
