@@ -26,8 +26,8 @@ CONTRACT itamstoreapp : public contract
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, string owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
-        ACTION defconfirm(uint64_t appId);
-        ACTION menconfirm(uint64_t appId);
+        ACTION defconfirm(uint64_t appId, name ownerGroup);
+        ACTION menconfirm(uint64_t appId, name ownerGroup);
         ACTION confirmall(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
@@ -36,22 +36,22 @@ CONTRACT itamstoreapp : public contract
         // item
         TABLE item
         {
-            uint64_t itemId;
+            uint64_t id;
             string itemName;
             asset price;
 
-            uint64_t primary_key() const { return itemId; }
+            uint64_t primary_key() const { return id; }
         };
         typedef multi_index<"items"_n, item> itemTable;
 
         // app
         TABLE app
         {
-            uint64_t appId;
+            uint64_t id;
             name owner;
             asset price;
 
-            uint64_t primary_key() const { return appId; }
+            uint64_t primary_key() const { return id; }
         };
         typedef multi_index<"apps"_n, app> appTable;
 
@@ -123,7 +123,7 @@ CONTRACT itamstoreapp : public contract
             string itemId;
         };
 
-        void confirm(uint64_t appId);
+        void confirm(uint64_t appId, name ownerGroup);
         void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
         name getGroupAccount(const string& owner, name ownerGroup);
 };

@@ -21,7 +21,7 @@ ACTION itamstoreapp::registitems(string params)
     for(int i = 0; i < registItems.size(); i++)
     {
         items.emplace(_self, [&](auto &item) {
-            item.itemId = registItems[i]["itemId"];
+            item.id = registItems[i]["itemId"];
             item.itemName = registItems[i]["itemName"];
             item.price.amount = stoull(replaceAll(registItems[i]["price"], ".", ""), 0, 10);
             item.price.symbol = eosSymbol;
@@ -113,7 +113,7 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
         }
     }
 
-    eosio_assert(false, "can't find pending product");
+    eosio_assert(false, "refund fail");
 }
 
 ACTION itamstoreapp::useitem(uint64_t appId, uint64_t itemId, string memo)
@@ -143,7 +143,7 @@ ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset price, string p
     if(app == apps.end())
     {
         apps.emplace(_self, [&](auto& a) {
-            a.appId = appId;
+            a.id = appId;
             a.owner = owner;
             a.price = price;
         });
@@ -262,53 +262,46 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 
-ACTION itamstoreapp::defconfirm(uint64_t appId)
+ACTION itamstoreapp::defconfirm(uint64_t appId, name ownerGroup)
 {
-    confirm(appId);
+    confirm(appId, ownerGroup);
 }
 
-ACTION itamstoreapp::menconfirm(uint64_t appId)
+ACTION itamstoreapp::menconfirm(uint64_t appId, name ownerGroup)
 {
-    confirm(appId);
+    confirm(appId, ownerGroup);
 }
 
-void itamstoreapp::confirm(uint64_t appId)
+ACTION itamstoreapp::confirm(uint64_t appId, name ownerGroup)
 {
     require_auth(_self);
 
     uint64_t currentTimestamp = now();
 
-    const auto& config = configs.get(_self.value, "Can't find refundable day");
-
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
+    
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "Settlement account not found");
+    const auto& settle = settles.require_find(appId, "settle account not found");
 
-    symbol eosSymbol = symbol("EOS", 4);
     pendingTable pendings(_self, appId);
-    for(auto pending = pendings.begin(); pending != pendings.end();)
-    {
-        auto& pendingList = pending->pendingList;
-        pendings.modify(pending, _self, [&](auto &p) {
-            for(auto info = pendingList.begin(); info != pendingList.end();)
+    const auto& pending = pendings.require_find(ownerGroup.value, "invalid owner group");
+
+    vector<pendingInfo> pendingUsers = pending->pendingList;
+    pendings.modify(pending, _self, [&](auto &p) {
+        for(auto user = pendingUsers.begin(); user != pendingUsers.end(); user++)
+        {
+            uint64_t refundableTimestamp = user->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+            if(refundableTimestamp < currentTimestamp)
             {
-                uint64_t maximumRefundable = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-
-                if(maximumRefundable < currentTimestamp)
-                {
-                    settles.modify(settle, _self, [&](auto &s) {
-                        s.settleAmount += info->settleAmount;
-                    });
-                    info = p.pendingList.erase(info);
-                }
-                else
-                {
-                    info++;
-                }
+                settles.modify(settle, _self, [&](auto &s) {
+                    s.settleAmount += user->settleAmount;
+                });
+                
+                user = p.pendingList.erase(user);
             }
-        });
-
-        pending = pendingList.size() == 0 ? pendings.erase(pending) : ++pending;
-    }
+            else user++;
+        }
+    });
 }
 
 ACTION itamstoreapp::claimsettle(uint64_t appId)
