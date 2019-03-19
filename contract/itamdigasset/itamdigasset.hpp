@@ -29,6 +29,7 @@ CONTRACT itamdigasset : contract
         ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
+        ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
         ACTION setsettle(symbol_code symbol_name, name account);
         ACTION claimsettle(symbol_code symbol_name);
 
@@ -87,13 +88,23 @@ CONTRACT itamdigasset : contract
 
         TABLE settle
         {
-            symbol_code symbol_name;
+            symbol_code sym;
             name account;
             asset settle_amount;
 
-            uint64_t primary_key() const { return symbol_name.raw(); }
+            uint64_t primary_key() const { return sym.raw(); }
         };
         typedef multi_index<name("settles"), settle> settle_table;
+
+        TABLE config
+        {
+            name key;
+            uint64_t fees_rate;
+            uint64_t settle_rate;
+
+            uint64_t primary_key() const { return key.value; }
+        };
+        typedef multi_index<name("configs"), config> config_table;
 
         struct transfer_data
         {
@@ -116,4 +127,4 @@ CONTRACT itamdigasset : contract
         void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
 };
 
-EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer))
+EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer)(setconfig)(setsettle)(claimsettle))

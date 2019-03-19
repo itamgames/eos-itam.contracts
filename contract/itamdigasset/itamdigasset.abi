@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 14:32:07 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 16:27:05 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -91,6 +91,24 @@
                 {
                     "name": "symbol_name",
                     "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "config",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "name"
+                },
+                {
+                    "name": "fees_rate",
+                    "type": "uint64"
+                },
+                {
+                    "name": "settle_rate",
+                    "type": "uint64"
                 }
             ]
         },
@@ -355,6 +373,20 @@
             ]
         },
         {
+            "name": "setconfig",
+            "base": "",
+            "fields": [
+                {
+                    "name": "fees_rate",
+                    "type": "uint64"
+                },
+                {
+                    "name": "settle_rate",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "setsettle",
             "base": "",
             "fields": [
@@ -373,7 +405,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "symbol_name",
+                    "name": "sym",
                     "type": "symbol_code"
                 },
                 {
@@ -497,6 +529,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "setconfig",
+            "type": "setconfig",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setsettle",
             "type": "setsettle",
             "ricardian_contract": ""
@@ -528,6 +565,13 @@
         {
             "name": "allows",
             "type": "allow",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "configs",
+            "type": "config",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

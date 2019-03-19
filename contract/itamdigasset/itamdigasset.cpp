@@ -85,7 +85,7 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
     require_auth(from_group_account);
 
     allow_table allows(_self, _self.value);
-    eosio_assert(_code == _self || allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
+    eosio_assert(from_group_account == _self || allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
 
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
     
@@ -221,10 +221,11 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     eosio_assert(order->price == data.quantity, "wrong quantity");
 
     name owner_group_account = get_group_account(order->owner, order->owner_group);
+    
+    config_table configs(_self, _self.value);
+    const auto& config = configs.get(_self.value, "config must be set");
 
-    // TODO: save ratio in table
-    uint64_t ratio = 15;
-    asset fees = order->price * ratio / 100;
+    asset fees = order->price * config.fees_rate / 100;
 
     // send price - fees to item owner
     action(
@@ -233,6 +234,16 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
         name("transfer"),
         make_tuple(_self, owner_group_account, order->price - fees, string("trade complete"))
     ).send();
+    
+    // increment settle amount
+    settle_table settles(_self, _self.value);
+    const auto& settle = settles.find(sym.code().raw());
+    if(settle != settles.end())
+    {
+        settles.modify(settle, _self, [&](auto &s) {
+            s.settle_amount += fees * config.settle_rate / 100;
+        });
+    }
 
     // send nft item to buyer
     SEND_INLINE_ACTION(
@@ -250,14 +261,17 @@ ACTION itamdigasset::setsettle(symbol_code symbol_name, name account)
     require_auth(_self);
     eosio_assert(is_account(account), "account does not exist");
 
+    const auto& currency = currencies.get(symbol_name.raw(), "invalid symbol");
+
     settle_table settles(_self, _self.value);
     const auto& settle = settles.find(symbol_name.raw());
 
     if(settle == settles.end())
     {
         settles.emplace(_self, [&](auto &s) {
-            s.symbol_name = symbol_name;
+            s.sym = symbol_name;
             s.account = account;
+            s.settle_amount = asset(0, symbol("EOS", 4));
         });
     }
     else
@@ -326,6 +340,7 @@ void itamdigasset::sub_balance(const string& owner, name group_account, name ram
 ACTION itamdigasset::modifygroup(name before_group_account, name after_group_account)
 {
     require_auth(_self);
+
     account_table before_accounts(_self, before_group_account.value);
     account_table after_accounts(_self, after_group_account.value);
 
@@ -346,4 +361,28 @@ ACTION itamdigasset::addwhitelist(name allow_account)
     allows.emplace(_self, [&](auto &a) {
         a.account = allow_account;
     });
+}
+
+ACTION itamdigasset::setconfig(uint64_t fees_rate, uint64_t settle_rate)
+{
+    require_auth(_self);
+
+    config_table configs(_self, _self.value);
+    const auto& config = configs.find(_self.value);
+
+    if(config == configs.end())
+    {
+        configs.emplace(_self, [&](auto &c) {
+            c.key = _self;
+            c.fees_rate = fees_rate;
+            c.settle_rate = settle_rate;
+        });
+    }
+    else
+    {
+        configs.modify(config, _self, [&](auto &c) {
+            c.fees_rate = fees_rate;
+            c.settle_rate = settle_rate;
+        });
+    }
 }
