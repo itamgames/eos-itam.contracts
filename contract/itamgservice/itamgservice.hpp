@@ -3,14 +3,16 @@
 #include "../include/json.hpp"
 #include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
+#include "../include/ownergroup.hpp"
 
 using namespace eosio;
 using namespace std;
 using namespace nlohmann;
 
-CONTRACT itamregistal : public contract {
+CONTRACT itamgservice : public contract
+{
     public:
-        itamregistal(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds) {}
+        using contract::contract;
 
         ACTION history(string owner, name ownerGroup, string data);
         ACTION delservice(uint64_t appId);
@@ -66,19 +68,10 @@ CONTRACT itamregistal : public contract {
         };
         typedef multi_index<name("blocks"), block> blockTable;
 
-        struct ownergroup
-        {
-            name owner;
-            name account;
-
-            uint64_t primary_key() const { return owner.value; }
-        };
-        typedef multi_index<name("ownergroups"), ownergroup> ownergroupTable;
     private:
         void assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount);
         void stringToAsset(asset &result, const string& number, uint64_t precision);
         bool isValidPrecision(const string& number, uint64_t precision);
-        name getGroupAccount(const string& owner, name ownerGroup);
 };
 
-EOSIO_DISPATCH_EX( itamregistal, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice)(history) )
+EOSIO_DISPATCH_EX( itamgservice, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice)(history) )

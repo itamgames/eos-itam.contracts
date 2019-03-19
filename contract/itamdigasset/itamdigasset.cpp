@@ -85,7 +85,7 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
     require_auth(from_group_account);
 
     allow_table allows(_self, _self.value);
-    eosio_assert(allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
+    eosio_assert(_code == _self || allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
 
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
     
@@ -224,13 +224,14 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
 
     // TODO: save ratio in table
     uint64_t ratio = 15;
+    asset fees = order->price * ratio / 100;
 
     // send price - fees to item owner
     action(
         permission_level{ _self, name("active") },
         name("eosio.token"),
         name("transfer"),
-        make_tuple(_self, owner_group_account, order->price - (order->price * ratio / 100), string("trade complete"))
+        make_tuple(_self, owner_group_account, order->price - fees, string("trade complete"))
     ).send();
 
     // send nft item to buyer
@@ -242,6 +243,44 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     );
 
     orders.erase(order);
+}
+
+ACTION itamdigasset::setsettle(symbol_code symbol_name, name account)
+{
+    require_auth(_self);
+    eosio_assert(is_account(account), "account does not exist");
+
+    settle_table settles(_self, _self.value);
+    const auto& settle = settles.find(symbol_name.raw());
+
+    if(settle == settles.end())
+    {
+        settles.emplace(_self, [&](auto &s) {
+            s.symbol_name = symbol_name;
+            s.account = account;
+        });
+    }
+    else
+    {
+        settles.modify(settle, _self, [&](auto &s) {
+            s.account = account;
+        }); 
+    }
+}
+
+ACTION itamdigasset::claimsettle(symbol_code symbol_name)
+{
+    require_auth(_self);
+
+    settle_table settles(_self, _self.value);
+    const auto& settle = settles.get(symbol_name.raw(), "settle account does not exist");
+
+    action(
+        permission_level{ _self, name("active") },
+        name("eosio.token"),
+        name("transfer"),
+        make_tuple( _self, settle.account, settle.settle_amount, string("itamgames dex fees") )
+    ).send();
 }
 
 void itamdigasset::add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t)
@@ -284,28 +323,11 @@ void itamdigasset::sub_balance(const string& owner, name group_account, name ram
     });
 }
 
-ACTION itamdigasset::addgroup(name group_name, name group_account)
+ACTION itamdigasset::modifygroup(name before_group_account, name after_group_account)
 {
     require_auth(_self);
-    eosio_assert(is_account(group_account), "group_account does not exist");
-    
-    ownergroup_table ownergroups(_self, _self.value);
-    ownergroups.emplace(_self, [&](auto &o) {
-        o.owner = group_name;
-        o.account = group_account;
-    });
-}
-
-ACTION itamdigasset::modifygroup(name owner, name group_account)
-{
-    require_auth(_self);
-    eosio_assert(is_account(group_account), "group_account does not exist");
-
-    ownergroup_table ownergroups(_self, _self.value);
-    const auto& ownergroup = ownergroups.require_find(owner.value, "invalid group name");
-
-    account_table before_accounts(_self, ownergroup->account.value);
-    account_table after_accounts(_self, group_account.value);
+    account_table before_accounts(_self, before_group_account.value);
+    account_table after_accounts(_self, after_group_account.value);
 
     for(auto account = before_accounts.begin(); account != before_accounts.end(); account = before_accounts.erase(account))
     {
@@ -314,10 +336,6 @@ ACTION itamdigasset::modifygroup(name owner, name group_account)
             a.items = account->items;
         });
     }
-
-    ownergroups.modify(ownergroup, _self, [&](auto &o) {
-        o.account = group_account;
-    });
 }
 
 ACTION itamdigasset::addwhitelist(name allow_account)
@@ -328,17 +346,4 @@ ACTION itamdigasset::addwhitelist(name allow_account)
     allows.emplace(_self, [&](auto &a) {
         a.account = allow_account;
     });
-}
-
-name itamdigasset::get_group_account(const string& owner, name owner_group)
-{
-    if(owner_group.to_string() == "eos")
-    {
-        return name(owner);
-    }
-
-    ownergroup_table ownergroups(_self, _self.value);
-    const auto& ownergroup = ownergroups.get(owner_group.value, "invalid group name");
-
-    return ownergroup.account;
 }

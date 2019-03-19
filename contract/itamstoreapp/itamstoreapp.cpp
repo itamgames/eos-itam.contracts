@@ -93,7 +93,7 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
             uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
             eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
-            name groupAccount = getGroupAccount(owner, ownerGroup);
+            name groupAccount = get_group_account(owner, ownerGroup);
             string category = itemId == NULL ? "app" : "item";
             string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
             action(
@@ -170,9 +170,13 @@ ACTION itamstoreapp::deleteapp(uint64_t appId)
     apps.erase(app);
     
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "Can't find settle states");
-    eosio_assert(settle->settleAmount.amount == 0, "Can't remove app becuase it's not settled");
-    settles.erase(settle);
+    const auto& settle = settles.find(appId);
+    
+    if(settle != settles.end())
+    {
+        eosio_assert(settle->settleAmount.amount == 0, "Can't remove app becuase it's not settled");
+        settles.erase(settle);
+    }
 
     itemTable items(_self, appId);
     for(auto item = items.begin(); item != items.end(); item = items.erase(item));
@@ -190,7 +194,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     uint64_t itemId = 0;
 
     name ownerGroup = name(memo.ownerGroup);
-    eosio_assert(getGroupAccount(memo.owner, ownerGroup) == data.from, "different owner group");
+    eosio_assert(get_group_account(memo.owner, ownerGroup) == data.from, "different owner group");
 
     if(memo.category == "app")
     {
@@ -385,16 +389,4 @@ ACTION itamstoreapp::setsettle(uint64_t appId, name account)
             s.account = account;
         });
     }
-}
-
-name itamstoreapp::getGroupAccount(const string& owner, name ownerGroup)
-{
-    if(ownerGroup.to_string() == "eos")
-    {
-        return name(owner);
-    }
-
-    name digitalAssetName = name("itamdigasset");
-    ownergroupTable ownergroups(digitalAssetName, digitalAssetName.value);
-    return ownergroups.get(ownerGroup.value, "invalid owner group").account;
 }

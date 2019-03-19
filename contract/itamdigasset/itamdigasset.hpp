@@ -2,6 +2,7 @@
 #include <eosiolib/asset.hpp>
 #include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
+#include "../include/ownergroup.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -28,8 +29,10 @@ CONTRACT itamdigasset : contract
         ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
+        ACTION setsettle(symbol_code symbol_name, name account);
+        ACTION claimsettle(symbol_code symbol_name);
+
         ACTION addwhitelist(name allow_account);
-        ACTION addgroup(name owner, name group_account);
         ACTION modifygroup(name owner, name group_account);
     private:
         TABLE currency
@@ -82,14 +85,15 @@ CONTRACT itamdigasset : contract
         };
         typedef multi_index<name("allows"), allow> allow_table;
 
-        TABLE ownergroup
+        TABLE settle
         {
-            name owner;
+            symbol_code symbol_name;
             name account;
+            asset settle_amount;
 
-            uint64_t primary_key() const { return owner.value; }
+            uint64_t primary_key() const { return symbol_name.raw(); }
         };
-        typedef multi_index<name("ownergroups"), ownergroup> ownergroup_table;
+        typedef multi_index<name("settles"), settle> settle_table;
 
         struct transfer_data
         {
@@ -110,7 +114,6 @@ CONTRACT itamdigasset : contract
 
         void add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t);
         void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
-        name get_group_account(const string& owner, name owner_group);
 };
 
-EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addgroup)(modifygroup)(addwhitelist)(transfer))
+EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer))

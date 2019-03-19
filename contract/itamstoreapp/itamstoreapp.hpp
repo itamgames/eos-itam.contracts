@@ -4,6 +4,7 @@
 #include "../include/json.hpp"
 #include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
+#include "../include/ownergroup.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -28,7 +29,6 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
         ACTION defconfirm(uint64_t appId, string owner, name ownerGroup);
         ACTION menconfirm(uint64_t appId, string owner, name ownerGroup);
-        ACTION confirmall(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
@@ -96,15 +96,6 @@ CONTRACT itamstoreapp : public contract
         typedef multi_index<"configs"_n, config> configTable;
         configTable configs;
 
-        struct ownergroup
-        {
-            name owner;
-            name account;
-
-            uint64_t primary_key() const { return owner.value; }
-        };
-        typedef multi_index<name("ownergroups"), ownergroup> ownergroupTable;
-
         struct transferData
         {
             name from;
@@ -124,7 +115,6 @@ CONTRACT itamstoreapp : public contract
 
         void confirm(uint64_t appId, const string& owner, name ownerGroup);
         void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
-        name getGroupAccount(const string& owner, name ownerGroup);
 };
 
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)

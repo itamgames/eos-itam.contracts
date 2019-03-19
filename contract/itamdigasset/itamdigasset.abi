@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 18 09:01:39 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 14:32:07 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -13,20 +13,6 @@
                 {
                     "name": "items",
                     "type": "pair_uint64_item[]"
-                }
-            ]
-        },
-        {
-            "name": "addgroup",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "group_account",
-                    "type": "name"
                 }
             ]
         },
@@ -95,6 +81,16 @@
                 {
                     "name": "item_id",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "claimsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
                 }
             ]
         },
@@ -319,20 +315,6 @@
             ]
         },
         {
-            "name": "ownergroup",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "pair_uint64_item",
             "base": "",
             "fields": [
@@ -368,6 +350,38 @@
                 },
                 {
                     "name": "price",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "setsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "settle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "settle_amount",
                     "type": "asset"
                 }
             ]
@@ -433,11 +447,6 @@
     "types": [],
     "actions": [
         {
-            "name": "addgroup",
-            "type": "addgroup",
-            "ricardian_contract": ""
-        },
-        {
             "name": "addwhitelist",
             "type": "addwhitelist",
             "ricardian_contract": ""
@@ -450,6 +459,11 @@
         {
             "name": "cancelorder",
             "type": "cancelorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "claimsettle",
+            "type": "claimsettle",
             "ricardian_contract": ""
         },
         {
@@ -480,6 +494,11 @@
         {
             "name": "sellorder",
             "type": "sellorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setsettle",
+            "type": "setsettle",
             "ricardian_contract": ""
         },
         {
@@ -528,8 +547,8 @@
             "key_types": []
         },
         {
-            "name": "ownergroups",
-            "type": "ownergroup",
+            "name": "settles",
+            "type": "settle",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

@@ -1,6 +1,6 @@
-#include "itamregistal.hpp"
+#include "itamgservice.hpp"
 
-ACTION itamregistal::registboard(uint64_t appId, string boardList)
+ACTION itamgservice::registboard(uint64_t appId, string boardList)
 {
     require_auth(_self);
 
@@ -24,10 +24,10 @@ ACTION itamregistal::registboard(uint64_t appId, string boardList)
     }
 }
 
-ACTION itamregistal::score(uint64_t appId, uint64_t boardId, string score, string owner, name ownerGroup, string nickname, string data)
+ACTION itamgservice::score(uint64_t appId, uint64_t boardId, string score, string owner, name ownerGroup, string nickname, string data)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     assertIfBlockUser(appId, owner, groupAccount);
 
@@ -48,13 +48,13 @@ ACTION itamregistal::score(uint64_t appId, uint64_t boardId, string score, strin
     eosio_assert(scoreOfAdd <= maximumScore, "score must be bigger than maximum score");
 }
 
-ACTION itamregistal::rank(uint64_t appId, uint64_t boardId, string ranks, string period)
+ACTION itamgservice::rank(uint64_t appId, uint64_t boardId, string ranks, string period)
 {
     require_auth(_self);
     leaderboardTable(_self, appId).get(boardId, "invalid board id");
 }
 
-ACTION itamregistal::regachieve(uint64_t appId, string achievementList)
+ACTION itamgservice::regachieve(uint64_t appId, string achievementList)
 {
     require_auth(_self);
 
@@ -72,10 +72,10 @@ ACTION itamregistal::regachieve(uint64_t appId, string achievementList)
     }
 }
 
-ACTION itamregistal::acquisition(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string data)
+ACTION itamgservice::acquisition(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     assertIfBlockUser(appId, owner, groupAccount);
 
@@ -83,10 +83,10 @@ ACTION itamregistal::acquisition(uint64_t appId, uint64_t achieveId, string owne
     achievements.get(achieveId, "invalid achieve id");
 }
 
-ACTION itamregistal::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(ownerGroup), "ownerGroup is not valid");
     assertIfBlockUser(appId, owner, groupAccount);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -95,10 +95,10 @@ ACTION itamregistal::cnlachieve(uint64_t appId, uint64_t achieveId, string owner
     achievements.get(achieveId, "invalid achieve id");
 }
 
-ACTION itamregistal::blockuser(uint64_t appId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::blockuser(uint64_t appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
@@ -121,10 +121,10 @@ ACTION itamregistal::blockuser(uint64_t appId, string owner, name ownerGroup, st
     }
 }
 
-ACTION itamregistal::unblockuser(uint64_t appId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::unblockuser(uint64_t appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);    
+    name groupAccount = get_group_account(owner, ownerGroup);    
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
@@ -142,7 +142,7 @@ ACTION itamregistal::unblockuser(uint64_t appId, string owner, name ownerGroup, 
     }
 }
 
-ACTION itamregistal::delservice(uint64_t appId)
+ACTION itamgservice::delservice(uint64_t appId)
 {
     require_auth(_self);
 
@@ -153,14 +153,14 @@ ACTION itamregistal::delservice(uint64_t appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-ACTION itamregistal::history(string owner, name ownerGroup, string data)
+ACTION itamgservice::history(string owner, name ownerGroup, string data)
 {
     require_auth(_self);
-    name groupAccount = getGroupAccount(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
     require_recipient(groupAccount);
 }
 
-void itamregistal::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
+void itamgservice::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
 {
     blockTable blocks(_self, appId);
     const auto& block = blocks.find(groupAccount.value);
@@ -172,7 +172,7 @@ void itamregistal::assertIfBlockUser(uint64_t appId, const string& owner, name g
     eosio_assert(block->owners.count(owner) == 0, "block user");
 }
 
-bool itamregistal::isValidPrecision(const string& number, uint64_t precision)
+bool itamgservice::isValidPrecision(const string& number, uint64_t precision)
 {
     vector<string> score;
 
@@ -183,7 +183,7 @@ bool itamregistal::isValidPrecision(const string& number, uint64_t precision)
     return score.size() == 1 || score[1].size() <= precision;
 }
 
-void itamregistal::stringToAsset(asset &result, const string& number, uint64_t precision)
+void itamgservice::stringToAsset(asset &result, const string& number, uint64_t precision)
 {
     vector<string> amount;
     split(amount, number, ".");
@@ -192,16 +192,4 @@ void itamregistal::stringToAsset(asset &result, const string& number, uint64_t p
 
     result.symbol = symbol("", precision);
     result.amount = stoull(amount[0] + amount[1], 0, 10) * pow(10, precision - decimalPointSize);
-}
-
-name itamregistal::getGroupAccount(const string& owner, name ownerGroup)
-{
-    if(ownerGroup.to_string() == "eos")
-    {
-        return name(owner);
-    }
-
-    name digitalAssetName = name("itamdigasset");
-    ownergroupTable ownergroups(digitalAssetName, digitalAssetName.value);
-    return ownergroups.get(ownerGroup.value).account;
 }
