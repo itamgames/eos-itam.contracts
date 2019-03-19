@@ -251,10 +251,10 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
         permission_level(_self, name("active")),
         _self,
         name("defconfirm"),
-        make_tuple(memo.appId, memo.owner, ownerGroup)
+        make_tuple(appId, memo.owner, ownerGroup)
     );
     
-    tx.delay_sec = config.refundableDay * SECONDS_OF_DAY;
+    tx.delay_sec = (config.refundableDay * SECONDS_OF_DAY) + 1;
     tx.send(now(), _self);
 }
 
