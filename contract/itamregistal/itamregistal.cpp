@@ -153,6 +153,13 @@ ACTION itamregistal::delservice(uint64_t appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
+ACTION itamregistal::history(string owner, name ownerGroup, string data)
+{
+    require_auth(_self);
+    name groupAccount = getGroupAccount(owner, ownerGroup);
+    require_recipient(groupAccount);
+}
+
 void itamregistal::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
 {
     blockTable blocks(_self, appId);

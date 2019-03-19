@@ -12,6 +12,7 @@ CONTRACT itamregistal : public contract {
     public:
         itamregistal(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds) {}
 
+        ACTION history(string owner, name ownerGroup, string data);
         ACTION delservice(uint64_t appId);
 
         // leader board
@@ -80,4 +81,4 @@ CONTRACT itamregistal : public contract {
         name getGroupAccount(const string& owner, name ownerGroup);
 };
 
-EOSIO_DISPATCH_EX( itamregistal, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice) )
+EOSIO_DISPATCH_EX( itamregistal, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice)(history) )
