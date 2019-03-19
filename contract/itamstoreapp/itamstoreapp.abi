@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 18 12:14:04 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 10:58:08 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -67,6 +67,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
                     "name": "ownerGroup",
                     "type": "name"
                 }
@@ -119,6 +123,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "owner",
+                    "type": "string"
+                },
+                {
                     "name": "ownerGroup",
                     "type": "name"
                 }
@@ -147,6 +155,20 @@
             ]
         },
         {
+            "name": "pair_string_vector_struct_itamstoreapp__pendingInfo_",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "pendingInfo[]"
+                }
+            ]
+        },
+        {
             "name": "pending",
             "base": "",
             "fields": [
@@ -155,8 +177,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "pendingList",
-                    "type": "pendingInfo[]"
+                    "name": "infos",
+                    "type": "pair_string_vector_struct_itamstoreapp__pendingInfo_[]"
                 }
             ]
         },
@@ -171,10 +193,6 @@
                 {
                     "name": "itemId",
                     "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "string"
                 },
                 {
                     "name": "settleAmount",

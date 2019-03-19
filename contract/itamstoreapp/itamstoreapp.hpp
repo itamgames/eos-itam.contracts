@@ -26,8 +26,8 @@ CONTRACT itamstoreapp : public contract
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, string owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
-        ACTION defconfirm(uint64_t appId, name ownerGroup);
-        ACTION menconfirm(uint64_t appId, name ownerGroup);
+        ACTION defconfirm(uint64_t appId, string owner, name ownerGroup);
+        ACTION menconfirm(uint64_t appId, string owner, name ownerGroup);
         ACTION confirmall(uint64_t appId);
         ACTION setsettle(uint64_t appId, name account);
         ACTION claimsettle(uint64_t appId);
@@ -62,7 +62,6 @@ CONTRACT itamstoreapp : public contract
         {
             uint64_t appId;
             uint64_t itemId;
-            string owner;
             asset settleAmount;
             uint64_t timestamp;
         };
@@ -70,7 +69,7 @@ CONTRACT itamstoreapp : public contract
         TABLE pending
         {
             name ownerGroup;
-            vector<pendingInfo> pendingList;
+            map<string, vector<pendingInfo>> infos;
 
             uint64_t primary_key() const { return ownerGroup.value; }
         };
@@ -123,7 +122,7 @@ CONTRACT itamstoreapp : public contract
             string itemId;
         };
 
-        void confirm(uint64_t appId, name ownerGroup);
+        void confirm(uint64_t appId, const string& owner, name ownerGroup);
         void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
         name getGroupAccount(const string& owner, name ownerGroup);
 };

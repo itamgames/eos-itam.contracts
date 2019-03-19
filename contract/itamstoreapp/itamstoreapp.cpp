@@ -81,34 +81,38 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
     const auto& config = configs.get(_self.value, "refundable day must be set first");
 
     pendingTable pendings(_code, appId);
-    const auto& pending = pendings.require_find(ownerGroup.value, "refundable customer not found");
-    auto& pendingList = pending->pendingList;
-    for(int i = 0; i < pendingList.size(); i++)
+    const auto& pending = pendings.require_find(ownerGroup.value, "owner group not found");
+    
+    map<string, vector<pendingInfo>> infos = pending->infos;
+    vector<pendingInfo> pendingInfos = infos[owner];
+
+    for(auto info = pendingInfos.begin(); info != pendingInfos.end(); info++)
     {
-        pendingInfo info = pendingList[i];
-        if(info.appId == appId && info.itemId == itemId)
+        if(info->appId == appId && info->itemId == itemId)
         {
-            uint64_t refundableTimestamp = pendingList[i].timestamp + (config.refundableDay * SECONDS_OF_DAY);
-            eosio_assert(refundableTimestamp >= now(), "Refundable day has passed");
+            uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+            eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
             name groupAccount = getGroupAccount(owner, ownerGroup);
+            string category = itemId == NULL ? "app" : "item";
+            string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
             action(
-                permission_level{_self, name("active")},
+                permission_level { _self, name("active") },
                 name("eosio.token"),
                 name("transfer"),
-                make_tuple(_self, groupAccount, refund, string("refund pay app"))
+                make_tuple( _self, groupAccount, refund, transferMemo )
             ).send();
 
-            if(pendingList.size() == 1)
-            {
-                pendings.erase(pending);
-            }
-            else
-            {
-                pendings.modify(pending, _self, [&](auto &p) {
-                    p.pendingList.erase(pendingList.begin() + i);
-                });
-            }
+            pendings.modify(pending, _self, [&](auto &p) {
+                if(pendingInfos.size() == 1)
+                {
+                    p.infos.erase(owner);
+                }
+                else
+                {
+                    p.infos[owner].erase(info);
+                }
+            });
             return;
         }
     }
@@ -223,18 +227,18 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.find(ownerGroup.value);
 
-    pendingInfo info{appId, itemId, memo.owner, data.quantity * config.ratio / 100, now()};
+    pendingInfo info{appId, itemId, data.quantity * config.ratio / 100, now()};
     if(pending == pendings.end())
     {
         pendings.emplace(_self, [&](auto &p) {
             p.ownerGroup = ownerGroup;
-            p.pendingList.push_back(info);
+            p.infos[memo.owner].push_back(info);
         });
     }
     else
     {
         pendings.modify(pending, _self, [&](auto &p) {
-            p.pendingList.push_back(info);
+            p.infos[memo.owner].push_back(info);
         });
     }
 
@@ -243,7 +247,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
         permission_level(_self, name("active")),
         _self,
         name("defconfirm"),
-        make_tuple(memo.appId, ownerGroup)
+        make_tuple(memo.appId, memo.owner, ownerGroup)
     );
     
     tx.delay_sec = config.refundableDay * SECONDS_OF_DAY;
@@ -262,21 +266,19 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 
-ACTION itamstoreapp::defconfirm(uint64_t appId, name ownerGroup)
+ACTION itamstoreapp::defconfirm(uint64_t appId, string owner, name ownerGroup)
 {
-    confirm(appId, ownerGroup);
+    confirm(appId, owner, ownerGroup);
 }
 
-ACTION itamstoreapp::menconfirm(uint64_t appId, name ownerGroup)
+ACTION itamstoreapp::menconfirm(uint64_t appId, string owner, name ownerGroup)
 {
-    confirm(appId, ownerGroup);
+    confirm(appId, owner, ownerGroup);
 }
 
-ACTION itamstoreapp::confirm(uint64_t appId, name ownerGroup)
+void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
 {
     require_auth(_self);
-
-    uint64_t currentTimestamp = now();
 
     const auto& config = configs.get(_self.value, "refundable day must be set first");
     
@@ -286,22 +288,31 @@ ACTION itamstoreapp::confirm(uint64_t appId, name ownerGroup)
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.require_find(ownerGroup.value, "invalid owner group");
 
-    vector<pendingInfo> pendingUsers = pending->pendingList;
-    pendings.modify(pending, _self, [&](auto &p) {
-        for(auto user = pendingUsers.begin(); user != pendingUsers.end();)
+    map<string, vector<pendingInfo>> infos = pending->infos;
+    vector<pendingInfo> pendingInfos = infos[owner];
+    
+    uint64_t currentTimestamp = now();
+    
+    // HACK: can't get vector's iterator after erase item
+    int deleteCount = 0;
+    for(int i = 0; i < pendingInfos.size(); i++)
+    {
+        pendingInfo& info = pendingInfos[i - deleteCount];
+        uint64_t refundableTimestamp = info.timestamp + (config.refundableDay * SECONDS_OF_DAY);
+
+        if(refundableTimestamp < currentTimestamp)
         {
-            uint64_t refundableTimestamp = user->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-            if(refundableTimestamp < currentTimestamp)
-            {
-                settles.modify(settle, _self, [&](auto &s) {
-                    s.settleAmount += user->settleAmount;
-                });
-                
-                user = p.pendingList.erase(user);
-            }
-            else user++;
+            settles.modify(settle, _self, [&](auto &s) {
+                s.settleAmount += info.settleAmount;
+            });
+
+            pendings.modify(pending, _self, [&](auto &p) {
+                p.infos[owner].erase(p.infos[owner].begin() + (i - deleteCount));
+            });
+
+            deleteCount += 1;
         }
-    });
+    }
 }
 
 ACTION itamstoreapp::claimsettle(uint64_t appId)
