@@ -16,7 +16,7 @@ CONTRACT itamstoreapp : public contract
         itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         configs(_self, _self.value){}
         
-        ACTION registapp(uint64_t appId, name owner, asset amount, string params);
+        ACTION registapp(uint64_t appId, name owner, asset price, string params);
         ACTION deleteapp(uint64_t appId);
         ACTION refundapp(uint64_t appId, string buyer, name buyerGroup);
         ACTION registitems(string params);
