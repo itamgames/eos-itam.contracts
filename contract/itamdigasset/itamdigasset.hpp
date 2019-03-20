@@ -20,7 +20,7 @@ CONTRACT itamdigasset : contract
         }
         ACTION create(name issuer, symbol_code symbol_name, uint64_t app_id);
         ACTION issue(string to, name to_group, string nickname, symbol_code symbol_name, uint64_t group_id, string item_name, string category, string options, string reason);
-        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, string reason);
+        ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, bool transferable, string reason);
         ACTION transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo);
         ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason);
 
@@ -56,6 +56,7 @@ CONTRACT itamdigasset : contract
             string item_name;
             string category;
             string options;
+            bool transferable;
         };
 
         TABLE account

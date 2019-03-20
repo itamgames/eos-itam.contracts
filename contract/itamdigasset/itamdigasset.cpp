@@ -34,7 +34,7 @@ ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_cod
     uint64_t item_id = currency->sequence;
 
     string stringified_self = _self.to_string();
-    item t { stringified_self, nickname, group_id, item_name, category, options };
+    item t { stringified_self, nickname, group_id, item_name, category, options, true };
     add_balance(_self, _self, symbol_name, item_id, t);
 
     name eos_name = name("eos");
@@ -50,7 +50,7 @@ ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_cod
     }
 }
 
-ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, string reason)
+ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, bool transferable, string reason)
 {
     require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -76,6 +76,7 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
         item.item_name = item_name;
         item.category = category;
         item.options = options;
+        item.transferable = transferable;
     });    
 }
 
@@ -106,16 +107,18 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
 
         item t = from_items[item_id];
         eosio_assert(t.owner == from, "different from owner");
+        eosio_assert(t.transferable, "not transferable item");
 
         t.owner = to;
         t.nickname = to_nickname;
+        t.transferable = false;
 
         // Always proceed to this flow.(sub -> add) because from_group can equal to_group
         sub_balance(from, from_group_account, from_group_account, symbol_raw, item_id);
         add_balance(to_group_account, author, symbol_name, item_id, t);
     }
 
-    // TODO: receipt
+    require_recipient(from_group_account, to_group_account);
 }
 
 ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
@@ -159,6 +162,7 @@ ACTION itamdigasset::sellorder(string owner, name owner_group, symbol_code symbo
         o.price = price;
     });
 
+    eosio_assert(owner_item.transferable, "not transferable item");
     owner_item.owner = _self.to_string();
     
     // transfernft owner to itam contract
@@ -198,6 +202,7 @@ ACTION itamdigasset::cancelorder(string owner, name owner_group, symbol_code sym
     item t = self_items[item_id];
     
     t.owner = owner;
+    t.transferable = false;
 
     sub_balance(_self.to_string(), _self, group_account, symbol_name.raw(), item_id);
     add_balance(group_account, group_account, symbol_name, item_id, t);

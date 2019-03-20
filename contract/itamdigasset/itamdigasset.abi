@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 16:27:05 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 20 18:06:24 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -221,6 +221,10 @@
                 {
                     "name": "options",
                     "type": "string"
+                },
+                {
+                    "name": "transferable",
+                    "type": "bool"
                 }
             ]
         },
@@ -259,6 +263,10 @@
                 {
                     "name": "options",
                     "type": "string"
+                },
+                {
+                    "name": "transferable",
+                    "type": "bool"
                 },
                 {
                     "name": "reason",
