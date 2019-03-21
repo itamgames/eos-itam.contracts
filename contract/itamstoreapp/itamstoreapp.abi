@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Mar 20 11:36:36 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 21 17:54:51 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -183,6 +183,10 @@
                 {
                     "name": "itemId",
                     "type": "uint64"
+                },
+                {
+                    "name": "paymentAmount",
+                    "type": "asset"
                 },
                 {
                     "name": "settleAmount",

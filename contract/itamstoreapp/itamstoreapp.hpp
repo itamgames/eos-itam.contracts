@@ -56,12 +56,15 @@ CONTRACT itamstoreapp : public contract
         typedef multi_index<"apps"_n, app> appTable;
 
         // settle
-        const uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
+        const static uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
+
+        const string ITAM_SETTLE_ACCOUNT = "itamstincome";
 
         struct pendingInfo
         {
             uint64_t appId;
             uint64_t itemId;
+            asset paymentAmount;
             asset settleAmount;
             uint64_t timestamp;
         };
@@ -114,7 +117,7 @@ CONTRACT itamstoreapp : public contract
         };
 
         void confirm(uint64_t appId, const string& owner, name ownerGroup);
-        void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund);
+        void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup);
 };
 
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)

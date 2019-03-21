@@ -64,7 +64,7 @@ ACTION itamstoreapp::refundapp(uint64_t appId, string owner, name ownerGroup)
     appTable apps(_self, _self.value);
     const auto& app = apps.get(appId, "Invalid App Id");
 
-    refund(appId, NULL, owner, ownerGroup, app.price);
+    refund(appId, NULL, owner, ownerGroup);
 }
 
 ACTION itamstoreapp::refunditem(uint64_t appId, uint64_t itemId, string owner, name ownerGroup)
@@ -72,10 +72,10 @@ ACTION itamstoreapp::refunditem(uint64_t appId, uint64_t itemId, string owner, n
     itemTable items(_self, appId);
     const auto& item = items.get(itemId, "Invalid Item Id");
 
-    refund(appId, itemId, owner, ownerGroup, item.price);
+    refund(appId, itemId, owner, ownerGroup);
 }
 
-void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup, asset refund)
+void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup)
 {
     require_auth(_self);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
@@ -100,7 +100,7 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
                 permission_level { _self, name("active") },
                 name("eosio.token"),
                 name("transfer"),
-                make_tuple( _self, groupAccount, refund, transferMemo )
+                make_tuple( _self, groupAccount, info->paymentAmount, transferMemo )
             ).send();
 
             pendings.modify(pending, _self, [&](auto &p) {
@@ -231,7 +231,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.find(ownerGroup.value);
 
-    pendingInfo info{appId, itemId, data.quantity * config.ratio / 100, now()};
+    pendingInfo info{appId, itemId, data.quantity, data.quantity * config.ratio / 100, now()};
     if(pending == pendings.end())
     {
         pendings.emplace(_self, [&](auto &p) {
@@ -310,6 +310,18 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
                 s.settleAmount += info.settleAmount;
             });
 
+            action(
+                permission_level{_self, name("active")},
+                name("eosio.token"),
+                name("transfer"),
+                make_tuple(
+                    _self,
+                    name(ITAM_SETTLE_ACCOUNT),
+                    info.paymentAmount - info.settleAmount,
+                    string("ITAM Store settlement")
+                )
+            ).send();
+
             pendings.modify(pending, _self, [&](auto &p) {
                 p.infos[owner].erase(p.infos[owner].begin() + (i - deleteCount));
             });
@@ -324,7 +336,7 @@ ACTION itamstoreapp::claimsettle(uint64_t appId)
     require_auth(_self);
 
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "Can't find settle table");
+    const auto& settle = settles.require_find(appId, "settle account not found");
 
     if(settle->settleAmount.amount > 0)
     {
