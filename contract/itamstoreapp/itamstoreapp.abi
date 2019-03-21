@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 21 20:13:03 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 21 20:14:32 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -377,11 +377,6 @@
             ]
         },
         {
-            "name": "test",
-            "base": "",
-            "fields": []
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -484,11 +479,6 @@
         {
             "name": "setsettle",
             "type": "setsettle",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "test",
-            "type": "test",
             "ricardian_contract": ""
         },
         {
