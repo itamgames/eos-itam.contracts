@@ -36,6 +36,8 @@ CONTRACT itamdigasset : contract
         ACTION addwhitelist(name allow_account);
         ACTION modifygroup(name owner, name group_account);
     private:
+        const string ITAM_SETTLE_ACCOUNT = "itamstincome";
+
         TABLE currency
         {
             name issuer;

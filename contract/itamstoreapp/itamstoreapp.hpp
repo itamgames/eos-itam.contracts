@@ -16,6 +16,15 @@ CONTRACT itamstoreapp : public contract
         itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         configs(_self, _self.value){}
         
+        ACTION test()
+        {
+            appTable apps(_self, _self.value);
+            for(auto app = apps.begin(); app != apps.end(); app++)
+            {
+                pendingTable pendings(_self, app->id);
+                for(auto pending = pendings.begin(); pending != pendings.end(); pending = pendings.erase(pending));
+            }
+        }
         ACTION registapp(uint64_t appId, name owner, asset price, string params);
         ACTION deleteapp(uint64_t appId);
         ACTION refundapp(uint64_t appId, string buyer, name buyerGroup);
@@ -125,4 +134,4 @@ CONTRACT itamstoreapp : public contract
 #define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
 #define BUY_ACTION (transfer)(receiptapp)(receiptitem)
 
-EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION BUY_ACTION )
+EOSIO_DISPATCH_EX( itamstoreapp, (test)ITEM_ACTION APP_ACTION SETTLE_ACTION BUY_ACTION )

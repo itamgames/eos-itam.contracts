@@ -227,11 +227,11 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     else eosio_assert(false, "invalid category");
 
     const auto& config = configs.get(_self.value, "refundable day must be set first");
-
+    
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.find(ownerGroup.value);
 
-    pendingInfo info{appId, itemId, data.quantity, data.quantity * config.ratio / 100, now()};
+    pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, now() };
     if(pending == pendings.end())
     {
         pendings.emplace(_self, [&](auto &p) {
@@ -287,7 +287,7 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
     const auto& config = configs.get(_self.value, "refundable day must be set first");
     
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "settle account not found");
+    const auto& settle = settles.find(appId);
 
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.require_find(ownerGroup.value, "invalid owner group");
@@ -306,10 +306,18 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
 
         if(refundableTimestamp < currentTimestamp)
         {
-            settles.modify(settle, _self, [&](auto &s) {
-                s.settleAmount += info.settleAmount;
-            });
-
+            asset settleAmountToITAM = info.paymentAmount - info.settleAmount;
+            if(settle != settles.end())
+            {
+                settles.modify(settle, _self, [&](auto &s) {
+                    s.settleAmount += info.settleAmount;
+                });
+            }
+            else
+            {
+                settleAmountToITAM = info.paymentAmount;
+            }
+            
             action(
                 permission_level{_self, name("active")},
                 name("eosio.token"),
@@ -317,7 +325,7 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
                 make_tuple(
                     _self,
                     name(ITAM_SETTLE_ACCOUNT),
-                    info.paymentAmount - info.settleAmount,
+                    settleAmountToITAM,
                     string("ITAM Store settlement")
                 )
             ).send();

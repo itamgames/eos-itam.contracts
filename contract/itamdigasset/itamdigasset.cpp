@@ -239,7 +239,9 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
         name("transfer"),
         make_tuple(_self, owner_group_account, order->price - fees, string("trade complete"))
     ).send();
-    
+
+    asset settleAmountToITAM = fees;
+
     // increment settle amount
     settle_table settles(_self, _self.value);
     const auto& settle = settles.find(sym.code().raw());
@@ -248,7 +250,16 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
         settles.modify(settle, _self, [&](auto &s) {
             s.settle_amount += fees * config.settle_rate / 100;
         });
+
+        settleAmountToITAM -= fees * config.settle_rate / 100;
     }
+
+    action(
+        permission_level{ _self, name("active") },
+        name("eosio.token"),
+        name("transfer"),
+        make_tuple(_self, name(ITAM_SETTLE_ACCOUNT), settleAmountToITAM, string("dex fees"))
+    ).send();
 
     // send nft item to buyer
     SEND_INLINE_ACTION(
