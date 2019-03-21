@@ -14,7 +14,7 @@ CONTRACT itamgservice : public contract
     public:
         using contract::contract;
 
-        ACTION history(string owner, name ownerGroup, string data);
+        ACTION history(uint64_t appId, string owner, name ownerGroup, string data);
         ACTION delservice(uint64_t appId);
 
         // leader board

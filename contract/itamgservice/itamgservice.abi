@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Mar 19 14:05:40 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 21 13:27:37 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -132,6 +132,10 @@
             "name": "history",
             "base": "",
             "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
                 {
                     "name": "owner",
                     "type": "string"

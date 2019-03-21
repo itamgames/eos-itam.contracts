@@ -153,7 +153,7 @@ ACTION itamgservice::delservice(uint64_t appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-ACTION itamgservice::history(string owner, name ownerGroup, string data)
+ACTION itamgservice::history(uint64_t appId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
     name groupAccount = get_group_account(owner, ownerGroup);
