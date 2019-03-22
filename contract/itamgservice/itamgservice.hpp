@@ -14,22 +14,22 @@ CONTRACT itamgservice : public contract
     public:
         using contract::contract;
 
-        ACTION history(uint64_t appId, string owner, name ownerGroup, string data);
-        ACTION delservice(uint64_t appId);
+        ACTION history(string appId, string owner, name ownerGroup, string data);
+        ACTION delservice(string appId);
 
         // leader board
-        ACTION registboard(uint64_t appId, string boardList);
-        ACTION score(uint64_t appId, uint64_t boardId, string score, string owner, name ownerGroup, string nickname, string data);
-        ACTION rank(uint64_t appId, uint64_t boardId, string ranks, string period);
+        ACTION registboard(string appId, string boardList);
+        ACTION score(string appId, string boardId, string score, string owner, name ownerGroup, string nickname, string data);
+        ACTION rank(string appId, string boardId, string ranks, string period);
 
         // achievements
-        ACTION regachieve(uint64_t appId, string achievementList);
-        ACTION acquisition(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string data);
-        ACTION cnlachieve(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string reason);
+        ACTION regachieve(string appId, string achievementList);
+        ACTION acquisition(string appId, string achieveId, string owner, name ownerGroup, string data);
+        ACTION cnlachieve(string appId, string achieveId, string owner, name ownerGroup, string reason);
 
         // block
-        ACTION blockuser(uint64_t appId, string owner, name ownerGroup, string reason);
-        ACTION unblockuser(uint64_t appId, string owner, name ownerGroup, string reason);
+        ACTION blockuser(string appId, string owner, name ownerGroup, string reason);
+        ACTION unblockuser(string appId, string owner, name ownerGroup, string reason);
     private:
         // leader board
         TABLE leaderboard

@@ -1,10 +1,11 @@
 #include "itamgservice.hpp"
 
-ACTION itamgservice::registboard(uint64_t appId, string boardList)
+ACTION itamgservice::registboard(string appId, string boardList)
 {
     require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
 
-    leaderboardTable boards(_self, appId);
+    leaderboardTable boards(_self, appid);
     for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
 
     auto parsedBoardList = json::parse(boardList);
@@ -15,7 +16,7 @@ ACTION itamgservice::registboard(uint64_t appId, string boardList)
         eosio_assert(isValidPrecision(parsedBoardList[i]["maximumScore"], parsedBoardList[i]["precision"]), "invalid precision of maximum score");
 
         boards.emplace(_self, [&](auto &b) {
-            b.id = parsedBoardList[i]["id"];
+            b.id = stoull(string(parsedBoardList[i]["id"]), 0, 10);
             b.name = parsedBoardList[i]["name"];
             b.precision = parsedBoardList[i]["precision"];
             b.minimumScore = parsedBoardList[i]["minimumScore"];
@@ -24,15 +25,17 @@ ACTION itamgservice::registboard(uint64_t appId, string boardList)
     }
 }
 
-ACTION itamgservice::score(uint64_t appId, uint64_t boardId, string score, string owner, name ownerGroup, string nickname, string data)
+ACTION itamgservice::score(string appId, string boardId, string score, string owner, name ownerGroup, string nickname, string data)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t boardid = stoull(boardId, 0, 10);
     require_auth(_self);
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
-    assertIfBlockUser(appId, owner, groupAccount);
+    assertIfBlockUser(appid, owner, groupAccount);
 
-    leaderboardTable boards(_self, appId);
-    const auto& board = boards.get(boardId, "invalid board id");
+    leaderboardTable boards(_self, appid);
+    const auto& board = boards.get(boardid, "invalid board id");
 
     eosio_assert(isValidPrecision(score, board.precision), "invalid precision of score");
 
@@ -48,17 +51,21 @@ ACTION itamgservice::score(uint64_t appId, uint64_t boardId, string score, strin
     eosio_assert(scoreOfAdd <= maximumScore, "score must be bigger than maximum score");
 }
 
-ACTION itamgservice::rank(uint64_t appId, uint64_t boardId, string ranks, string period)
+ACTION itamgservice::rank(string appId, string boardId, string ranks, string period)
 {
     require_auth(_self);
-    leaderboardTable(_self, appId).get(boardId, "invalid board id");
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t boardid = stoull(boardId, 0, 10);
+    leaderboardTable(_self, appid).get(boardid, "invalid board id");
 }
 
-ACTION itamgservice::regachieve(uint64_t appId, string achievementList)
+ACTION itamgservice::regachieve(string appId, string achievementList)
 {
     require_auth(_self);
 
-    achievementTable achievements(_self, appId);
+    uint64_t appid = stoull(appId, 0, 10);
+
+    achievementTable achievements(_self, appid);
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 
     auto parsedAchievements = json::parse(achievementList);
@@ -66,43 +73,51 @@ ACTION itamgservice::regachieve(uint64_t appId, string achievementList)
     for(int i = 0; i < parsedAchievements.size(); i++)
     {
         achievements.emplace(_self, [&](auto &a) {
-            a.id = parsedAchievements[i]["id"];
+            a.id = stoull(string(parsedAchievements[i]["id"]), 0, 10);
             a.name = parsedAchievements[i]["name"];
         });
     }
 }
 
-ACTION itamgservice::acquisition(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string data)
+ACTION itamgservice::acquisition(string appId, string achieveId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
+    
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t achieveid = stoull(achieveId, 0, 10);
+
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
-    assertIfBlockUser(appId, owner, groupAccount);
+    assertIfBlockUser(appid, owner, groupAccount);
 
-    achievementTable achievements(_self, appId);
-    achievements.get(achieveId, "invalid achieve id");
+    achievementTable achievements(_self, appid);
+    achievements.get(achieveid, "invalid achieve id");
 }
 
-ACTION itamgservice::cnlachieve(uint64_t appId, uint64_t achieveId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::cnlachieve(string appId, string achieveId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t achieveid = stoull(achieveId, 0, 10);
+
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(ownerGroup), "ownerGroup is not valid");
-    assertIfBlockUser(appId, owner, groupAccount);
+    assertIfBlockUser(appid, owner, groupAccount);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
-    achievementTable achievements(_self, appId);
-    achievements.get(achieveId, "invalid achieve id");
+    achievementTable achievements(_self, appid);
+    achievements.get(achieveid, "invalid achieve id");
 }
 
-ACTION itamgservice::blockuser(uint64_t appId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::blockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
-    blockTable blocks(_self, appId);
+    blockTable blocks(_self, appid);
     const auto& block = blocks.find(groupAccount.value);
 
     if(block == blocks.end())
@@ -121,14 +136,15 @@ ACTION itamgservice::blockuser(uint64_t appId, string owner, name ownerGroup, st
     }
 }
 
-ACTION itamgservice::unblockuser(uint64_t appId, string owner, name ownerGroup, string reason)
+ACTION itamgservice::unblockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);    
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
-    blockTable blocks(_self, appId);
+    blockTable blocks(_self, appid);
     const auto& block = blocks.require_find(groupAccount.value, "Already unblock");
 
     eosio_assert(block->owners.count(owner) > 0, "Already unblock");
@@ -142,20 +158,23 @@ ACTION itamgservice::unblockuser(uint64_t appId, string owner, name ownerGroup, 
     }
 }
 
-ACTION itamgservice::delservice(uint64_t appId)
+ACTION itamgservice::delservice(string appId)
 {
     require_auth(_self);
 
-    leaderboardTable boards(_self, appId);
+    uint64_t appid = stoull(appId, 0, 10);
+
+    leaderboardTable boards(_self, appid);
     for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
 
-    achievementTable achievements(_self, appId);
+    achievementTable achievements(_self, appid);
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-ACTION itamgservice::history(uint64_t appId, string owner, name ownerGroup, string data)
+ACTION itamgservice::history(string appId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);
     require_recipient(groupAccount);
 }

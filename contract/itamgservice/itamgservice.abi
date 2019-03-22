@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 21 13:27:37 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar 22 09:55:18 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -22,11 +22,11 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "achieveId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "owner",
@@ -76,7 +76,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "owner",
@@ -98,11 +98,11 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "achieveId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "owner",
@@ -124,7 +124,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 }
             ]
         },
@@ -134,7 +134,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "owner",
@@ -196,11 +196,11 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "boardId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "ranks",
@@ -218,7 +218,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "achievementList",
@@ -232,7 +232,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "boardList",
@@ -246,11 +246,11 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "boardId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "score",
@@ -280,7 +280,7 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "owner",

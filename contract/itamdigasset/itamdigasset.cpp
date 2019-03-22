@@ -1,6 +1,6 @@
 #include "itamdigasset.hpp"
 
-ACTION itamdigasset::create(name issuer, symbol_code symbol_name, uint64_t app_id)
+ACTION itamdigasset::create(name issuer, symbol_code symbol_name, string app_id)
 {
     require_auth(_self);
 
@@ -15,12 +15,12 @@ ACTION itamdigasset::create(name issuer, symbol_code symbol_name, uint64_t app_i
     currencies.emplace(_self, [&](auto &c) {
         c.issuer = issuer;
         c.supply = asset(0, game_symbol);
-        c.app_id = app_id;
+        c.app_id = stoull(app_id, 0, 10);
         c.sequence = 0;
     });
 }
 
-ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_code symbol_name, uint64_t group_id, string item_name, string category, string options, string reason)
+ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_code symbol_name, string group_id, string item_name, string category, string options, string reason)
 {
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
     require_auth(currency->issuer);
@@ -34,7 +34,7 @@ ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_cod
     uint64_t item_id = currency->sequence;
 
     string stringified_self = _self.to_string();
-    item t { stringified_self, nickname, group_id, item_name, category, options, true };
+    item t { stringified_self, nickname, stoull(group_id, 0, 10), item_name, category, options, true };
     add_balance(_self, _self, symbol_name, item_id, t);
 
     name eos_name = name("eos");
@@ -50,7 +50,7 @@ ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_cod
     }
 }
 
-ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, uint64_t group_id, string item_name, string category, string options, bool transferable, string reason)
+ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, string group_id, string item_name, string category, string options, bool transferable, string reason)
 {
     require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -72,7 +72,7 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
 
     accounts.modify(account, _self, [&](auto &a) {
         auto& item = a.items[item_id];
-        item.group_id = group_id;
+        item.group_id = stoull(group_id, 0, 10);
         item.item_name = item_name;
         item.category = category;
         item.options = options;
