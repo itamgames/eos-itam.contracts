@@ -4,7 +4,7 @@
 using namespace eosio;
 using namespace std;
 
-CONTRACT itamaccntmgr : contract
+CONTRACT itamitamitam : contract
 {
     public:
         using contract::contract;
@@ -22,4 +22,4 @@ CONTRACT itamaccntmgr : contract
         typedef multi_index<name("ownergroups"), ownergroup> ownergroup_table;
 };
 
-EOSIO_DISPATCH_EX(itamaccntmgr, (addgroup)(modifygroup))
+EOSIO_DISPATCH_EX(itamitamitam, (addgroup)(modifygroup))

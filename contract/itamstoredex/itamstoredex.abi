@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar 22 10:37:15 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar 22 13:52:07 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -223,6 +223,10 @@
                     "type": "string"
                 },
                 {
+                    "name": "duration",
+                    "type": "uint64"
+                },
+                {
                     "name": "transferable",
                     "type": "bool"
                 }
@@ -427,11 +431,6 @@
             ]
         },
         {
-            "name": "test",
-            "base": "",
-            "fields": []
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -544,11 +543,6 @@
         {
             "name": "setsettle",
             "type": "setsettle",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "test",
-            "type": "test",
             "ricardian_contract": ""
         },
         {

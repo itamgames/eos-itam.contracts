@@ -34,7 +34,7 @@ ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_cod
     uint64_t item_id = currency->sequence;
 
     string stringified_self = _self.to_string();
-    item t { stringified_self, nickname, stoull(group_id, 0, 10), item_name, category, options, true };
+    item t { stringified_self, nickname, stoull(group_id, 0, 10), item_name, category, options, 0, true };
     add_balance(_self, _self, symbol_name, item_id, t);
 
     name eos_name = name("eos");

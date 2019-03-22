@@ -12,12 +12,7 @@ CONTRACT itamstoredex : contract
     public:
         itamstoredex(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         currencies(_self, _self.value) {}
-        
-        ACTION test()
-        {
-            account_table accounts(_self, _self.value);
-            for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
-        }
+
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(string to, name to_group, string nickname, symbol_code symbol_name, string group_id, string item_name, string category, string options, string reason);
         ACTION modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, string group_id, string item_name, string category, string options, bool transferable, string reason);
@@ -58,6 +53,7 @@ CONTRACT itamstoredex : contract
             string item_name;
             string category;
             string options;
+            uint64_t duration;
             bool transferable;
         };
 

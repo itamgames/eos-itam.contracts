@@ -1,6 +1,6 @@
-#include "itamaccntmgr.hpp"
+#include "itamitamitam.hpp"
 
-ACTION itamaccntmgr::addgroup(name group_name, name group_account)
+ACTION itamitamitam::addgroup(name group_name, name group_account)
 {
     require_auth(_self);
     eosio_assert(is_account(group_account), "group_account does not exist");
@@ -12,7 +12,7 @@ ACTION itamaccntmgr::addgroup(name group_name, name group_account)
     });
 }
 
-ACTION itamaccntmgr::modifygroup(name owner, name group_account)
+ACTION itamitamitam::modifygroup(name owner, name group_account)
 {
     require_auth(_self);
     eosio_assert(is_account(group_account), "group_account does not exist");
