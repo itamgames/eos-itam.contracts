@@ -8,7 +8,9 @@ ACTION itamstoreapp::registitems(string params)
     
     auto iter = parsedParams.find("appId");
     if(iter == parsedParams.end()) return;
-    uint64_t appId = *iter;
+    
+    string appid = *iter;
+    uint64_t appId = stoull(appid, 0, 10);
 
     iter = parsedParams.find("items");
     if(iter == parsedParams.end()) return;
@@ -21,7 +23,8 @@ ACTION itamstoreapp::registitems(string params)
     for(int i = 0; i < registItems.size(); i++)
     {
         items.emplace(_self, [&](auto &item) {
-            item.id = registItems[i]["itemId"];
+            string itemId = registItems[i]["itemId"];
+            item.id = stoull(itemId, 0, 10);
             item.itemName = registItems[i]["itemName"];
             item.price.amount = stoull(replaceAll(registItems[i]["price"], ".", ""), 0, 10);
             item.price.symbol = eosSymbol;
@@ -29,12 +32,15 @@ ACTION itamstoreapp::registitems(string params)
     }
 }
 
-ACTION itamstoreapp::modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset price)
+ACTION itamstoreapp::modifyitem(string appId, string itemId, string itemName, asset price)
 {
     require_auth(_self);
 
-    itemTable items(_self, appId);
-    const auto& item = items.require_find(itemId, "Invalid item id");
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t itemid = stoull(itemId, 0, 10);
+
+    itemTable items(_self, appid);
+    const auto& item = items.require_find(itemid, "Invalid item id");
 
     items.modify(item, _self, [&](auto& i){
         i.itemName = itemName;
@@ -47,32 +53,37 @@ ACTION itamstoreapp::deleteitems(string params)
     require_auth(_self);
     auto parsedParams = json::parse(params);
 
-    uint64_t appId = parsedParams["appId"];
+    uint64_t appId = stoull(string(parsedParams["appId"]), 0, 10);
     auto deleteItems = parsedParams["items"];
 
     itemTable items(_self, appId);
 
     for(int i = 0; i < deleteItems.size(); i++)
     {
-        auto item = items.require_find(deleteItems[i]["itemId"], "Invalid item id");
+        auto item = items.require_find(stoull(string(deleteItems[i]["itemId"]), 0, 10), "Invalid item id");
         items.erase(item);
     }
 }
 
-ACTION itamstoreapp::refundapp(uint64_t appId, string owner, name ownerGroup)
+ACTION itamstoreapp::refundapp(string appId, string owner, name ownerGroup)
 {
-    appTable apps(_self, _self.value);
-    const auto& app = apps.get(appId, "Invalid App Id");
+    uint64_t appid = stoull(appId, 0, 10);
 
-    refund(appId, NULL, owner, ownerGroup);
+    appTable apps(_self, _self.value);
+    const auto& app = apps.get(appid, "Invalid App Id");
+
+    refund(appid, NULL, owner, ownerGroup);
 }
 
-ACTION itamstoreapp::refunditem(uint64_t appId, uint64_t itemId, string owner, name ownerGroup)
+ACTION itamstoreapp::refunditem(string appId, string itemId, string owner, name ownerGroup)
 {
-    itemTable items(_self, appId);
-    const auto& item = items.get(itemId, "Invalid Item Id");
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t itemid = stoull(itemId, 0, 10);
 
-    refund(appId, itemId, owner, ownerGroup);
+    itemTable items(_self, appid);
+    const auto& item = items.get(itemid, "Invalid Item Id");
+
+    refund(appid, itemid, owner, ownerGroup);
 }
 
 void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup)
@@ -80,8 +91,10 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
     require_auth(_self);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
 
+    name groupAccount = get_group_account(owner, ownerGroup);
+
     pendingTable pendings(_code, appId);
-    const auto& pending = pendings.require_find(ownerGroup.value, "owner group not found");
+    const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
     
     map<string, vector<pendingInfo>> infos = pending->infos;
     vector<pendingInfo> pendingInfos = infos[owner];
@@ -93,7 +106,6 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
             uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
             eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
-            name groupAccount = get_group_account(owner, ownerGroup);
             string category = itemId == NULL ? "app" : "item";
             string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
             action(
@@ -120,16 +132,21 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
     eosio_assert(false, "refund fail");
 }
 
-ACTION itamstoreapp::useitem(uint64_t appId, uint64_t itemId, string memo)
+ACTION itamstoreapp::useitem(string appId, string itemId, string memo)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t itemid = stoull(itemId, 0, 10);
+
     require_auth(_self);
     
-    itemTable items(_self, appId);
-    items.get(itemId, "invalid item");
+    itemTable items(_self, appid);
+    items.get(itemid, "invalid item");
 }
 
-ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset price, string params)
+ACTION itamstoreapp::registapp(string appId, name owner, asset price, string params)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+
     require_auth(_self);
     eosio_assert(price.symbol == symbol("EOS", 4), "only eos symbol available");
 
@@ -143,11 +160,11 @@ ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset price, string p
     if(price.amount == 0) return;
 
     appTable apps(_self, _self.value);
-    const auto& app = apps.find(appId);
+    const auto& app = apps.find(appid);
     if(app == apps.end())
     {
         apps.emplace(_self, [&](auto& a) {
-            a.id = appId;
+            a.id = appid;
             a.owner = owner;
             a.price = price;
         });
@@ -161,16 +178,18 @@ ACTION itamstoreapp::registapp(uint64_t appId, name owner, asset price, string p
     }
 }
 
-ACTION itamstoreapp::deleteapp(uint64_t appId)
+ACTION itamstoreapp::deleteapp(string appId)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+
     require_auth(_self);
 
     appTable apps(_self, _self.value);
-    const auto& app = apps.require_find(appId, "Invalid App Id");
+    const auto& app = apps.require_find(appid, "Invalid App Id");
     apps.erase(app);
     
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appId);
+    const auto& settle = settles.find(appid);
     
     if(settle != settles.end())
     {
@@ -178,7 +197,7 @@ ACTION itamstoreapp::deleteapp(uint64_t appId)
         settles.erase(settle);
     }
 
-    itemTable items(_self, appId);
+    itemTable items(_self, appid);
     for(auto item = items.begin(); item != items.end(); item = items.erase(item));
 }
 
@@ -194,7 +213,8 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     uint64_t itemId = 0;
 
     name ownerGroup = name(memo.ownerGroup);
-    eosio_assert(get_group_account(memo.owner, ownerGroup) == data.from, "different owner group");
+    name groupAccount = get_group_account(memo.owner, ownerGroup);
+    eosio_assert(groupAccount == data.from, "different owner group");
 
     if(memo.category == "app")
     {
@@ -229,13 +249,13 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     const auto& config = configs.get(_self.value, "refundable day must be set first");
     
     pendingTable pendings(_self, appId);
-    const auto& pending = pendings.find(ownerGroup.value);
+    const auto& pending = pendings.find(groupAccount.value);
 
     pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, now() };
     if(pending == pendings.end())
     {
         pendings.emplace(_self, [&](auto &p) {
-            p.ownerGroup = ownerGroup;
+            p.groupAccount = groupAccount;
             p.infos[memo.owner].push_back(info);
         });
     }
@@ -245,7 +265,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             p.infos[memo.owner].push_back(info);
         });
     }
-
+    
     transaction tx;
     tx.actions.emplace_back(
         permission_level(_self, name("active")),
@@ -275,9 +295,11 @@ ACTION itamstoreapp::defconfirm(uint64_t appId, string owner, name ownerGroup)
     confirm(appId, owner, ownerGroup);
 }
 
-ACTION itamstoreapp::menconfirm(uint64_t appId, string owner, name ownerGroup)
+ACTION itamstoreapp::menconfirm(string appId, string owner, name ownerGroup)
 {
-    confirm(appId, owner, ownerGroup);
+    uint64_t appid = stoull(appId, 0, 10);
+
+    confirm(appid, owner, ownerGroup);
 }
 
 void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
@@ -289,8 +311,10 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
     settleTable settles(_self, _self.value);
     const auto& settle = settles.find(appId);
 
+    name groupAccount = get_group_account(owner, ownerGroup);
+
     pendingTable pendings(_self, appId);
-    const auto& pending = pendings.require_find(ownerGroup.value, "invalid owner group");
+    const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
 
     map<string, vector<pendingInfo>> infos = pending->infos;
     vector<pendingInfo> pendingInfos = infos[owner];
@@ -306,9 +330,11 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
 
         if(refundableTimestamp < currentTimestamp)
         {
-            asset settleAmountToITAM = info.paymentAmount - info.settleAmount;
+            asset settleAmountToITAM;
+
             if(settle != settles.end())
             {
+                settleAmountToITAM = info.paymentAmount - info.settleAmount;
                 settles.modify(settle, _self, [&](auto &s) {
                     s.settleAmount += info.settleAmount;
                 });
@@ -339,12 +365,14 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
     }
 }
 
-ACTION itamstoreapp::claimsettle(uint64_t appId)
+ACTION itamstoreapp::claimsettle(string appId)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+
     require_auth(_self);
 
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appId, "settle account not found");
+    const auto& settle = settles.require_find(appid, "settle account not found");
 
     if(settle->settleAmount.amount > 0)
     {
@@ -388,17 +416,19 @@ ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
     }
 }
 
-ACTION itamstoreapp::setsettle(uint64_t appId, name account)
+ACTION itamstoreapp::setsettle(string appId, name account)
 {
+    uint64_t appid = stoull(appId, 0, 10);
+
     require_auth(_self);
 
     settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appId);
+    const auto& settle = settles.find(appid);
 
     if(settle == settles.end())
     {
         settles.emplace(_self, [&](auto &s) {
-            s.appId = appId;
+            s.appId = appid;
             s.account = account;
             s.settleAmount = asset(0, symbol("EOS", 4));
         });

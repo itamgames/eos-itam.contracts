@@ -16,21 +16,21 @@ CONTRACT itamstoreapp : public contract
         itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         configs(_self, _self.value){}
         
-        ACTION registapp(uint64_t appId, name owner, asset price, string params);
-        ACTION deleteapp(uint64_t appId);
-        ACTION refundapp(uint64_t appId, string buyer, name buyerGroup);
+        ACTION registapp(string appId, name owner, asset price, string params);
+        ACTION deleteapp(string appId);
+        ACTION refundapp(string appId, string buyer, name buyerGroup);
         ACTION registitems(string params);
         ACTION deleteitems(string params);
-        ACTION modifyitem(uint64_t appId, uint64_t itemId, string itemName, asset price);
-        ACTION refunditem(uint64_t appId, uint64_t itemId, string buyer, name buyerGroup);
-        ACTION useitem(uint64_t appId, uint64_t itemId, string memo);
+        ACTION modifyitem(string appId, string itemId, string itemName, asset price);
+        ACTION refunditem(string appId, string itemId, string buyer, name buyerGroup);
+        ACTION useitem(string appId, string itemId, string memo);
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, string owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
         ACTION defconfirm(uint64_t appId, string owner, name ownerGroup);
-        ACTION menconfirm(uint64_t appId, string owner, name ownerGroup);
-        ACTION setsettle(uint64_t appId, name account);
-        ACTION claimsettle(uint64_t appId);
+        ACTION menconfirm(string appId, string owner, name ownerGroup);
+        ACTION setsettle(string appId, name account);
+        ACTION claimsettle(string appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
     private:
         // item
@@ -56,7 +56,7 @@ CONTRACT itamstoreapp : public contract
         typedef multi_index<"apps"_n, app> appTable;
 
         // settle
-        const static uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
+        const static uint64_t SECONDS_OF_DAY = 5; // 1 day == 24 hours == 1440 minutes == 86400 seconds
 
         const string ITAM_SETTLE_ACCOUNT = "itamstincome";
 
@@ -71,10 +71,10 @@ CONTRACT itamstoreapp : public contract
 
         TABLE pending
         {
-            name ownerGroup;
+            name groupAccount;
             map<string, vector<pendingInfo>> infos;
 
-            uint64_t primary_key() const { return ownerGroup.value; }
+            uint64_t primary_key() const { return groupAccount.value; }
         };
         typedef multi_index<"pendings"_n, pending> pendingTable;
 
