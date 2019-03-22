@@ -9,7 +9,7 @@ using namespace eosio;
 using namespace std;
 using namespace nlohmann;
 
-CONTRACT itamgservice : public contract
+CONTRACT itamstoreran : public contract
 {
     public:
         using contract::contract;
@@ -74,4 +74,4 @@ CONTRACT itamgservice : public contract
         bool isValidPrecision(const string& number, uint64_t precision);
 };
 
-EOSIO_DISPATCH_EX( itamgservice, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice)(history) )
+EOSIO_DISPATCH_EX( itamstoreran, (registboard)(score)(rank)(regachieve)(acquisition)(cnlachieve)(blockuser)(unblockuser)(delservice)(history) )

@@ -1,6 +1,6 @@
-#include "itamdigasset.hpp"
+#include "itamstoredex.hpp"
 
-ACTION itamdigasset::create(name issuer, symbol_code symbol_name, string app_id)
+ACTION itamstoredex::create(name issuer, symbol_code symbol_name, string app_id)
 {
     require_auth(_self);
 
@@ -20,7 +20,7 @@ ACTION itamdigasset::create(name issuer, symbol_code symbol_name, string app_id)
     });
 }
 
-ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_code symbol_name, string group_id, string item_name, string category, string options, string reason)
+ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_code symbol_name, string group_id, string item_name, string category, string options, string reason)
 {
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
     require_auth(currency->issuer);
@@ -50,7 +50,7 @@ ACTION itamdigasset::issue(string to, name to_group, string nickname, symbol_cod
     }
 }
 
-ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, string group_id, string item_name, string category, string options, bool transferable, string reason)
+ACTION itamstoredex::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, string group_id, string item_name, string category, string options, bool transferable, string reason)
 {
     require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -80,7 +80,7 @@ ACTION itamdigasset::modify(string owner, name owner_group, symbol_code symbol_n
     });    
 }
 
-ACTION itamdigasset::transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo)
+ACTION itamstoredex::transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo)
 {
     name from_group_account = get_group_account(from, from_group);
     require_auth(from_group_account);
@@ -121,7 +121,7 @@ ACTION itamdigasset::transfernft(string from, name from_group, string to, name t
     require_recipient(from_group_account, to_group_account);
 }
 
-ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
+ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
 {
     name group_account = get_group_account(owner, owner_group);
     name author = has_auth(group_account) ? group_account : _self;
@@ -140,7 +140,7 @@ ACTION itamdigasset::burn(string owner, name owner_group, symbol_code symbol_nam
     }
 }
 
-ACTION itamdigasset::sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
+ACTION itamstoredex::sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
 {
     eosio_assert(price.symbol == symbol("EOS", 4), "only eos symbol available");
 
@@ -170,7 +170,7 @@ ACTION itamdigasset::sellorder(string owner, name owner_group, symbol_code symbo
     add_balance(_self, group_account, symbol_name, item_id, owner_item);
 }
 
-ACTION itamdigasset::modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
+ACTION itamstoredex::modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price)
 {
     name group_account = get_group_account(owner, owner_group);
     require_auth(group_account);
@@ -185,7 +185,7 @@ ACTION itamdigasset::modifyorder(string owner, name owner_group, symbol_code sym
     });
 }
 
-ACTION itamdigasset::cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id)
+ACTION itamstoredex::cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id)
 {
     order_table orders(_self, symbol_name.raw());
     const auto& order = orders.require_find(item_id, "not exists item id");
@@ -210,7 +210,7 @@ ACTION itamdigasset::cancelorder(string owner, name owner_group, symbol_code sym
     orders.erase(order);
 }
 
-ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
+ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 {
     transfer_data data = unpack_action_data<transfer_data>();
     if (data.from == _self || data.to != _self) return;
@@ -272,7 +272,7 @@ ACTION itamdigasset::transfer(uint64_t from, uint64_t to)
     orders.erase(order);
 }
 
-ACTION itamdigasset::setsettle(symbol_code symbol_name, name account)
+ACTION itamstoredex::setsettle(symbol_code symbol_name, name account)
 {
     require_auth(_self);
     eosio_assert(is_account(account), "account does not exist");
@@ -298,7 +298,7 @@ ACTION itamdigasset::setsettle(symbol_code symbol_name, name account)
     }
 }
 
-ACTION itamdigasset::claimsettle(symbol_code symbol_name)
+ACTION itamstoredex::claimsettle(symbol_code symbol_name)
 {
     require_auth(_self);
 
@@ -313,7 +313,7 @@ ACTION itamdigasset::claimsettle(symbol_code symbol_name)
     ).send();
 }
 
-void itamdigasset::add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t)
+void itamstoredex::add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t)
 {
     account_table accounts(_self, group_account.value);
     const auto& account = accounts.find(symbol_name.raw());
@@ -337,7 +337,7 @@ void itamdigasset::add_balance(name group_account, name ram_payer, symbol_code s
     
 }
 
-void itamdigasset::sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id)
+void itamstoredex::sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id)
 {
     account_table accounts(_self, group_account.value);
     const auto& account = accounts.require_find(symbol_raw, "not enough balance");
@@ -353,7 +353,7 @@ void itamdigasset::sub_balance(const string& owner, name group_account, name ram
     });
 }
 
-ACTION itamdigasset::modifygroup(name before_group_account, name after_group_account)
+ACTION itamstoredex::modifygroup(name before_group_account, name after_group_account)
 {
     require_auth(_self);
 
@@ -369,7 +369,7 @@ ACTION itamdigasset::modifygroup(name before_group_account, name after_group_acc
     }
 }
 
-ACTION itamdigasset::addwhitelist(name allow_account)
+ACTION itamstoredex::addwhitelist(name allow_account)
 {
     require_auth(_self);
 
@@ -379,7 +379,7 @@ ACTION itamdigasset::addwhitelist(name allow_account)
     });
 }
 
-ACTION itamdigasset::setconfig(uint64_t fees_rate, uint64_t settle_rate)
+ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
 {
     require_auth(_self);
 

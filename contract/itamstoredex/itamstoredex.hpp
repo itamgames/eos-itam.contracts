@@ -7,10 +7,10 @@
 using namespace eosio;
 using namespace std;
 
-CONTRACT itamdigasset : contract
+CONTRACT itamstoredex : contract
 {
     public:
-        itamdigasset(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
+        itamstoredex(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
         currencies(_self, _self.value) {}
         
         ACTION test()
@@ -130,4 +130,4 @@ CONTRACT itamdigasset : contract
         void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
 };
 
-EOSIO_DISPATCH_EX(itamdigasset, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer)(setconfig)(setsettle)(claimsettle))
+EOSIO_DISPATCH_EX(itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer)(setconfig)(setsettle)(claimsettle))

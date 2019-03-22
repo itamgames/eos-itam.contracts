@@ -1,6 +1,6 @@
-#include "itamgservice.hpp"
+#include "itamstoreran.hpp"
 
-ACTION itamgservice::registboard(string appId, string boardList)
+ACTION itamstoreran::registboard(string appId, string boardList)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -25,7 +25,7 @@ ACTION itamgservice::registboard(string appId, string boardList)
     }
 }
 
-ACTION itamgservice::score(string appId, string boardId, string score, string owner, name ownerGroup, string nickname, string data)
+ACTION itamstoreran::score(string appId, string boardId, string score, string owner, name ownerGroup, string nickname, string data)
 {
     uint64_t appid = stoull(appId, 0, 10);
     uint64_t boardid = stoull(boardId, 0, 10);
@@ -51,7 +51,7 @@ ACTION itamgservice::score(string appId, string boardId, string score, string ow
     eosio_assert(scoreOfAdd <= maximumScore, "score must be bigger than maximum score");
 }
 
-ACTION itamgservice::rank(string appId, string boardId, string ranks, string period)
+ACTION itamstoreran::rank(string appId, string boardId, string ranks, string period)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -59,7 +59,7 @@ ACTION itamgservice::rank(string appId, string boardId, string ranks, string per
     leaderboardTable(_self, appid).get(boardid, "invalid board id");
 }
 
-ACTION itamgservice::regachieve(string appId, string achievementList)
+ACTION itamstoreran::regachieve(string appId, string achievementList)
 {
     require_auth(_self);
 
@@ -79,7 +79,7 @@ ACTION itamgservice::regachieve(string appId, string achievementList)
     }
 }
 
-ACTION itamgservice::acquisition(string appId, string achieveId, string owner, name ownerGroup, string data)
+ACTION itamstoreran::acquisition(string appId, string achieveId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
     
@@ -94,7 +94,7 @@ ACTION itamgservice::acquisition(string appId, string achieveId, string owner, n
     achievements.get(achieveid, "invalid achieve id");
 }
 
-ACTION itamgservice::cnlachieve(string appId, string achieveId, string owner, name ownerGroup, string reason)
+ACTION itamstoreran::cnlachieve(string appId, string achieveId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -109,7 +109,7 @@ ACTION itamgservice::cnlachieve(string appId, string achieveId, string owner, na
     achievements.get(achieveid, "invalid achieve id");
 }
 
-ACTION itamgservice::blockuser(string appId, string owner, name ownerGroup, string reason)
+ACTION itamstoreran::blockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -136,7 +136,7 @@ ACTION itamgservice::blockuser(string appId, string owner, name ownerGroup, stri
     }
 }
 
-ACTION itamgservice::unblockuser(string appId, string owner, name ownerGroup, string reason)
+ACTION itamstoreran::unblockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -158,7 +158,7 @@ ACTION itamgservice::unblockuser(string appId, string owner, name ownerGroup, st
     }
 }
 
-ACTION itamgservice::delservice(string appId)
+ACTION itamstoreran::delservice(string appId)
 {
     require_auth(_self);
 
@@ -171,7 +171,7 @@ ACTION itamgservice::delservice(string appId)
     for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
 }
 
-ACTION itamgservice::history(string appId, string owner, name ownerGroup, string data)
+ACTION itamstoreran::history(string appId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
     uint64_t appid = stoull(appId, 0, 10);
@@ -179,7 +179,7 @@ ACTION itamgservice::history(string appId, string owner, name ownerGroup, string
     require_recipient(groupAccount);
 }
 
-void itamgservice::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
+void itamstoreran::assertIfBlockUser(uint64_t appId, const string& owner, name groupAccount)
 {
     blockTable blocks(_self, appId);
     const auto& block = blocks.find(groupAccount.value);
@@ -191,7 +191,7 @@ void itamgservice::assertIfBlockUser(uint64_t appId, const string& owner, name g
     eosio_assert(block->owners.count(owner) == 0, "block user");
 }
 
-bool itamgservice::isValidPrecision(const string& number, uint64_t precision)
+bool itamstoreran::isValidPrecision(const string& number, uint64_t precision)
 {
     vector<string> score;
 
@@ -202,7 +202,7 @@ bool itamgservice::isValidPrecision(const string& number, uint64_t precision)
     return score.size() == 1 || score[1].size() <= precision;
 }
 
-void itamgservice::stringToAsset(asset &result, const string& number, uint64_t precision)
+void itamstoreran::stringToAsset(asset &result, const string& number, uint64_t precision)
 {
     vector<string> amount;
     split(amount, number, ".");
