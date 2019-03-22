@@ -56,7 +56,7 @@ CONTRACT itamstoreapp : public contract
         typedef multi_index<"apps"_n, app> appTable;
 
         // settle
-        const static uint64_t SECONDS_OF_DAY = 5; // 1 day == 24 hours == 1440 minutes == 86400 seconds
+        const static uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
 
         const string ITAM_SETTLE_ACCOUNT = "itamstincome";
 
