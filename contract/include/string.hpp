@@ -41,11 +41,9 @@ void parseMemo(void* msg, const string& memo, const string& delimiter)
 
     for(uint64_t i = 0; string::npos != pos || string::npos != lastPos; i++)
     {
-        string temp = memo.substr(lastPos, pos - lastPos);
+        ptr[i] = memo.substr(lastPos, pos - lastPos);
 
-        lastPos = memo.find_first_not_of(delimiter, pos);
+        lastPos = string::npos != pos ? pos + 1 : string::npos;
         pos = memo.find_first_of(delimiter, lastPos);
-
-        ptr[i] = temp;
     }
 }
