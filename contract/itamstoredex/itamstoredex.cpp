@@ -213,7 +213,7 @@ ACTION itamstoredex::cancelorder(string owner, name owner_group, symbol_code sym
 ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 {
     transfer_data data = unpack_action_data<transfer_data>();
-    if (data.from == _self || data.to != _self) return;
+    if (data.from == _self || data.to != _self || data.from == name("itamgamesgas")) return;
 
     memo_data message;
     parseMemo(&message, data.memo, "|");

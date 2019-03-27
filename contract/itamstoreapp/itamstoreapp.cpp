@@ -204,7 +204,7 @@ ACTION itamstoreapp::deleteapp(string appId)
 ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
-    if (data.from == _self || data.to != _self) return;
+    if (data.from == _self || data.to != _self || data.from == name("itamgamesgas")) return;
     
     memoData memo;
     parseMemo(&memo, data.memo, "|");
