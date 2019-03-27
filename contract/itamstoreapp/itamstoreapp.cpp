@@ -421,6 +421,7 @@ ACTION itamstoreapp::setsettle(string appId, name account)
     uint64_t appid = stoull(appId, 0, 10);
 
     require_auth(_self);
+    eosio_assert(is_account(account), "account does not exist");
 
     settleTable settles(_self, _self.value);
     const auto& settle = settles.find(appid);
