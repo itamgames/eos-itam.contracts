@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Jan 29 18:40:13 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 28 09:26:33 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -9,6 +9,20 @@
                 {
                     "name": "balance",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "burn",
+            "base": "",
+            "fields": [
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
         },
@@ -73,12 +87,76 @@
             ]
         },
         {
-            "name": "menualrefund",
+            "name": "lock",
             "base": "",
             "fields": [
                 {
                     "name": "owner",
                     "type": "name"
+                },
+                {
+                    "name": "lock_infos",
+                    "type": "lock_info[]"
+                }
+            ]
+        },
+        {
+            "name": "lock_info",
+            "base": "",
+            "fields": [
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "locktoken",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "timestamp_sec",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "menrefund",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "mint",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
         },
@@ -111,6 +189,20 @@
                 {
                     "name": "req_refund_ts",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "releasetoken",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "string"
                 }
             ]
         },
@@ -182,6 +274,11 @@
     "types": [],
     "actions": [
         {
+            "name": "burn",
+            "type": "burn",
+            "ricardian_contract": ""
+        },
+        {
             "name": "create",
             "type": "create",
             "ricardian_contract": ""
@@ -197,8 +294,23 @@
             "ricardian_contract": ""
         },
         {
-            "name": "menualrefund",
-            "type": "menualrefund",
+            "name": "locktoken",
+            "type": "locktoken",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "menrefund",
+            "type": "menrefund",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "mint",
+            "type": "mint",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "releasetoken",
+            "type": "releasetoken",
             "ricardian_contract": ""
         },
         {
@@ -228,6 +340,13 @@
         {
             "name": "currencies",
             "type": "currency",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "locks",
+            "type": "lock",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

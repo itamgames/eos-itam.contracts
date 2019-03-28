@@ -1,6 +1,6 @@
-#include "itamtoken.hpp"
+#include "itamtokenadm.hpp"
 
-ACTION itamtoken::create(name issuer, asset maximum_supply)
+ACTION itamtokenadm::create(name issuer, asset maximum_supply)
 {
     require_auth(_self);
     
@@ -17,7 +17,7 @@ ACTION itamtoken::create(name issuer, asset maximum_supply)
     });
 }
 
-ACTION itamtoken::issue(name to, asset quantity, string memo)
+ACTION itamtokenadm::issue(name to, asset quantity, string memo)
 {
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
     
@@ -39,11 +39,16 @@ ACTION itamtoken::issue(name to, asset quantity, string memo)
 
     if(to != token->issuer)
     {
-        SEND_INLINE_ACTION(*this, transfer, {token->issuer,"active"_n}, {token->issuer, to, quantity, memo});
+        SEND_INLINE_ACTION(
+            *this,
+            transfer,
+            { token->issuer, name("active") },
+            { token->issuer, to, quantity, memo }
+        );
     }
 }
 
-ACTION itamtoken::transfer(name from, name to, asset quantity, string memo)
+ACTION itamtokenadm::transfer(name from, name to, asset quantity, string memo)
 {
     eosio_assert(from != to, "cannot transfer to self");
     require_auth(from);
@@ -53,20 +58,19 @@ ACTION itamtoken::transfer(name from, name to, asset quantity, string memo)
     currency_table currencies(_self, symbol_name);
     const auto& currency = currencies.get(symbol_name);
 
-   require_recipient(from);
-   require_recipient(to);
+    require_recipient(from);
+    require_recipient(to);
 
-   eosio_assert(quantity.is_valid(), "invalid quantity");
-   eosio_assert(quantity.amount > 0, "must transfer positive quantity");
-   eosio_assert(quantity.symbol == currency.supply.symbol, "symbol precision mismatch");
-   eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    eosio_assert(quantity.is_valid(), "invalid quantity");
+    eosio_assert(quantity.amount > 0, "must transfer positive quantity");
+    eosio_assert(quantity.symbol == currency.supply.symbol, "symbol precision mismatch");
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
-
-   sub_balance(from, quantity);
-   add_balance(to, quantity, from);
+    sub_balance(from, quantity);
+    add_balance(to, quantity, from);
 }
 
-ACTION itamtoken::staking(name owner, asset value)
+ACTION itamtokenadm::staking(name owner, asset value)
 {
     require_auth(owner);
 
@@ -107,7 +111,7 @@ ACTION itamtoken::staking(name owner, asset value)
     }
 }
 
-ACTION itamtoken::unstaking(name owner, asset value)
+ACTION itamtokenadm::unstaking(name owner, asset value)
 {
     require_auth(owner);
 
@@ -157,17 +161,17 @@ ACTION itamtoken::unstaking(name owner, asset value)
     txn.send(now(), owner);
 }
 
-ACTION itamtoken::defrefund(name owner)
+ACTION itamtokenadm::defrefund(name owner)
 {
     refund(owner);
 }
 
-ACTION itamtoken::menualrefund(name owner)
+ACTION itamtokenadm::menrefund(name owner)
 {
     refund(owner);
 }
 
-void itamtoken::refund(name owner)
+void itamtokenadm::refund(name owner)
 {
     require_auth(_self);
     
@@ -192,7 +196,7 @@ void itamtoken::refund(name owner)
     // TODO: erase row if refund_list is empty.
 }
 
-void itamtoken::sub_balance(name owner, asset value)
+void itamtokenadm::sub_balance(name owner, asset value)
 {
     account_table accounts(_self, owner.value);
     
@@ -231,7 +235,111 @@ void itamtoken::sub_balance(name owner, asset value)
     }
 }
 
-void itamtoken::add_balance(name owner, asset value, name ram_payer)
+ACTION itamtokenadm::burn(asset quantity, string memo)
+{
+    require_auth(_self);
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    eosio_assert(quantity.amount > 0, "quantity must be positive");
+
+    currency_table currencies( _self, quantity.symbol.code().raw());
+    const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
+
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.supply -= quantity;
+    });
+
+    sub_balance(_self, quantity);
+}
+
+ACTION itamtokenadm::mint(name owner, asset quantity, string memo)
+{
+    require_auth(_self);
+    eosio_assert(is_account(owner), "owner does not exist");
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    eosio_assert(quantity.amount > 0, "quantity must be positive");
+
+    currency_table currencies( _self, quantity.symbol.code().raw());
+    const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
+
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.supply += quantity;
+        c.max_supply += quantity;
+    });
+
+    add_balance(owner, quantity, _self);
+}
+
+ACTION itamtokenadm::locktoken(name owner, asset quantity, uint64_t timestamp_sec)
+{
+    require_auth(_self);
+    eosio_assert(is_account(owner), "owner does not exist");
+    uint64_t symbol_raw = quantity.symbol.code().raw();
+    currency_table currencies(_self, symbol_raw);
+    const auto& currency = currencies.get(symbol_raw, "invalid symbol");
+
+    lock_table locks(_self, symbol_raw);
+    const auto& lock = locks.find(owner.value);
+
+    lock_info info { quantity, timestamp_sec };
+    if(lock == locks.end())
+    {
+        locks.emplace(_self, [&](auto &l) {
+            l.owner = owner;
+            l.lock_infos.push_back(info);
+        });
+    }
+    else
+    {
+        locks.modify(lock, _self, [&](auto &l) {
+            l.lock_infos.push_back(info);
+        });
+    }
+
+    transaction tx;
+    tx.actions.emplace_back(
+        permission_level( _self, name("active") ),
+        _self,
+        name("releasetoken"),
+        make_tuple( owner, quantity.symbol.code().to_string() )
+    );
+
+    tx.delay_sec = now() - timestamp_sec;
+    tx.send(now(), _self);
+}
+
+ACTION itamtokenadm::releasetoken(name owner, string symbol_name)
+{
+    require_auth(_self);
+    uint64_t symbol_raw = symbol(symbol_name, 4).code().raw();
+    currency_table currencies(_self, symbol_raw);
+    const auto& currency = currencies.get(symbol_raw, "invalid symbol");
+
+    lock_table locks(_self, symbol_raw);
+    const auto& lock = locks.require_find(owner.value, "owner doesn't have lock balance");
+
+    uint64_t current_time = now();
+    locks.modify(lock, _self, [&](auto &l) {
+        for(auto iter = l.lock_infos.begin(); iter != l.lock_infos.end();)
+        {
+            if(iter->timestamp <= current_time)
+            {
+                SEND_INLINE_ACTION(
+                    *this,
+                    issue,
+                    { { _self, name("active") } },
+                    { owner, iter->quantity, string("release lock") }
+                );
+
+                locks.modify(lock, _self, [&](auto &l) {
+                    iter = l.lock_infos.erase(iter);
+                });
+            }
+            else iter++;
+        }
+    });    
+}
+
+void itamtokenadm::add_balance(name owner, asset value, name ram_payer)
 {
     account_table accounts(_self, owner.value);
     auto account = accounts.find(value.symbol.code().raw());
@@ -249,17 +357,3 @@ void itamtoken::add_balance(name owner, asset value, name ram_payer)
         });
     }
 }
-
-#define EOSIO_DISPATCH_EX( TYPE, MEMBERS ) \
-extern "C" { \
-   void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        if( code == receiver || code == name("itamstoreapp").value || code == name("itamstoredex").value || code == name("itampayapp").value ) { \
-         switch( action ) { \
-            EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
-         } \
-         /* does not allow destructor of thiscontract to run: eosio_exit(0); */ \
-      } \
-   } \
-} \
-
-EOSIO_DISPATCH_EX( itamtoken, (create)(issue)(transfer)(staking)(unstaking)(defrefund)(menualrefund) )
