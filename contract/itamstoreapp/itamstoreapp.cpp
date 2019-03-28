@@ -93,7 +93,7 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
 
     name groupAccount = get_group_account(owner, ownerGroup);
 
-    pendingTable pendings(_code, appId);
+    pendingTable pendings(_self, appId);
     const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
     
     map<string, vector<pendingInfo>> infos = pending->infos;
