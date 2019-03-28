@@ -14,8 +14,8 @@ CONTRACT itamtokenadm : public contract
         ACTION create(name issuer, asset maximum_supply);
         ACTION issue(name to, asset quantity, string memo);
         ACTION transfer(name from, name to, asset amount, string memo);
-        ACTION staking(name owner, asset value);
-        ACTION unstaking(name owner, asset value);
+        ACTION staking(name owner, asset quantity);
+        ACTION unstaking(name owner, asset quantity);
         ACTION burn(asset quantity, string memo);
         ACTION mint(name owner, asset quantity, string memo);
         ACTION locktoken(name owner, asset quantity, uint64_t timestamp_sec);
@@ -79,6 +79,7 @@ CONTRACT itamtokenadm : public contract
         {
             name owner;
             vector<lock_info> lock_infos;
+            asset total_lock;
 
             uint64_t primary_key() const { return owner.value; }
         };

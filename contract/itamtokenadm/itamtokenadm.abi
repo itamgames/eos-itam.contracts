@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 28 09:26:33 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 28 12:20:42 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -97,6 +97,10 @@
                 {
                     "name": "lock_infos",
                     "type": "lock_info[]"
+                },
+                {
+                    "name": "total_lock",
+                    "type": "asset"
                 }
             ]
         },
@@ -229,7 +233,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "value",
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -265,7 +269,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "value",
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
