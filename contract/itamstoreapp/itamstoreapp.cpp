@@ -216,6 +216,10 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     name groupAccount = get_group_account(memo.owner, ownerGroup);
     eosio_assert(groupAccount == data.from, "different owner group");
 
+    pendingTable pendings(_self, appId);
+    const auto& pending = pendings.find(groupAccount.value);
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
+
     if(memo.category == "app")
     {
         appTable apps(_self, _self.value);
@@ -228,6 +232,20 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             { { _self, name("active") } },
             { appId, data.from, memo.owner, ownerGroup, data.quantity }
         );
+        
+        if(pending != pendings.end())
+        {
+            map<string, vector<pendingInfo>> infos = pending->infos;
+            vector<pendingInfo> ownerPendings = infos[memo.owner];
+
+            for(auto iter = ownerPendings.begin(); iter != ownerPendings.end(); iter++)
+            {
+                if(iter->appId == appId && iter->itemId == 0)
+                {
+                    eosio_assert(false, "Already purchased account");
+                }
+            }
+        }
     }
     else if(memo.category == "item")
     {
@@ -246,12 +264,9 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     }
     else eosio_assert(false, "invalid category");
 
-    const auto& config = configs.get(_self.value, "refundable day must be set first");
-    
-    pendingTable pendings(_self, appId);
-    const auto& pending = pendings.find(groupAccount.value);
+    uint64_t currentTimestamp = now();
+    pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
 
-    pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, now() };
     if(pending == pendings.end())
     {
         pendings.emplace(_self, [&](auto &p) {

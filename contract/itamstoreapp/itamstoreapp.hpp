@@ -33,7 +33,6 @@ CONTRACT itamstoreapp : public contract
         ACTION claimsettle(string appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
     private:
-        // item
         TABLE item
         {
             uint64_t id;
@@ -42,9 +41,8 @@ CONTRACT itamstoreapp : public contract
 
             uint64_t primary_key() const { return id; }
         };
-        typedef multi_index<"items"_n, item> itemTable;
+        typedef multi_index<name("items"), item> itemTable;
 
-        // app
         TABLE app
         {
             uint64_t id;
@@ -53,11 +51,9 @@ CONTRACT itamstoreapp : public contract
 
             uint64_t primary_key() const { return id; }
         };
-        typedef multi_index<"apps"_n, app> appTable;
+        typedef multi_index<name("apps"), app> appTable;
 
-        // settle
         const static uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
-
         const string ITAM_SETTLE_ACCOUNT = "itamstincome";
 
         struct pendingInfo
@@ -72,11 +68,12 @@ CONTRACT itamstoreapp : public contract
         TABLE pending
         {
             name groupAccount;
+            // key: owner
             map<string, vector<pendingInfo>> infos;
 
             uint64_t primary_key() const { return groupAccount.value; }
         };
-        typedef multi_index<"pendings"_n, pending> pendingTable;
+        typedef multi_index<name("pendings"), pending> pendingTable;
 
         TABLE settle
         {
@@ -86,7 +83,7 @@ CONTRACT itamstoreapp : public contract
 
             uint64_t primary_key() const { return appId; }
         };
-        typedef multi_index<"settles"_n, settle> settleTable;
+        typedef multi_index<name("settles"), settle> settleTable;
 
         TABLE config
         {
@@ -96,7 +93,7 @@ CONTRACT itamstoreapp : public contract
 
             uint64_t primary_key() const { return key.value; }
         };
-        typedef multi_index<"configs"_n, config> configTable;
+        typedef multi_index<name("configs"), config> configTable;
         configTable configs;
 
         struct transferData
