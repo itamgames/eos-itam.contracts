@@ -95,28 +95,25 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
 
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
-    
-    map<string, vector<pendingInfo>> infos = pending->infos;
-    vector<pendingInfo> pendingInfos = infos[owner];
 
-    for(auto info = pendingInfos.begin(); info != pendingInfos.end(); info++)
-    {
-        if(info->appId == appId && info->itemId == itemId)
+    pendings.modify(pending, _self, [&](auto &p) {
+        for(auto info = p.infos[owner].begin(); info != p.infos[owner].end(); info++)
         {
-            uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-            eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
+            if(info->appId == appId && info->itemId == itemId)
+            {
+                uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+                eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
-            string category = itemId == NULL ? "app" : "item";
-            string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
-            action(
-                permission_level { _self, name("active") },
-                name("eosio.token"),
-                name("transfer"),
-                make_tuple( _self, groupAccount, info->paymentAmount, transferMemo )
-            ).send();
+                string category = itemId == NULL ? "app" : "item";
+                string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
+                action(
+                    permission_level { _self, name("active") },
+                    name("eosio.token"),
+                    name("transfer"),
+                    make_tuple( _self, groupAccount, info->paymentAmount, transferMemo )
+                ).send();
 
-            pendings.modify(pending, _self, [&](auto &p) {
-                if(pendingInfos.size() == 1)
+                if(p.infos[owner].size() == 1)
                 {
                     p.infos.erase(owner);
                 }
@@ -124,12 +121,12 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
                 {
                     p.infos[owner].erase(info);
                 }
-            });
-            return;
+                return;
+            }
         }
-    }
 
-    eosio_assert(false, "refund fail");
+        eosio_assert(false, "refund fail");
+    });
 }
 
 ACTION itamstoreapp::useitem(string appId, string itemId, string memo)
