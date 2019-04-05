@@ -204,7 +204,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     if (data.from == _self || data.to != _self || data.from == name("itamgamesgas")) return;
     
     memoData memo;
-    parseMemo(&memo, data.memo, "|");
+    parseMemo(&memo, data.memo, "|", 5);
 
     uint64_t appId = stoull(memo.appId, 0, 10);
     uint64_t itemId = 0;

@@ -1,9 +1,9 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Mar 22 13:51:34 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr  5 18:02:44 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
-            "name": "addgroup",
+            "name": "account",
             "base": "",
             "fields": [
                 {
@@ -11,36 +11,44 @@
                     "type": "name"
                 },
                 {
-                    "name": "group_account",
-                    "type": "name"
+                    "name": "balance",
+                    "type": "asset"
                 }
             ]
         },
         {
-            "name": "modifygroup",
+            "name": "transfer",
             "base": "",
             "fields": [
                 {
-                    "name": "owner",
-                    "type": "name"
+                    "name": "from",
+                    "type": "uint64"
                 },
                 {
-                    "name": "group_account",
-                    "type": "name"
+                    "name": "to",
+                    "type": "uint64"
                 }
             ]
         },
         {
-            "name": "ownergroup",
+            "name": "transferto",
             "base": "",
             "fields": [
                 {
-                    "name": "owner",
+                    "name": "from",
                     "type": "name"
                 },
                 {
-                    "name": "account",
+                    "name": "to",
                     "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
                 }
             ]
         }
@@ -48,20 +56,20 @@
     "types": [],
     "actions": [
         {
-            "name": "addgroup",
-            "type": "addgroup",
+            "name": "transfer",
+            "type": "transfer",
             "ricardian_contract": ""
         },
         {
-            "name": "modifygroup",
-            "type": "modifygroup",
+            "name": "transferto",
+            "type": "transferto",
             "ricardian_contract": ""
         }
     ],
     "tables": [
         {
-            "name": "ownergroups",
-            "type": "ownergroup",
+            "name": "accounts",
+            "type": "account",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

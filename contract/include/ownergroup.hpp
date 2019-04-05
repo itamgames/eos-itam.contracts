@@ -2,26 +2,26 @@
 
 using namespace eosio;
 
+const char* GROUP_CONTRACT_NAME = "itamgamestle";
+
 struct ownergroup
 {
-    name owner;
+    name groupName;
     name account;
 
-    uint64_t primary_key() const { return owner.value; }
+    uint64_t primary_key() const { return groupName.value; }
 };
+typedef multi_index<name("ownergroups"), ownergroup> ownerGroupTable;
 
-typedef multi_index<name("ownergroups"), ownergroup> ownergroup_table;
-
-name get_group_account(const string& owner, name owner_group)
+name getGroupAccount(const std::string& owner, name groupName)
 {
-    name itamitamitam("itamitamitam");
-    if(owner_group.to_string() == "eos")
+    if(groupName.to_string() == "eos")
     {
         return name(owner);
     }
 
-    ownergroup_table ownergroups(itamitamitam, itamitamitam.value);
-    const auto& ownergroup = ownergroups.get(owner_group.value, "invalid group name");
+    name commonContract("itamgamestle");
 
-    return ownergroup.account;
+    ownerGroupTable ownerGroups(commonContract, commonContract.value);
+    return ownerGroups.get(groupName.value, "groupName does not exist").account;
 }

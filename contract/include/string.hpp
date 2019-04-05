@@ -32,14 +32,16 @@ string replaceAll(const string& base, const string& search, const string& change
     return result;
 }
 
-void parseMemo(void* msg, const string& memo, const string& delimiter)
+// itemCount: for prevent stack overflow
+void parseMemo(void* msg, const string& memo, const string& delimiter, int itemCount)
 {
     string::size_type lastPos = memo.find_first_not_of(delimiter, 0);
     string::size_type pos = memo.find_first_of(delimiter, lastPos);
 
     string *ptr = (string*)msg;
 
-    for(uint64_t i = 0; string::npos != pos || string::npos != lastPos; i++)
+    // for(uint64_t i = 0; string::npos != pos || string::npos != lastPos; i++)
+    for(uint64_t i = 0; i < itemCount && (string::npos != pos || string::npos != lastPos); i++)
     {
         ptr[i] = memo.substr(lastPos, pos - lastPos);
 
