@@ -20,7 +20,7 @@ ACTION itamstoredex::create(name issuer, symbol_code symbol_name, string app_id)
     });
 }
 
-ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_code symbol_name, string group_id, string item_name, string category, string options, string reason)
+ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_code symbol_name, string item_id, string group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string reason)
 {
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
     require_auth(currency->issuer);
@@ -31,16 +31,17 @@ ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_cod
         c.sequence += 1;
     });
 
-    uint64_t item_id = currency->sequence;
+    uint64_t itemid = stoull(item_id, 0, 10);
+    uint64_t groupid = stoull(group_id, 0, 10);
 
     string stringified_self = _self.to_string();
-    item t { stringified_self, nickname, stoull(group_id, 0, 10), item_name, category, options, 0, true };
-    add_balance(_self, _self, symbol_name, item_id, t);
+    item t { stringified_self, nickname, groupid, item_name, category, options, 0, true };
+    add_balance(_self, _self, symbol_name, itemid, t);
 
     name eos_name = name("eos");
     if(to != stringified_self || to_group != eos_name)
     {
-        vector<uint64_t> item_ids {item_id};
+        vector<uint64_t> item_ids { itemid };
         SEND_INLINE_ACTION(
             *this,
             transfernft,
@@ -48,9 +49,16 @@ ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_cod
             { stringified_self, eos_name, to, to_group, nickname, symbol_name, item_ids, reason }
         );
     }
+
+    SEND_INLINE_ACTION(
+        *this,
+        receipt,
+        { { _self, name("active") } },
+        { to, to_group, currency->app_id, itemid, nickname, groupid, item_name, category, options, duration, transferable, string("issue") }
+    );
 }
 
-ACTION itamstoredex::modify(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, string group_id, string item_name, string category, string options, bool transferable, string reason)
+ACTION itamstoredex::modify(string owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason)
 {
     require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
@@ -63,21 +71,29 @@ ACTION itamstoredex::modify(string owner, name owner_group, symbol_code symbol_n
     account_table accounts(_self, group_account.value);
     const auto& account = accounts.require_find(symbol_raw, "not enough balance");
 
+    uint64_t itemid = stoull(item_id, 0, 10);
+
     map<uint64_t, item> owner_items = account->items;
-    auto iter = owner_items.find(item_id);
+    auto iter = owner_items.find(itemid);
     eosio_assert(iter != owner_items.end(), "no item object found");
 
     item owner_item = iter->second;
     eosio_assert(owner_item.owner == owner, "different owner");
 
     accounts.modify(account, _self, [&](auto &a) {
-        auto& item = a.items[item_id];
-        item.group_id = stoull(group_id, 0, 10);
+        auto& item = a.items[itemid];
         item.item_name = item_name;
-        item.category = category;
         item.options = options;
+        item.duration = duration;
         item.transferable = transferable;
-    });    
+    });
+
+    SEND_INLINE_ACTION(
+        *this,
+        receipt,
+        { { _self, name("active") } },
+        { owner, owner_group, currency->app_id, itemid, owner_item.nickname, owner_item.group_id, item_name, owner_item.category, options, duration, transferable, string("modify") }
+    );
 }
 
 ACTION itamstoredex::transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo)
@@ -121,7 +137,7 @@ ACTION itamstoredex::transfernft(string from, name from_group, string to, name t
     require_recipient(from_group_account, to_group_account);
 }
 
-ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_name, vector<uint64_t> item_ids, string reason)
+ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_name, vector<string> item_ids, string reason)
 {
     name group_account = get_group_account(owner, owner_group);
     name author = has_auth(group_account) ? group_account : _self;
@@ -134,9 +150,36 @@ ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_nam
         c.supply -= asset(item_ids.size(), symbol(symbol_name, 0));
     });
 
+    account_table accounts(_self, group_account.value);
+    const auto& account = accounts.require_find(symbol_raw, "not enough balance");
+    map<uint64_t, item> items = account->items;
+
     for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
     {
-        sub_balance(owner, group_account, author, symbol_raw, *iter);
+        uint64_t item_id = stoull(*iter, 0, 10);
+        const item& i = items[item_id];
+
+        SEND_INLINE_ACTION(
+            *this,
+            receipt,
+            { { _self, name("active") } },
+            {
+                owner,
+                owner_group,
+                currency->app_id,
+                item_id,
+                i.nickname,
+                i.group_id,
+                i.item_name,
+                i.category,
+                i.options,
+                i.duration,
+                i.transferable,
+                string("burn")
+            }
+        );
+
+        sub_balance(owner, group_account, author, symbol_raw, item_id);
     }
 }
 
@@ -216,7 +259,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     if (data.from == _self || data.to != _self || data.from == name("itamgamesgas")) return;
 
     memo_data message;
-    parseMemo(&message, data.memo, "|");
+    parseMemo(&message, data.memo, "|", 5);
 
     symbol sym(message.symbol_name, 0);
     uint64_t item_id = stoull(message.item_id, 0, 10);
@@ -401,4 +444,12 @@ ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
             c.settle_rate = settle_rate;
         });
     }
+}
+
+ACTION itamstoredex::receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string state)
+{
+    require_auth(_self);
+
+    name group_account = get_group_account(owner, owner_group);
+    require_recipient(_self, group_account);
 }
