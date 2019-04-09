@@ -1,7 +1,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../include/dispatcher.hpp"
 #include "../include/date.hpp"
 
 using namespace eosio;
