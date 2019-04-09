@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Mar 28 12:20:42 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr  9 18:28:30 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -9,6 +9,16 @@
                 {
                     "name": "balance",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "blacklist",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
                 }
             ]
         },
@@ -59,11 +69,21 @@
             ]
         },
         {
-            "name": "defrefund",
+            "name": "delblacklist",
             "base": "",
             "fields": [
                 {
                     "name": "owner",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "dellockinfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "lock_type",
                     "type": "name"
                 }
             ]
@@ -81,6 +101,10 @@
                     "type": "asset"
                 },
                 {
+                    "name": "lock_type",
+                    "type": "name"
+                },
+                {
                     "name": "memo",
                     "type": "string"
                 }
@@ -95,54 +119,30 @@
                     "type": "name"
                 },
                 {
-                    "name": "lock_infos",
-                    "type": "lock_info[]"
-                },
-                {
-                    "name": "total_lock",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "lock_info",
-            "base": "",
-            "fields": [
-                {
                     "name": "quantity",
                     "type": "asset"
                 },
                 {
-                    "name": "timestamp",
-                    "type": "uint64"
+                    "name": "lock_type",
+                    "type": "name"
                 }
             ]
         },
         {
-            "name": "locktoken",
+            "name": "lockinfo",
             "base": "",
             "fields": [
                 {
-                    "name": "owner",
+                    "name": "lock_type",
                     "type": "name"
                 },
                 {
-                    "name": "quantity",
-                    "type": "asset"
-                },
-                {
-                    "name": "timestamp_sec",
+                    "name": "start_timestamp_sec",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "menrefund",
-            "base": "",
-            "fields": [
+                },
                 {
-                    "name": "owner",
-                    "type": "name"
+                    "name": "percents",
+                    "type": "int32[]"
                 }
             ]
         },
@@ -150,10 +150,6 @@
             "name": "mint",
             "base": "",
             "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
                 {
                     "name": "quantity",
                     "type": "asset"
@@ -165,76 +161,30 @@
             ]
         },
         {
-            "name": "refund",
+            "name": "regblacklist",
             "base": "",
             "fields": [
                 {
                     "name": "owner",
                     "type": "name"
-                },
-                {
-                    "name": "total_refund",
-                    "type": "asset"
-                },
-                {
-                    "name": "refund_list",
-                    "type": "refund_info[]"
                 }
             ]
         },
         {
-            "name": "refund_info",
+            "name": "setlockinfo",
             "base": "",
             "fields": [
                 {
-                    "name": "refund_amount",
-                    "type": "asset"
+                    "name": "lock_type",
+                    "type": "name"
                 },
                 {
-                    "name": "req_refund_ts",
+                    "name": "start_timestamp_sec",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "releasetoken",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
                 },
                 {
-                    "name": "symbol_name",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "stake",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "balance",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "staking",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
+                    "name": "percents",
+                    "type": "int32[]"
                 }
             ]
         },
@@ -251,26 +201,12 @@
                     "type": "name"
                 },
                 {
-                    "name": "amount",
+                    "name": "quantity",
                     "type": "asset"
                 },
                 {
                     "name": "memo",
                     "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "unstaking",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
                 }
             ]
         }
@@ -288,8 +224,13 @@
             "ricardian_contract": ""
         },
         {
-            "name": "defrefund",
-            "type": "defrefund",
+            "name": "delblacklist",
+            "type": "delblacklist",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "dellockinfo",
+            "type": "dellockinfo",
             "ricardian_contract": ""
         },
         {
@@ -298,38 +239,23 @@
             "ricardian_contract": ""
         },
         {
-            "name": "locktoken",
-            "type": "locktoken",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "menrefund",
-            "type": "menrefund",
-            "ricardian_contract": ""
-        },
-        {
             "name": "mint",
             "type": "mint",
             "ricardian_contract": ""
         },
         {
-            "name": "releasetoken",
-            "type": "releasetoken",
+            "name": "regblacklist",
+            "type": "regblacklist",
             "ricardian_contract": ""
         },
         {
-            "name": "staking",
-            "type": "staking",
+            "name": "setlockinfo",
+            "type": "setlockinfo",
             "ricardian_contract": ""
         },
         {
             "name": "transfer",
             "type": "transfer",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "unstaking",
-            "type": "unstaking",
             "ricardian_contract": ""
         }
     ],
@@ -342,6 +268,13 @@
             "key_types": []
         },
         {
+            "name": "blacklists",
+            "type": "blacklist",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "currencies",
             "type": "currency",
             "index_type": "i64",
@@ -349,22 +282,15 @@
             "key_types": []
         },
         {
+            "name": "lockinfos",
+            "type": "lockinfo",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "locks",
             "type": "lock",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "refunds",
-            "type": "refund",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "stakes",
-            "type": "stake",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
