@@ -1,7 +1,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../include/date.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -74,6 +73,7 @@ CONTRACT itamtokenadm : public contract
         };
         typedef multi_index<name("blacklists"), blacklist> blacklist_table;
 
+        const int SECONDS_OF_DAY = 86400;
         void sub_balance(name owner, asset value);
         void add_balance(name owner, asset value, name ram_payer);
         void change_max_supply(const asset& quantity);

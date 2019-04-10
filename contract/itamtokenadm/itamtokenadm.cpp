@@ -122,7 +122,6 @@ ACTION itamtokenadm::mint(asset quantity, string memo)
 
     currencies.modify(currency, _self, [&](auto &c) {
         c.max_supply += quantity;
-        eosio_assert(c.max_supply.amount > 0, "max_supply must be positive");
     });
 }
 
@@ -207,9 +206,48 @@ void itamtokenadm::add_balance(name owner, asset value, name ram_payer)
 
 void itamtokenadm::sub_balance(name owner, asset value)
 {
+    lock_table locks(_self, _self.value);
+    const auto& lock = locks.find(owner.value);
+
+    int64_t lock_amount = 0;
+    if(lock != locks.end())
+    {
+        int32_t current_time_sec = now();
+        map<uint64_t, int32_t> release_percents;
+
+        const vector<lockinfo>& owner_lockinfos = lock->lockinfos;
+        for(auto owner_lockinfo = owner_lockinfos.begin(); owner_lockinfo != owner_lockinfos.end(); owner_lockinfo++)
+        {
+            name owner_lock_type = owner_lockinfo->lock_type;
+            uint64_t release_percent = 0;
+
+            auto iter = release_percents.find(owner_lock_type.value);
+            if(iter == release_percents.end())
+            {
+                locktype_table locktypes(_self, _self.value);
+                const auto& locktype = locktypes.get(owner_lock_type.value, "invalid lock_type");
+                
+                int32_t pass_month = (current_time_sec - locktype.start_timestamp_sec) / (SECONDS_OF_DAY * 30);
+                for(int i = 0; i < pass_month; i++)
+                {
+                    release_percent += locktype.percents[i];
+                }
+
+                release_percents[owner_lock_type.value] = release_percent;
+            }
+            else
+            {
+                release_percent = iter->second;
+            }
+            
+            int32_t lock_percent = 100 - release_percent;
+            lock_amount += (owner_lockinfo->quantity * lock_percent / 100).amount;
+        }
+    }
+
     account_table accounts(_self, owner.value);
     const auto& account = accounts.get(value.symbol.code().raw(), "no balance object found");
-    int64_t balance_amount = account.balance.amount;
+    eosio_assert(account.balance.amount - lock_amount - value.amount >= 0, "overdrawn balance");
 
     if(account.balance.amount == value.amount)
     {
@@ -221,40 +259,4 @@ void itamtokenadm::sub_balance(name owner, asset value)
             a.balance -= value;
         });
     }
-
-    lock_table locks(_self, _self.value);
-    const auto& lock = locks.find(owner.value);
-
-    if(lock == locks.end()) return;
-
-    int64_t lock_amount = 0;
-    int32_t current_time_sec = now();
-    map<uint64_t, int32_t> release_percents;
-
-    const vector<lockinfo>& owner_lockinfos = lock->lockinfos;
-    for(auto owner_lockinfo = owner_lockinfos.begin(); owner_lockinfo != owner_lockinfos.end(); owner_lockinfo++)
-    {
-        name owner_lock_type = owner_lockinfo->lock_type;
-        uint64_t release_percent = 0;
-
-        auto iter = release_percents.find(owner_lock_type.value);
-        if(iter == release_percents.end())
-        {
-            locktype_table locktypes(_self, _self.value);
-            const auto& locktype = locktypes.get(owner_lock_type.value, "invalid lock_type");
-            
-            int32_t pass_month = (current_time_sec - locktype.start_timestamp_sec) / (SECONDS_OF_DAY * 30);
-            for(int i = 0; i < pass_month; i++)
-            {
-                release_percent += locktype.percents[i];
-            }
-
-            release_percents[owner_lock_type.value] = release_percent;
-        }
-
-        int32_t lock_percent = 100 - release_percent;
-        lock_amount += (owner_lockinfo->quantity * lock_percent / 100).amount;
-    }
-
-    eosio_assert(balance_amount - lock_amount - value.amount >= 0, "overdrawn balance");
 }
