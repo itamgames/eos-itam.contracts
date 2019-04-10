@@ -171,6 +171,7 @@ ACTION itamtokenadm::regblacklist(name owner)
     require_auth(_self);
 
     blacklist_table blacklists(_self, _self.value);
+    eosio_assert(blacklists.find(owner.value) == blacklists.end(), "blacklist already exists");
     blacklists.emplace(_self, [&](auto &b) {
         b.owner = owner;
     });
