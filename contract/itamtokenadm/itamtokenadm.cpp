@@ -48,27 +48,27 @@ ACTION itamtokenadm::issue(name to, asset quantity, name lock_type, string memo)
     }
 
     if(lock_type.to_string() == "") return;
-    lockinfo_table lockinfos(_self, _self.value);
-    eosio_assert(lockinfos.find(lock_type.value) != lockinfos.end(), "invalid lock_type");
+    locktype_table locktypes(_self, _self.value);
+    eosio_assert(locktypes.find(lock_type.value) != locktypes.end(), "invalid lock_type");
 
     lock_table locks(_self, _self.value);
     const auto& lock = locks.find(to.value);
+    
+    lockinfo info { quantity, lock_type };
 
     if(lock == locks.end())
     {
         locks.emplace(_self, [&](auto &l) {
             l.owner = to;
-            l.quantity = quantity;
-            l.lock_type = lock_type;
+            l.lockinfos.push_back(info);
         });
     }
     else
     {
         locks.modify(lock, _self, [&](auto &l) {
-            l.quantity += quantity;
+            l.lockinfos.push_back(info);
         });
     }
-    
 }
 
 ACTION itamtokenadm::transfer(name from, name to, asset quantity, string memo)
@@ -96,24 +96,42 @@ ACTION itamtokenadm::transfer(name from, name to, asset quantity, string memo)
     add_balance(to, quantity, from);
 }
 
-ACTION itamtokenadm::burn(asset quantity, string memo)
+ACTION itamtokenadm::burn(name owner, asset quantity, string memo)
 {
+    require_auth(owner);
     eosio_assert(quantity.amount > 0, "quantity must be positive");
-    change_max_supply(quantity * -1, memo);
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+    currency_table currencies(_self, quantity.symbol.code().raw());
+    const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.supply -= quantity;
+    });
+
+    sub_balance(owner, quantity);
 }
 
 ACTION itamtokenadm::mint(asset quantity, string memo)
 {
     eosio_assert(quantity.amount > 0, "quantity must be positive");
-    change_max_supply(quantity, memo);
+    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+    currency_table currencies(_self, quantity.symbol.code().raw());
+    const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
+    require_auth(currency->issuer);
+
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.max_supply += quantity;
+        eosio_assert(c.max_supply.amount > 0, "max_supply must be positive");
+    });
 }
 
-ACTION itamtokenadm::setlockinfo(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents)
+ACTION itamtokenadm::setlocktype(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents)
 {
     require_auth(_self);
 
-    lockinfo_table lockinfos(_self, _self.value);
-    const auto& lockinfo = lockinfos.find(lock_type.value);
+    locktype_table locktypes(_self, _self.value);
+    const auto& locktype = locktypes.find(lock_type.value);
 
     uint64_t total_percents = 0;
     for(auto iter = percents.begin(); iter != percents.end(); iter++)
@@ -122,9 +140,9 @@ ACTION itamtokenadm::setlockinfo(name lock_type, uint64_t start_timestamp_sec, v
     }
     eosio_assert(total_percents == 100, "total percents must be 100");
 
-    if(lockinfo == lockinfos.end())
+    if(locktype == locktypes.end())
     {
-        lockinfos.emplace(_self, [&](auto &l) {
+        locktypes.emplace(_self, [&](auto &l) {
             l.lock_type = lock_type;
             l.start_timestamp_sec = start_timestamp_sec;
             l.percents = percents;
@@ -132,20 +150,20 @@ ACTION itamtokenadm::setlockinfo(name lock_type, uint64_t start_timestamp_sec, v
     }
     else
     {
-        lockinfos.modify(lockinfo, _self, [&](auto &l) {
+        locktypes.modify(locktype, _self, [&](auto &l) {
             l.start_timestamp_sec = start_timestamp_sec;
             l.percents = percents;
         });
     }
 }
 
-ACTION itamtokenadm::dellockinfo(name lock_type)
+ACTION itamtokenadm::dellocktype(name lock_type)
 {
     require_auth(_self);
 
-    lockinfo_table lockinfos(_self, _self.value);
-    const auto& lockinfo = lockinfos.require_find(lock_type.value, "invalid lock_type");
-    lockinfos.erase(lockinfo);
+    locktype_table locktypes(_self, _self.value);
+    const auto& locktype = locktypes.require_find(lock_type.value, "invalid lock_type");
+    locktypes.erase(locktype);
 }
 
 ACTION itamtokenadm::regblacklist(name owner)
@@ -165,20 +183,6 @@ ACTION itamtokenadm::delblacklist(name owner)
     blacklist_table blacklists(_self, _self.value);
     const auto& blacklist = blacklists.require_find(owner.value, "no blacklist owner");
     blacklists.erase(blacklist);
-}
-
-void itamtokenadm::change_max_supply(const asset& quantity, const string& memo)
-{
-    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
-
-    currency_table currencies(_self, quantity.symbol.code().raw());
-    const auto& currency = currencies.require_find(quantity.symbol.code().raw(), "invalid symbol");
-    require_auth(currency->issuer);
-
-    currencies.modify(currency, _self, [&](auto &c) {
-        c.max_supply += quantity;
-        eosio_assert(c.max_supply.amount > 0, "max_supply must be positive");
-    });
 }
 
 void itamtokenadm::add_balance(name owner, asset value, name ram_payer)
@@ -204,40 +208,52 @@ void itamtokenadm::sub_balance(name owner, asset value)
 {
     account_table accounts(_self, owner.value);
     const auto& account = accounts.get(value.symbol.code().raw(), "no balance object found");
+    int64_t balance_amount = account.balance.amount;
 
-    lock_table locks(_self, _self.value);
-    const auto& lock = locks.find(owner.value);
-
-    int64_t lock_amount = 0;
-    if(lock != locks.end())
-    {
-        lockinfo_table lockinfos(_self, _self.value);
-        const auto& lockinfo = lockinfos.get(lock->lock_type.value, "invalid lock_type");
-
-        asset total_lock = lock->quantity;
-        const vector<int32_t>& lock_percents = lockinfo.percents;
-        
-        int32_t release_percent = 0;
-        int32_t pass_month = ((int32_t)now() - (int32_t)lockinfo.start_timestamp_sec) / (SECONDS_OF_DAY * 30);
-
-        for(int i = 0; i < pass_month; i++)
-        {
-            release_percent += lock_percents[i];
-        }
-
-        int32_t lock_percent = 100 - release_percent;
-        lock_amount = (total_lock * lock_percent / 100).amount;
-    }
-    eosio_assert(account.balance.amount - lock_amount - value.amount >= 0, "overdrawn balance");
-
-    if(account.balance.amount == value.amount) 
+    if(account.balance.amount == value.amount)
     {
         accounts.erase(account);
-    } 
+    }
     else
     {
         accounts.modify(account, owner, [&](auto& a) {
             a.balance -= value;
         });
     }
+
+    lock_table locks(_self, _self.value);
+    const auto& lock = locks.find(owner.value);
+
+    if(lock == locks.end()) return;
+
+    int64_t lock_amount = 0;
+    int32_t current_time_sec = now();
+    map<uint64_t, int32_t> release_percents;
+
+    const vector<lockinfo>& owner_lockinfos = lock->lockinfos;
+    for(auto owner_lockinfo = owner_lockinfos.begin(); owner_lockinfo != owner_lockinfos.end(); owner_lockinfo++)
+    {
+        name owner_lock_type = owner_lockinfo->lock_type;
+        uint64_t release_percent = 0;
+
+        auto iter = release_percents.find(owner_lock_type.value);
+        if(iter == release_percents.end())
+        {
+            locktype_table locktypes(_self, _self.value);
+            const auto& locktype = locktypes.get(owner_lock_type.value, "invalid lock_type");
+            
+            int32_t pass_month = (current_time_sec - locktype.start_timestamp_sec) / (SECONDS_OF_DAY * 30);
+            for(int i = 0; i < pass_month; i++)
+            {
+                release_percent += locktype.percents[i];
+            }
+
+            release_percents[owner_lock_type.value] = release_percent;
+        }
+
+        int32_t lock_percent = 100 - release_percent;
+        lock_amount += (owner_lockinfo->quantity * lock_percent / 100).amount;
+    }
+
+    eosio_assert(balance_amount - lock_amount - value.amount >= 0, "overdrawn balance");
 }

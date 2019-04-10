@@ -14,10 +14,10 @@ CONTRACT itamtokenadm : public contract
         ACTION create(name issuer, asset maximum_supply);
         ACTION issue(name to, asset quantity, name lock_type, string memo);
         ACTION transfer(name from, name to, asset quantity, string memo);
-        ACTION burn(asset quantity, string memo);
+        ACTION burn(name owner, asset quantity, string memo);
         ACTION mint(asset quantity, string memo);
-        ACTION setlockinfo(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents);
-        ACTION dellockinfo(name lock_type);
+        ACTION setlocktype(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents);
+        ACTION dellocktype(name lock_type);
         ACTION regblacklist(name owner);
         ACTION delblacklist(name owner);
 
@@ -31,7 +31,7 @@ CONTRACT itamtokenadm : public contract
         };
         typedef multi_index<name("accounts"), account> account_table;
 
-        TABLE currency
+        TABLE currency_stats
         {
             name issuer;
             asset supply;
@@ -39,27 +39,32 @@ CONTRACT itamtokenadm : public contract
 
             uint64_t primary_key() const { return supply.symbol.code().raw(); }
         };
-        typedef multi_index<name("currencies"), currency> currency_table;
+        typedef multi_index<name("stats"), currency_stats> currency_table;
+
+        struct lockinfo
+        {
+            asset quantity;
+            name lock_type;
+        };
 
         TABLE lock
         {
             name owner;
-            asset quantity;
-            name lock_type;
+            vector<lockinfo> lockinfos;
 
             uint64_t primary_key() const { return owner.value; }
         };
         typedef multi_index<name("locks"), lock> lock_table;
 
-        TABLE lockinfo
+        TABLE locktype
         {
             name lock_type;
-            uint64_t start_timestamp_sec;
+            int32_t start_timestamp_sec;
             vector<int32_t> percents;
 
             uint64_t primary_key() const { return lock_type.value; }
         };
-        typedef multi_index<name("lockinfos"), lockinfo> lockinfo_table;
+        typedef multi_index<name("locktypes"), locktype> locktype_table;
 
         TABLE blacklist
         {
@@ -71,7 +76,7 @@ CONTRACT itamtokenadm : public contract
 
         void sub_balance(name owner, asset value);
         void add_balance(name owner, asset value, name ram_payer);
-        void change_max_supply(const asset& quantity, const string& memo);
+        void change_max_supply(const asset& quantity);
 };
 
-EOSIO_DISPATCH( itamtokenadm, (create)(issue)(transfer)(burn)(mint)(setlockinfo)(dellockinfo)(regblacklist)(delblacklist) )
+EOSIO_DISPATCH( itamtokenadm, (create)(issue)(transfer)(burn)(mint)(setlocktype)(dellocktype)(regblacklist)(delblacklist) )

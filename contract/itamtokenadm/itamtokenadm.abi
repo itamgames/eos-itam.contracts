@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr  9 18:39:17 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 10 11:46:41 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -27,6 +27,10 @@
             "base": "",
             "fields": [
                 {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
                     "name": "quantity",
                     "type": "asset"
                 },
@@ -51,7 +55,7 @@
             ]
         },
         {
-            "name": "currency",
+            "name": "currency_stats",
             "base": "",
             "fields": [
                 {
@@ -79,7 +83,7 @@
             ]
         },
         {
-            "name": "dellockinfo",
+            "name": "dellocktype",
             "base": "",
             "fields": [
                 {
@@ -119,6 +123,16 @@
                     "type": "name"
                 },
                 {
+                    "name": "lockinfos",
+                    "type": "lockinfo[]"
+                }
+            ]
+        },
+        {
+            "name": "lockinfo",
+            "base": "",
+            "fields": [
+                {
                     "name": "quantity",
                     "type": "asset"
                 },
@@ -129,7 +143,7 @@
             ]
         },
         {
-            "name": "lockinfo",
+            "name": "locktype",
             "base": "",
             "fields": [
                 {
@@ -138,7 +152,7 @@
                 },
                 {
                     "name": "start_timestamp_sec",
-                    "type": "uint64"
+                    "type": "int32"
                 },
                 {
                     "name": "percents",
@@ -171,7 +185,7 @@
             ]
         },
         {
-            "name": "setlockinfo",
+            "name": "setlocktype",
             "base": "",
             "fields": [
                 {
@@ -229,8 +243,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "dellockinfo",
-            "type": "dellockinfo",
+            "name": "dellocktype",
+            "type": "dellocktype",
             "ricardian_contract": ""
         },
         {
@@ -249,8 +263,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "setlockinfo",
-            "type": "setlockinfo",
+            "name": "setlocktype",
+            "type": "setlocktype",
             "ricardian_contract": ""
         },
         {
@@ -275,22 +289,22 @@
             "key_types": []
         },
         {
-            "name": "currencies",
-            "type": "currency",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "lockinfos",
-            "type": "lockinfo",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "locks",
             "type": "lock",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "locktypes",
+            "type": "locktype",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "stats",
+            "type": "currency_stats",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
