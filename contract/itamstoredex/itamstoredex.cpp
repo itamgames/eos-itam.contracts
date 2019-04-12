@@ -150,7 +150,7 @@ ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_nam
     {
         uint64_t item_id = stoull(*iter, 0, 10);
         auto owner_item = items.find(item_id);
-        eosio_assert(owner_item == items.end(), "cannot found item id");
+        eosio_assert(owner_item != items.end(), "cannot found item id");
         
         item burning_item = owner_item->second;
 
