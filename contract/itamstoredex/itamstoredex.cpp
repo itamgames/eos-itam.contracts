@@ -192,7 +192,7 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
     
     uint64_t itemid = stoull(item_id, 0, 10);
     item owner_item = get_owner_item(owner, account.items, itemid);
-    // eosio_assert(owner_item.transferable, "not transferable item");
+    eosio_assert(owner_item.transferable, "not transferable item");
 
     order_table orders(_self, symbol_name.raw());
     orders.emplace(owner_group_account, [&](auto &o) {
@@ -280,7 +280,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
         permission_level{ _self, name("active") },
         name("eosio.token"),
         name("transfer"),
-        make_tuple(_self, owner_group_account, order->quantity - fees, string("trade complete"))
+        make_tuple(_self, owner_group_account, order->quantity - fees, order->owner)
     ).send();
 
     asset settle_quantity_to_vendor = fees * config.settle_rate / 100;
