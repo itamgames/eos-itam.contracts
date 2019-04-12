@@ -98,22 +98,18 @@ ACTION itamstoredex::transfernft(name from, string to, symbol_code symbol_name, 
     eosio_assert(from == _self || allows.find(from_group_account.value) != allows.end(), "only allowed accounts can use this action");
     
     uint64_t symbol_raw = symbol_name.raw();
-
+    
     account_table accounts(_self, from_group_account.value);
     const auto& from_account = accounts.require_find(symbol_raw, "not enough balance");
-
     const map<uint64_t, item>& from_items = from_account->items;
+
     uint64_t current_sec = now();
     string from_string = from.to_string();
     for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
     {
         uint64_t item_id = stoull(*iter, 0, 10);
+        item transferring_item = get_owner_item(from_string, from_items, item_id);
 
-        auto from_item = from_items.find(item_id);
-        eosio_assert(from_item != from_items.end(), "cannot found item id");
-        
-        item transferring_item = from_item->second;
-        eosio_assert(transferring_item.owner == from_string, "different from owner");
         eosio_assert(transferring_item.transferable, "not transferable item");
         eosio_assert(transferring_item.duration == 0 || transferring_item.duration <= current_sec, "overdrawn duration");
         
@@ -149,10 +145,7 @@ ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_nam
     for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
     {
         uint64_t item_id = stoull(*iter, 0, 10);
-        auto owner_item = items.find(item_id);
-        eosio_assert(owner_item != items.end(), "cannot found item id");
-        
-        item burning_item = owner_item->second;
+        item burning_item = get_owner_item(owner, account->items, item_id);
 
         SEND_INLINE_ACTION(
             *this,
@@ -401,7 +394,6 @@ void itamstoredex::sub_balance(const string& owner, const name& group_account, c
 {
     account_table accounts(_self, group_account.value);
     const auto& account = accounts.require_find(symbol_raw, "not enough balance");
-    const auto& item = get_owner_item(owner, account->items, item_id);
     
     accounts.modify(account, ram_payer, [&](auto &a) {
         a.balance.amount -= 1;
