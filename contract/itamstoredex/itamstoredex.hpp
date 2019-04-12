@@ -3,6 +3,7 @@
 #include "../include/string.hpp"
 #include "../include/dispatcher.hpp"
 #include "../include/ownergroup.hpp"
+#include "../include/settle.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -14,27 +15,22 @@ CONTRACT itamstoredex : contract
         currencies(_self, _self.value) {}
 
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
-        ACTION issue(string to, name to_group, string nickname, symbol_code symbol_name, string item_id, string group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string reason);
+        ACTION issue(string to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string category, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION modify(string owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason);
-        ACTION transfernft(string from, name from_group, string to, name to_group, string to_nickname, symbol_code symbol_name, vector<uint64_t> item_ids, string memo);
+        ACTION transfernft(name from, string to, symbol_code symbol_name, vector<string> item_ids, string memo);
         ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<string> item_ids, string reason);
 
-        ACTION sellorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price);
-        ACTION modifyorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id, asset price);
-        ACTION cancelorder(string owner, name owner_group, symbol_code symbol_name, uint64_t item_id);
+        ACTION sellorder(string owner, symbol_code symbol_name, string item_id, asset quantity);
+        ACTION modifyorder(string owner, symbol_code symbol_name, string item_id, asset quantity);
+        ACTION cancelorder(string owner, symbol_code symbol_name, string item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
         ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
-        ACTION setsettle(symbol_code symbol_name, name account);
-        ACTION claimsettle(symbol_code symbol_name);
-
-        ACTION addwhitelist(name allow_account);
-        ACTION modifygroup(name owner, name group_account);
+        ACTION addwhitelist(name account);
+        ACTION delwhitelist(name account);
 
         ACTION receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string state);
     private:
-        const string ITAM_SETTLE_ACCOUNT = "itamstincome";
-
         TABLE currency
         {
             name issuer;
@@ -74,7 +70,7 @@ CONTRACT itamstoredex : contract
             string owner;
             name owner_group;
             string nickname;
-            asset price;
+            asset quantity;
 
             uint64_t primary_key() const { return item_id; }
         };
@@ -115,17 +111,24 @@ CONTRACT itamstoredex : contract
             string memo;
         };
 
-        struct memo_data
+        struct transfer_memo
         {
-            string buyer;
             string buyer_nickname;
-            string buyer_group;
             string symbol_name;
             string item_id;
+            string owner;
         };
 
-        void add_balance(name group_account, name ram_payer, symbol_code symbol_name, uint64_t item_id, const item& t);
-        void sub_balance(const string& owner, name group_account, name ram_payer, uint64_t symbol_raw, uint64_t item_id);
+        struct transfernft_memo
+        {
+            string nickname;
+            string to_group;
+        };
+
+        void add_balance(const name& group_account, const name& ram_payer, const symbol_code& symbol_name, uint64_t item_id, const item& i);
+        void sub_balance(const string& owner, const name& group_account, const name& ram_payer, uint64_t symbol_raw, uint64_t item_id);
+        item get_owner_item(const string& owner, const map<uint64_t, item>& owner_items, uint64_t item_id);
+        void set_owner_group(const name& owner, name& owner_group_name, name& owner_group_account);
 };
 
-EOSIO_DISPATCH_EX(itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(modifygroup)(addwhitelist)(transfer)(setconfig)(setsettle)(claimsettle)(receipt))
+EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(transfer)(setconfig)(receipt) )

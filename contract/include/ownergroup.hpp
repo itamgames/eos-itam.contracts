@@ -3,6 +3,7 @@
 using namespace eosio;
 
 const char* GROUP_CONTRACT_NAME = "itamgamestle";
+const char* ITAM_GROUP_ACCOUNT = "itamitamitam";
 
 struct ownergroup
 {
@@ -13,15 +14,15 @@ struct ownergroup
 };
 typedef multi_index<name("ownergroups"), ownergroup> ownerGroupTable;
 
-name getGroupAccount(const std::string& owner, name groupName)
+name get_group_account(string owner, name group_name)
 {
-    if(groupName.to_string() == "eos")
+    string group_name_to_string = group_name.to_string();
+    
+    if(group_name_to_string == "eos")
     {
         return name(owner);
     }
 
-    name commonContract("itamgamestle");
-
-    ownerGroupTable ownerGroups(commonContract, commonContract.value);
-    return ownerGroups.get(groupName.value, "groupName does not exist").account;
+    eosio_assert(group_name_to_string == "itam", "invalid group name");
+    return name(ITAM_GROUP_ACCOUNT);
 }

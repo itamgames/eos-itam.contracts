@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Apr  4 17:46:57 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 12 15:15:15 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -21,7 +21,7 @@
             "base": "",
             "fields": [
                 {
-                    "name": "allow_account",
+                    "name": "account",
                     "type": "name"
                 }
             ]
@@ -71,26 +71,12 @@
                     "type": "string"
                 },
                 {
-                    "name": "owner_group",
-                    "type": "name"
-                },
-                {
                     "name": "symbol_name",
                     "type": "symbol_code"
                 },
                 {
                     "name": "item_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "claimsettle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
+                    "type": "string"
                 }
             ]
         },
@@ -153,6 +139,16 @@
             ]
         },
         {
+            "name": "delwhitelist",
+            "base": "",
+            "fields": [
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "issue",
             "base": "",
             "fields": [
@@ -177,15 +173,15 @@
                     "type": "string"
                 },
                 {
-                    "name": "group_id",
-                    "type": "string"
-                },
-                {
                     "name": "item_name",
                     "type": "string"
                 },
                 {
                     "name": "category",
+                    "type": "string"
+                },
+                {
+                    "name": "group_id",
                     "type": "string"
                 },
                 {
@@ -287,20 +283,6 @@
             ]
         },
         {
-            "name": "modifygroup",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "group_account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "modifyorder",
             "base": "",
             "fields": [
@@ -309,19 +291,15 @@
                     "type": "string"
                 },
                 {
-                    "name": "owner_group",
-                    "type": "name"
-                },
-                {
                     "name": "symbol_name",
                     "type": "symbol_code"
                 },
                 {
                     "name": "item_id",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
-                    "name": "price",
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -347,7 +325,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "price",
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -429,19 +407,15 @@
                     "type": "string"
                 },
                 {
-                    "name": "owner_group",
-                    "type": "name"
-                },
-                {
                     "name": "symbol_name",
                     "type": "symbol_code"
                 },
                 {
                     "name": "item_id",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
-                    "name": "price",
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -457,20 +431,6 @@
                 {
                     "name": "settle_rate",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "setsettle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
                 }
             ]
         },
@@ -512,22 +472,10 @@
             "fields": [
                 {
                     "name": "from",
-                    "type": "string"
-                },
-                {
-                    "name": "from_group",
                     "type": "name"
                 },
                 {
                     "name": "to",
-                    "type": "string"
-                },
-                {
-                    "name": "to_group",
-                    "type": "name"
-                },
-                {
-                    "name": "to_nickname",
                     "type": "string"
                 },
                 {
@@ -536,7 +484,7 @@
                 },
                 {
                     "name": "item_ids",
-                    "type": "uint64[]"
+                    "type": "string[]"
                 },
                 {
                     "name": "memo",
@@ -563,13 +511,13 @@
             "ricardian_contract": ""
         },
         {
-            "name": "claimsettle",
-            "type": "claimsettle",
+            "name": "create",
+            "type": "create",
             "ricardian_contract": ""
         },
         {
-            "name": "create",
-            "type": "create",
+            "name": "delwhitelist",
+            "type": "delwhitelist",
             "ricardian_contract": ""
         },
         {
@@ -580,11 +528,6 @@
         {
             "name": "modify",
             "type": "modify",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "modifygroup",
-            "type": "modifygroup",
             "ricardian_contract": ""
         },
         {
@@ -605,11 +548,6 @@
         {
             "name": "setconfig",
             "type": "setconfig",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "setsettle",
-            "type": "setsettle",
             "ricardian_contract": ""
         },
         {

@@ -1,0 +1,132 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 12 14:50:31 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "addgroup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "groupName",
+                    "type": "name"
+                },
+                {
+                    "name": "groupAccount",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "claimsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ownergroup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "groupName",
+                    "type": "name"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "setsettle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "settle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "settleAccount",
+                    "type": "name"
+                },
+                {
+                    "name": "settleAmount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "transfer",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "uint64"
+                },
+                {
+                    "name": "to",
+                    "type": "uint64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "addgroup",
+            "type": "addgroup",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "claimsettle",
+            "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setsettle",
+            "type": "setsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer",
+            "type": "transfer",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "ownergroups",
+            "type": "ownergroup",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "settles",
+            "type": "settle",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}
