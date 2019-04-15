@@ -385,6 +385,11 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
             deleteCount += 1;
         }
     }
+
+    if(pending->infos.size() == 0)
+    {
+        pendings.erase(pending);
+    }
 }
 
 ACTION itamstoreapp::claimsettle(string appId)
