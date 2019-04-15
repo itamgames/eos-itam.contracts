@@ -131,4 +131,4 @@ CONTRACT itamstoredex : contract
         void set_owner_group(const name& owner, name& owner_group_name, name& owner_group_account);
 };
 
-EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(transfer)(setconfig)(receipt) )
+EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(delwhitelist)(transfer)(setconfig)(receipt) )
