@@ -10,7 +10,7 @@ ACTION itamstoredex::create(name issuer, symbol_code symbol_name, string app_id)
     eosio_assert(is_account(issuer), "Invalid issuer");
 
     const auto& currency = currencies.find(symbol_name.raw());
-    eosio_assert(currency == currencies.end(), "Already item created");
+    eosio_assert(currency == currencies.end(), "Already symbol created");
 
     currencies.emplace(_self, [&](auto &c) {
         c.issuer = issuer;
