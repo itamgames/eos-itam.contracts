@@ -329,7 +329,10 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
     const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
 
     map<string, vector<pendingInfo>> infos = pending->infos;
-    vector<pendingInfo> pendingInfos = infos[owner];
+    auto iter = infos.find(owner);
+    if(iter == infos.end()) return;
+
+    vector<pendingInfo> pendingInfos = iter->second;
     
     uint64_t currentTimestamp = now();
     
@@ -369,7 +372,14 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
             ).send();
 
             pendings.modify(pending, _self, [&](auto &p) {
-                p.infos[owner].erase(p.infos[owner].begin() + (i - deleteCount));
+                if(p.infos[owner].size() == 1)
+                {
+                    p.infos.erase(owner);
+                }
+                else
+                {
+                    p.infos[owner].erase(p.infos[owner].begin() + (i - deleteCount));
+                }            
             });
 
             deleteCount += 1;
