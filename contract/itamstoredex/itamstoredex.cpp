@@ -301,14 +301,27 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     }
 
     // send nft item to buyer
-    string owner_group_name = data.from == name(ITAM_GROUP_ACCOUNT) ? "itam" : "eos";
+    string owner_group_name;
+    string nft_receiver;
+
+    if(data.from == name(ITAM_GROUP_ACCOUNT))
+    {
+        owner_group_name = "itam";
+        nft_receiver = message.owner;
+    }
+    else
+    {
+        owner_group_name = "eos";
+        nft_receiver = data.from.to_string();
+    }
+    
     string nft_memo_data = message.buyer_nickname + string("|") + owner_group_name;
 
     SEND_INLINE_ACTION(
         *this,
         transfernft,
         { { _self, name("active") } },
-        { _self, message.owner, symbol(message.symbol_name, 0).code(), vector<string> { message.item_id }, nft_memo_data }
+        { _self, nft_receiver, symbol(message.symbol_name, 0).code(), vector<string> { message.item_id }, nft_memo_data }
     );
 
     orders.erase(order);
