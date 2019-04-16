@@ -363,12 +363,14 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
             } else iter++;
         }
 
+        // delete owner
         if(pendingInfos.size() == 0)
         {
             p.infos.erase(owner);
         }
     });
 
+    // delete group account row
     if(pending->infos.size() == 0)
     {
         pendings.erase(pending);
