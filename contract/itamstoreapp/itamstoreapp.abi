@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 15 10:53:33 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr 16 10:13:59 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -17,16 +17,6 @@
                 {
                     "name": "price",
                     "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "claimsettle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
                 }
             ]
         },
@@ -345,20 +335,6 @@
             ]
         },
         {
-            "name": "setsettle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "settle",
             "base": "",
             "fields": [
@@ -411,11 +387,6 @@
     ],
     "types": [],
     "actions": [
-        {
-            "name": "claimsettle",
-            "type": "claimsettle",
-            "ricardian_contract": ""
-        },
         {
             "name": "defconfirm",
             "type": "defconfirm",
@@ -474,11 +445,6 @@
         {
             "name": "setconfig",
             "type": "setconfig",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "setsettle",
-            "type": "setsettle",
             "ricardian_contract": ""
         },
         {

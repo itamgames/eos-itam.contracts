@@ -3,6 +3,8 @@
 #include <eosiolib/transaction.hpp>
 #include "../include/json.hpp"
 #include "../include/string.hpp"
+#include "../include/settle.hpp"
+#include "../include/date.hpp"
 #include "../include/dispatcher.hpp"
 #include "../include/ownergroup.hpp"
 
@@ -29,8 +31,6 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
         ACTION defconfirm(uint64_t appId, string owner, name ownerGroup);
         ACTION menconfirm(string appId, string owner, name ownerGroup);
-        ACTION setsettle(string appId, name account);
-        ACTION claimsettle(string appId);
         ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
     private:
         TABLE item
@@ -52,9 +52,6 @@ CONTRACT itamstoreapp : public contract
             uint64_t primary_key() const { return id; }
         };
         typedef multi_index<name("apps"), app> appTable;
-
-        const static uint64_t SECONDS_OF_DAY = 86400; // 1 day == 24 hours == 1440 minutes == 86400 seconds
-        const string ITAM_SETTLE_ACCOUNT = "itamstincome";
 
         struct pendingInfo
         {
@@ -119,7 +116,7 @@ CONTRACT itamstoreapp : public contract
 
 #define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
 #define APP_ACTION (registapp)(deleteapp)(refundapp)
-#define SETTLE_ACTION (claimsettle)(setsettle)(defconfirm)(menconfirm)(setconfig)
+#define SETTLE_ACTION (defconfirm)(menconfirm)(setconfig)
 #define BUY_ACTION (transfer)(receiptapp)(receiptitem)
 
 EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION BUY_ACTION )

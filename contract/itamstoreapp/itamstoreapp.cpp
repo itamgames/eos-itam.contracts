@@ -185,15 +185,6 @@ ACTION itamstoreapp::deleteapp(string appId)
     const auto& app = apps.require_find(appid, "Invalid App Id");
     apps.erase(app);
     
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appid);
-    
-    if(settle != settles.end())
-    {
-        eosio_assert(settle->settleAmount.amount == 0, "Can't remove app becuase it's not settled");
-        settles.erase(settle);
-    }
-
     itemTable items(_self, appid);
     for(auto item = items.begin(); item != items.end(); item = items.erase(item));
 }
@@ -320,105 +311,68 @@ void itamstoreapp::confirm(uint64_t appId, const string& owner, name ownerGroup)
 
     const auto& config = configs.get(_self.value, "refundable day must be set first");
     
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appId);
-
     name groupAccount = get_group_account(owner, ownerGroup);
 
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
 
-    map<string, vector<pendingInfo>> infos = pending->infos;
-    auto iter = infos.find(owner);
-    if(iter == infos.end()) return;
+    pendings.modify(pending, _self, [&](auto &p) {
+        auto pendingInfosIter = p.infos.find(owner);
+        if(pendingInfosIter == p.infos.end()) return;
 
-    vector<pendingInfo> pendingInfos = iter->second;
-    
-    uint64_t currentTimestamp = now();
-    
-    // HACK: can't get vector's iterator after erase item
-    int deleteCount = 0;
-    for(int i = 0; i < pendingInfos.size(); i++)
-    {
-        pendingInfo& info = pendingInfos[i - deleteCount];
-        uint64_t refundableTimestamp = info.timestamp + (config.refundableDay * SECONDS_OF_DAY);
-
-        if(refundableTimestamp < currentTimestamp)
+        vector<pendingInfo>& pendingInfos = pendingInfosIter->second;
+        uint64_t currentTimestamp = now();
+        for(auto iter = pendingInfos.begin(); iter != pendingInfos.end();)
         {
-            asset settleAmountToITAM;
-
-            if(settle != settles.end())
+            uint64_t refundableTimestamp = iter->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+            if(refundableTimestamp < currentTimestamp)
             {
-                settleAmountToITAM = info.paymentAmount - info.settleAmount;
-                settles.modify(settle, _self, [&](auto &s) {
-                    s.settleAmount += info.settleAmount;
-                });
-            }
-            else
-            {
-                settleAmountToITAM = info.paymentAmount;
-            }
-            
-            action(
-                permission_level{_self, name("active")},
-                name("eosio.token"),
-                name("transfer"),
-                make_tuple(
-                    _self,
-                    name(ITAM_SETTLE_ACCOUNT),
-                    settleAmountToITAM,
-                    string("ITAM Store settlement")
-                )
-            ).send();
+                asset settleQuantityToVendor = iter->settleAmount;
+                asset settleQuantityToITAM = iter->paymentAmount - settleQuantityToVendor;
 
-            pendings.modify(pending, _self, [&](auto &p) {
-                if(p.infos[owner].size() == 1)
+                if(settleQuantityToVendor.amount > 0)
                 {
-                    p.infos.erase(owner);
+                    action(
+                        permission_level{ _self, name("active") },
+                        name("eosio.token"),
+                        name("transfer"),
+                        make_tuple(
+                            _self,
+                            name(CENTRAL_SETTLE_ACCOUNT),
+                            settleQuantityToVendor,
+                            to_string(appId)
+                        )
+                    ).send();
                 }
-                else
-                {
-                    p.infos[owner].erase(p.infos[owner].begin() + (i - deleteCount));
-                }            
-            });
 
-            deleteCount += 1;
+                if(settleQuantityToITAM.amount > 0)
+                {
+                    action(
+                        permission_level{ _self, name("active") },
+                        name("eosio.token"),
+                        name("transfer"),
+                        make_tuple(
+                            _self,
+                            name(ITAM_SETTLE_ACCOUNT),
+                            settleQuantityToITAM,
+                            to_string(appId)
+                        )
+                    ).send();
+                }
+                iter = pendingInfos.erase(iter);
+            } else iter++;
         }
-    }
+
+        if(pendingInfos.size() == 0)
+        {
+            p.infos.erase(owner);
+        }
+    });
 
     if(pending->infos.size() == 0)
     {
         pendings.erase(pending);
     }
-}
-
-ACTION itamstoreapp::claimsettle(string appId)
-{
-    uint64_t appid = stoull(appId, 0, 10);
-
-    require_auth(_self);
-
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.require_find(appid, "settle account not found");
-
-    if(settle->settleAmount.amount > 0)
-    {
-        action(
-            permission_level{_self, name("active")},
-            name("eosio.token"),
-            name("transfer"),
-            make_tuple(
-                _self,
-                settle->account,
-                settle->settleAmount,
-                string("ITAM Store settlement")
-            )
-        ).send();
-    };
-
-    settles.modify(settle, _self, [&](auto &s) {
-        s.settleAmount.amount = 0;
-    });
 }
 
 ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
@@ -439,32 +393,6 @@ ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
         configs.modify(config, _self, [&](auto& c) {
             c.ratio = ratio;
             c.refundableDay = refundableDay;
-        });
-    }
-}
-
-ACTION itamstoreapp::setsettle(string appId, name account)
-{
-    uint64_t appid = stoull(appId, 0, 10);
-
-    require_auth(_self);
-    eosio_assert(is_account(account), "account does not exist");
-
-    settleTable settles(_self, _self.value);
-    const auto& settle = settles.find(appid);
-
-    if(settle == settles.end())
-    {
-        settles.emplace(_self, [&](auto &s) {
-            s.appId = appid;
-            s.account = account;
-            s.settleAmount = asset(0, symbol("EOS", 4));
-        });
-    }
-    else
-    {
-        settles.modify(settle, _self, [&](auto &s) {
-            s.account = account;
         });
     }
 }
