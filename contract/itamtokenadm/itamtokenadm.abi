@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 10 14:06:48 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 17 18:24:11 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -69,6 +69,16 @@
                 {
                     "name": "max_supply",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "defrefund",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
                 }
             ]
         },
@@ -161,6 +171,16 @@
             ]
         },
         {
+            "name": "menualrefund",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "mint",
             "base": "",
             "fields": [
@@ -171,6 +191,38 @@
                 {
                     "name": "memo",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "refund",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "total_refund",
+                    "type": "asset"
+                },
+                {
+                    "name": "refund_list",
+                    "type": "refund_info[]"
+                }
+            ]
+        },
+        {
+            "name": "refund_info",
+            "base": "",
+            "fields": [
+                {
+                    "name": "refund_quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "req_refund_sec",
+                    "type": "uint64"
                 }
             ]
         },
@@ -203,6 +255,34 @@
             ]
         },
         {
+            "name": "stake",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "staking",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -223,6 +303,20 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "unstaking",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "asset"
+                }
+            ]
         }
     ],
     "types": [],
@@ -235,6 +329,11 @@
         {
             "name": "create",
             "type": "create",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "defrefund",
+            "type": "defrefund",
             "ricardian_contract": ""
         },
         {
@@ -253,6 +352,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "menualrefund",
+            "type": "menualrefund",
+            "ricardian_contract": ""
+        },
+        {
             "name": "mint",
             "type": "mint",
             "ricardian_contract": ""
@@ -268,8 +372,18 @@
             "ricardian_contract": ""
         },
         {
+            "name": "staking",
+            "type": "staking",
+            "ricardian_contract": ""
+        },
+        {
             "name": "transfer",
             "type": "transfer",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unstaking",
+            "type": "unstaking",
             "ricardian_contract": ""
         }
     ],
@@ -298,6 +412,20 @@
         {
             "name": "locktypes",
             "type": "locktype",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "refunds",
+            "type": "refund",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "stakes",
+            "type": "stake",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

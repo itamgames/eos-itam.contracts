@@ -125,6 +125,117 @@ ACTION itamtokenadm::mint(asset quantity, string memo)
     });
 }
 
+ACTION itamtokenadm::staking(name owner, asset value)
+{
+    require_auth(owner);
+
+    account_table accounts(_self, owner.value);
+    const auto& account = accounts.get(value.symbol.code().raw(), "no balance object found");
+    
+    eosio_assert(account.balance.symbol == value.symbol, "invalid symbol");
+    eosio_assert(value.amount > 0, "stake value must be positive");
+    assert_overdrawn_balance(owner, account.balance.amount, value);
+
+    stake_table stakes(_self, owner.value);
+    const auto& stake = stakes.find(owner.value);
+    if(stake == stakes.end())
+    {
+        stakes.emplace(owner, [&](auto& s) {
+            s.owner = owner;
+            s.balance = value;
+        });
+    }
+    else
+    {
+        stakes.modify(stake, owner, [&](auto &s) {
+            s.balance += value;
+        });
+    }
+}
+
+ACTION itamtokenadm::unstaking(name owner, asset value)
+{
+    require_auth(owner);
+
+    stake_table stakes(_self, owner.value);
+    auto stake = stakes.require_find(owner.value, "cannot found staking");
+
+    eosio_assert(stake->balance >= value, "overdrawn balance for stake");
+
+    stakes.modify(stake, _self, [&](auto& s) {
+        s.balance -= value;
+    });
+
+    refund_table refunds(_self, owner.value);
+    auto refund = refunds.find(owner.value);
+
+    refund_info info { value, now() };
+    if(refund == refunds.end())
+    {
+        refunds.emplace(_self, [&](auto& v) {
+            v.owner = owner;
+            v.total_refund = value;
+            v.refund_list.push_back(info);
+        });
+    }
+    else
+    {
+        refunds.modify(refund, _self, [&](auto& v) {
+            v.total_refund += value;
+            v.refund_list.push_back(info);
+        });
+    }
+
+    transaction txn;
+    txn.actions.emplace_back(
+        permission_level( _self, name("active") ),
+        _self,
+        name("defrefund"),
+        make_tuple( owner )
+    );
+
+    txn.delay_sec = SEC_REFUND_DELAY;
+    txn.send( now(), _self );
+}
+
+ACTION itamtokenadm::defrefund(name owner)
+{
+    refund(owner);
+}
+
+ACTION itamtokenadm::menualrefund(name owner)
+{
+    refund(owner);
+}
+
+void itamtokenadm::refund(name owner)
+{
+    require_auth(_self);
+    
+    refund_table refunds(_self, owner.value);
+    const auto& refund = refunds.require_find(owner.value, "refund info not exist");
+
+    refunds.modify(refund, _self, [&](auto& r) {
+        vector<refund_info>& refund_list = r.refund_list;
+        uint64_t current_sec = now();
+
+        for(auto iter = refund_list.begin(); iter != refund_list.end();)
+        {
+            if(iter->req_refund_sec + SEC_REFUND_DELAY <= current_sec)
+            {
+                r.total_refund -= iter->refund_quantity;
+                iter = r.refund_list.erase(iter);
+            }
+            else iter++;
+        }
+    });
+
+    if(refund->total_refund.amount == 0)
+    {
+        refunds.erase(refund);
+    }
+}
+
 ACTION itamtokenadm::setlocktype(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents)
 {
     require_auth(_self);
@@ -206,10 +317,26 @@ void itamtokenadm::add_balance(name owner, asset value, name ram_payer)
 
 void itamtokenadm::sub_balance(name owner, asset value)
 {
+    account_table accounts(_self, owner.value);
+    const auto& account = accounts.get(value.symbol.code().raw(), "no balance object found");
+    assert_overdrawn_balance(owner, account.balance.amount, value);
+
+    if(account.balance.amount == value.amount)
+    {
+        accounts.erase(account);
+    }
+    else
+    {
+        accounts.modify(account, owner, [&](auto& a) {
+            a.balance -= value;
+        });
+    }
+}
+
+void itamtokenadm::assert_overdrawn_balance(const name& owner, int64_t available_balance, const asset& value)
+{
     lock_table locks(_self, _self.value);
     const auto& lock = locks.find(owner.value);
-
-    int64_t lock_amount = 0;
     if(lock != locks.end())
     {
         int32_t current_time_sec = now();
@@ -241,22 +368,23 @@ void itamtokenadm::sub_balance(name owner, asset value)
             }
             
             int32_t lock_percent = 100 - release_percent;
-            lock_amount += (owner_lockinfo->quantity * lock_percent / 100).amount;
+            available_balance -= (owner_lockinfo->quantity * lock_percent / 100).amount;
         }
     }
 
-    account_table accounts(_self, owner.value);
-    const auto& account = accounts.get(value.symbol.code().raw(), "no balance object found");
-    eosio_assert(account.balance.amount - lock_amount - value.amount >= 0, "overdrawn balance");
+    stake_table stakes(_self, owner.value);
+    const auto& stake = stakes.find(owner.value);
+    if(stake != stakes.end())
+    {
+        available_balance -= stake->balance.amount;
+    }
 
-    if(account.balance.amount == value.amount)
+    refund_table refunds(_self, owner.value);
+    const auto& refund = refunds.find(owner.value);
+    if(refund != refunds.end())
     {
-        accounts.erase(account);
+        available_balance -= refund->total_refund.amount;
     }
-    else
-    {
-        accounts.modify(account, owner, [&](auto& a) {
-            a.balance -= value;
-        });
-    }
+
+    eosio_assert(available_balance >= value.amount, "overdrawn balance");
 }
