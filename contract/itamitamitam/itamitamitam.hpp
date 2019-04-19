@@ -5,8 +5,8 @@
 #include "../include/transferstruct.hpp"
 #include "../include/string.hpp"
 
-using namespace eosio;
 using namespace std;
+using namespace eosio;
 
 CONTRACT itamitamitam : contract
 {

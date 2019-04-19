@@ -1,6 +1,8 @@
 #include <eosiolib/eosio.hpp>
+#include <string>
 
 using namespace eosio;
+using namespace std;
 
 const char* GROUP_CONTRACT_NAME = "itamgamestle";
 const char* ITAM_GROUP_ACCOUNT = "itamitamitam";
