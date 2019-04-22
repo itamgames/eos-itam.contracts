@@ -112,11 +112,11 @@ ACTION itamstoreran::cnlachieve(string appId, string achieveId, string owner, na
 ACTION itamstoreran::blockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
+    uint64_t appid = stoull(appId, 0, 10);
     blockTable blocks(_self, appid);
     const auto& block = blocks.find(groupAccount.value);
 
@@ -139,11 +139,11 @@ ACTION itamstoreran::blockuser(string appId, string owner, name ownerGroup, stri
 ACTION itamstoreran::unblockuser(string appId, string owner, name ownerGroup, string reason)
 {
     require_auth(_self);
-    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);    
     eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
+    uint64_t appid = stoull(appId, 0, 10);
     blockTable blocks(_self, appid);
     const auto& block = blocks.require_find(groupAccount.value, "Already unblock");
 
@@ -174,7 +174,6 @@ ACTION itamstoreran::delservice(string appId)
 ACTION itamstoreran::history(string appId, string owner, name ownerGroup, string data)
 {
     require_auth(_self);
-    uint64_t appid = stoull(appId, 0, 10);
     name groupAccount = get_group_account(owner, ownerGroup);
     require_recipient(groupAccount);
 }
