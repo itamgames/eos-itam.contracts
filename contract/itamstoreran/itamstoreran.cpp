@@ -101,7 +101,7 @@ ACTION itamstoreran::cnlachieve(string appId, string achieveId, string owner, na
     uint64_t achieveid = stoull(achieveId, 0, 10);
 
     name groupAccount = get_group_account(owner, ownerGroup);
-    eosio_assert(is_account(ownerGroup), "ownerGroup is not valid");
+    eosio_assert(is_account(groupAccount), "ownerGroup is not valid");
     assertIfBlockUser(appid, owner, groupAccount);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
