@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 15 17:33:07 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 22 13:44:35 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -435,24 +435,6 @@
             ]
         },
         {
-            "name": "settle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "sym",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
-                },
-                {
-                    "name": "settle_amount",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -593,13 +575,6 @@
         {
             "name": "orders",
             "type": "order",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "settles",
-            "type": "settle",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

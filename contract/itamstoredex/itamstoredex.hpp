@@ -83,16 +83,6 @@ CONTRACT itamstoredex : contract
         };
         typedef multi_index<name("allows"), allow> allow_table;
 
-        TABLE settle
-        {
-            symbol_code sym;
-            name account;
-            asset settle_amount;
-
-            uint64_t primary_key() const { return sym.raw(); }
-        };
-        typedef multi_index<name("settles"), settle> settle_table;
-
         TABLE config
         {
             name key;
