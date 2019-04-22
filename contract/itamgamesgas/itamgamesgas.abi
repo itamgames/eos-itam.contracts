@@ -1,21 +1,7 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 12 14:50:31 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 22 16:24:40 2019",
     "version": "eosio::abi/1.1",
     "structs": [
-        {
-            "name": "addgroup",
-            "base": "",
-            "fields": [
-                {
-                    "name": "groupName",
-                    "type": "name"
-                },
-                {
-                    "name": "groupAccount",
-                    "type": "name"
-                }
-            ]
-        },
         {
             "name": "claimsettle",
             "base": "",
@@ -89,11 +75,6 @@
     ],
     "types": [],
     "actions": [
-        {
-            "name": "addgroup",
-            "type": "addgroup",
-            "ricardian_contract": ""
-        },
         {
             "name": "claimsettle",
             "type": "claimsettle",

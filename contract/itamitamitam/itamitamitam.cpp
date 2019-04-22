@@ -3,63 +3,38 @@
 ACTION itamitamitam::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
-    if (data.from == _self || data.to != _self) return;
-    
-    name owner(data.memo);
-
     accountTable accounts(_self, data.quantity.symbol.code().raw());
-    const auto& account = accounts.find(owner.value);
 
-    if(account == accounts.end())
+    if(data.from != _self && data.to == _self)
     {
-        accounts.emplace(_self, [&](auto &a) {
-            a.owner = owner;
-            a.balance = data.quantity;
-        });
+        name owner(data.memo);
+        add_balance(owner, data.quantity);
     }
-    else
+    else if(data.from == _self && data.to == name("itamstoreapp"))
+    {        
+        paymentMemo memo;
+        parseMemo(&memo, data.memo, "|", 5);
+        sub_balance(name(memo.owner), data.quantity);
+    }
+    else if(data.from == _self && data.to == name("itamstoredex"))
     {
-        accounts.modify(account, _self, [&](auto &a) {
-            a.balance += data.quantity;
-        });
+        dexMemo memo;
+        parseMemo(&memo, data.memo, "|", 4);
+        sub_balance(name(memo.owner), data.quantity);
     }
 }
 
 ACTION itamitamitam::transferto(name from, name to, asset quantity, string memo)
 {
     require_auth(_self);
-    
-    accountTable accounts(_self, quantity.symbol.code().raw());
-    const auto& account = accounts.require_find(from.value, "owner does not exist");
-    eosio_assert(account->balance >= quantity, "overdrawn balance");
 
-    accounts.modify(account, _self, [&](auto &a) {
-        a.balance -= quantity;
-    });
-    
-    if(account->balance.amount == 0)
-    {
-        accounts.erase(account);
-    }
+    sub_balance(from, quantity);
 
     if(_self == to)
     {
-        name toOwner(memo);
-        eosio_assert(from != toOwner, "cannot transfer to self");
-        const auto& toAccount = accounts.find(toOwner.value);
-        if(toAccount == accounts.end())
-        {
-            accounts.emplace(_self, [&](auto &a) {
-                a.owner = toOwner;
-                a.balance = quantity;
-            });
-        }
-        else
-        {
-            accounts.modify(account, _self, [&](auto &a) {
-                a.balance += quantity;
-            });
-        }
+        name receiver(memo);
+        eosio_assert(from != receiver, "cannot transfer to self");
+        add_balance(receiver, quantity);
     }
     else
     {
@@ -70,4 +45,40 @@ ACTION itamitamitam::transferto(name from, name to, asset quantity, string memo)
             make_tuple( _self, to, quantity, memo )
         ).send();
     }
+}
+
+void itamitamitam::add_balance(const name& owner, const asset& quantity)
+{
+    accountTable accounts(_self, quantity.symbol.code().raw());
+    const auto& account = accounts.find(owner.value);
+
+    if(account == accounts.end())
+    {
+        accounts.emplace(_self, [&](auto &a) {
+            a.owner = owner;
+            a.balance = quantity;
+        });
+    }
+    else
+    {
+        accounts.modify(account, _self, [&](auto &a) {
+            a.balance += quantity;
+        });
+    }
+}
+
+void itamitamitam::sub_balance(const name& owner, const asset& quantity)
+{
+    accountTable accounts(_self, quantity.symbol.code().raw());
+    const auto& account = accounts.find(owner.value);
+    eosio_assert(account != accounts.end() && account->balance >= quantity, "overdrawn balance");
+
+    accounts.modify(account, _self, [&](auto &a) {
+        a.balance -= quantity;
+    });
+    
+    if(account->balance.amount == 0)
+    {
+        accounts.erase(account);
+    }   
 }

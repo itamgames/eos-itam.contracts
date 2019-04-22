@@ -1,6 +1,6 @@
-#include "itamgamestle.hpp"
+#include "itamgamesgas.hpp"
 
-ACTION itamgamestle::setsettle(string appId, name account)
+ACTION itamgamesgas::setsettle(string appId, name account)
 {
     require_auth(_self);
     eosio_assert(is_account(account), "account does not exist");
@@ -26,7 +26,7 @@ ACTION itamgamestle::setsettle(string appId, name account)
     }
 }
 
-ACTION itamgamestle::claimsettle(string appId)
+ACTION itamgamesgas::claimsettle(string appId)
 {
     require_auth(_self);
 
@@ -53,21 +53,10 @@ ACTION itamgamestle::claimsettle(string appId)
     });
 }
 
-ACTION itamgamestle::addgroup(name groupName, name groupAccount)
-{
-    require_auth(_self);
-    eosio_assert(is_account(groupAccount), "groupAccount does not exist");
-
-    ownerGroupTable ownerGroups(_self, _self.value);
-    ownerGroups.emplace(_self, [&](auto &o) {
-        o.groupName = groupName;
-        o.account = groupAccount;
-    });
-}
-
-ACTION itamgamestle::transfer(uint64_t from, uint64_t to)
+ACTION itamgamesgas::transfer(uint64_t from, uint64_t to)
 {
     transferData data = unpack_action_data<transferData>();
+    if(data.from != name("itamstoreapp") && data.from != name("itamstoredex")) return;
 
     uint64_t appId = stoull(data.memo, 0, 10);
     settleTable settles(_self, _self.value);

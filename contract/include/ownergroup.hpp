@@ -4,17 +4,7 @@
 using namespace eosio;
 using namespace std;
 
-const char* GROUP_CONTRACT_NAME = "itamgamestle";
 const char* ITAM_GROUP_ACCOUNT = "itamitamitam";
-
-struct ownergroup
-{
-    name groupName;
-    name account;
-
-    uint64_t primary_key() const { return groupName.value; }
-};
-typedef multi_index<name("ownergroups"), ownergroup> ownerGroupTable;
 
 name get_group_account(string owner, name group_name)
 {

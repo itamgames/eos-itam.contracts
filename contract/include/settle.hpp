@@ -1,6 +1,6 @@
 #include <eosiolib/eosio.hpp>
 
-const char* CENTRAL_SETTLE_ACCOUNT = "itamgamestle";
+const char* CENTRAL_SETTLE_ACCOUNT = "itamgamesgas";
 const char* ITAM_SETTLE_ACCOUNT = "itamstincome";
 
 

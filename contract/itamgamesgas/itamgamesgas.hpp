@@ -5,14 +5,13 @@
 
 using namespace eosio;
 
-CONTRACT itamgamestle : contract
+CONTRACT itamgamesgas : contract
 {
     public:
         using contract::contract;
 
         ACTION setsettle(string appId, name account);
         ACTION claimsettle(string appId);
-        ACTION addgroup(name groupName, name groupAccount);
         ACTION transfer(uint64_t from, uint64_t to);
     private:
         TABLE settle
@@ -40,4 +39,4 @@ CONTRACT itamgamestle : contract
         };
 };
 
-EOSIO_DISPATCH_EX( itamgamestle, (setsettle)(claimsettle)(addgroup)(transfer) )
+EOSIO_DISPATCH_EX( itamgamesgas, (setsettle)(claimsettle)(transfer) )

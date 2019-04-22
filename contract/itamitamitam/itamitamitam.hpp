@@ -1,6 +1,5 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include "../include/ownergroup.hpp"
 #include "../include/dispatcher.hpp"
 #include "../include/transferstruct.hpp"
 #include "../include/string.hpp"
@@ -25,11 +24,25 @@ CONTRACT itamitamitam : contract
         };
         typedef multi_index<name("accounts"), account> accountTable;
 
-        struct memoData
+        struct paymentMemo
         {
+            string category;
             string owner;
             string ownerGroup;
+            string appId;
+            string itemId;
         };
+
+        struct dexMemo
+        {
+            string buyerNickname;
+            string symbolName;
+            string itemId;
+            string owner;
+        };
+
+        void add_balance(const name& owner, const asset& quantity);
+        void sub_balance(const name& owner, const asset& quantity);
 };
 
 EOSIO_DISPATCH_EX( itamitamitam, (transfer)(transferto) )
