@@ -400,7 +400,6 @@ void itamstoredex::add_balance(const name& group_account, const name& ram_payer,
             a.items[item_id] = i;
         });
     }
-    
 }
 
 void itamstoredex::sub_balance(const string& owner, const name& group_account, const name& ram_payer, uint64_t symbol_raw, uint64_t item_id)
