@@ -46,11 +46,11 @@ ACTION itamgamesgas::claimsettle(string appId)
                 string("ITAM Store settlement")
             )
         ).send();
-    };
 
-    settles.modify(settle, _self, [&](auto &s) {
-        s.settleAmount.amount = 0;
-    });
+        settles.modify(settle, _self, [&](auto &s) {
+            s.settleAmount.amount = 0;
+        });
+    };
 }
 
 ACTION itamgamesgas::transfer(uint64_t from, uint64_t to)
