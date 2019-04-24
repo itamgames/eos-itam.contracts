@@ -225,24 +225,6 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
     );
 }
 
-ACTION itamstoredex::modifyorder(string owner, symbol_code symbol_name, string item_id, asset quantity)
-{
-    name owner_group_name;
-    name owner_group_account;
-    set_owner_group(name(owner), owner_group_name, owner_group_account);
-
-    eosio_assert(quantity.symbol == symbol("EOS", 4), "only eos symbol available");
-    
-    order_table orders(_self, symbol_name.raw());
-    const auto& order = orders.require_find(stoull(item_id, 0, 10), "not found item in orderbook");
-    eosio_assert(order->owner == owner, "different owner");
-    eosio_assert(order->owner_group == owner_group_name, "different owner group");
-
-    orders.modify(order, owner_group_account, [&](auto& o) {
-        o.quantity = quantity;
-    });
-}
-
 ACTION itamstoredex::cancelorder(string owner, symbol_code symbol_name, string item_id)
 {
     uint64_t itemid = stoull(item_id, 0, 10);

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 24 14:01:07 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 24 18:06:06 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -283,28 +283,6 @@
             ]
         },
         {
-            "name": "modifyorder",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "item_id",
-                    "type": "string"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
             "name": "order",
             "base": "",
             "fields": [
@@ -560,11 +538,6 @@
         {
             "name": "modify",
             "type": "modify",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "modifyorder",
-            "type": "modifyorder",
             "ricardian_contract": ""
         },
         {

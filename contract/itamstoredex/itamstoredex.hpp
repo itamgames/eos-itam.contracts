@@ -21,7 +21,6 @@ CONTRACT itamstoredex : contract
         ACTION burn(string owner, name owner_group, symbol_code symbol_name, vector<string> item_ids, string reason);
 
         ACTION sellorder(string owner, symbol_code symbol_name, string item_id, asset quantity);
-        ACTION modifyorder(string owner, symbol_code symbol_name, string item_id, asset quantity);
         ACTION cancelorder(string owner, symbol_code symbol_name, string item_id);
         ACTION transfer(uint64_t from, uint64_t to);
 
@@ -122,4 +121,4 @@ CONTRACT itamstoredex : contract
         void set_owner_group(const name& owner, name& owner_group_name, name& owner_group_account);
 };
 
-EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(delwhitelist)(transfer)(setconfig)(receipt)(receiptdex) )
+EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(cancelorder)(addwhitelist)(delwhitelist)(transfer)(setconfig)(receipt)(receiptdex) )
