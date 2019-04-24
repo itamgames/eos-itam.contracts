@@ -186,6 +186,7 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
     uint64_t itemid = stoull(item_id, 0, 10);
     item owner_item = get_owner_item(owner, account.items, itemid);
     eosio_assert(owner_item.transferable, "not transferable item");
+    eosio_assert(owner_item.duration == 0 || owner_item.duration <= now(), "overdrawn duration");
 
     order_table orders(_self, symbol_name.raw());
     orders.emplace(owner_group_account, [&](auto &o) {
@@ -201,6 +202,27 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
     // transfernft owner to itam contract
     sub_balance(owner, owner_group_account, owner_group_account, symbol_name.raw(), itemid);
     add_balance(_self, owner_group_account, symbol_name, itemid, owner_item);
+
+    const auto& currency = currencies.get(symbol_name.raw(), "invalid symbol");
+
+    SEND_INLINE_ACTION(
+        *this,
+        receiptdex,
+        { { _self, name("active") } },
+        { 
+            owner,
+            owner_group_name,
+            currency.app_id,
+            itemid,
+            owner_item.nickname,
+            owner_item.group_id,
+            owner_item.item_name,
+            owner_item.category,
+            owner_item.options,
+            owner_item.duration,
+            string("make_order")
+        }
+    );
 }
 
 ACTION itamstoredex::modifyorder(string owner, symbol_code symbol_name, string item_id, asset quantity)
@@ -244,6 +266,27 @@ ACTION itamstoredex::cancelorder(string owner, symbol_code symbol_name, string i
     add_balance(owner_group_account, owner_group_account, symbol_name, itemid, cancel_item);
 
     orders.erase(order);
+
+    const auto& currency = currencies.get(symbol_name.raw(), "invalid symbol");
+
+    SEND_INLINE_ACTION(
+        *this,
+        receiptdex,
+        { { _self, name("active") } },
+        {
+            owner,
+            owner_group_name, 
+            currency.app_id, 
+            itemid, 
+            cancel_item.nickname,
+            cancel_item.group_id,
+            cancel_item.item_name,
+            cancel_item.category,
+            cancel_item.options,
+            cancel_item.duration,
+            string("cancel_order")
+        }
+    );
 }
 
 ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
@@ -313,15 +356,39 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     {
         owner_group_name = "eos";
         nft_receiver = data.from.to_string();
-    }
+    }  
     
     string nft_memo_data = message.buyer_nickname + string("|") + owner_group_name;
+
+
+    account_table accounts(_self, _self.value);
+    const auto& account = accounts.require_find(sym.code().raw(), "invalid item");
+    item trade_item = get_owner_item(_self.to_string(), account->items, item_id);
 
     SEND_INLINE_ACTION(
         *this,
         transfernft,
         { { _self, name("active") } },
         { _self, nft_receiver, symbol(message.symbol_name, 0).code(), vector<string> { message.item_id }, nft_memo_data }
+    );
+
+    SEND_INLINE_ACTION(
+        *this,
+        receiptdex,
+        { { _self, name("active") } },
+        {
+            nft_receiver,
+            name(owner_group_name), 
+            currency.app_id, 
+            item_id, 
+            message.buyer_nickname,
+            trade_item.group_id,
+            trade_item.item_name,
+            trade_item.category,
+            trade_item.options,
+            trade_item.duration,
+            string("order_complete")
+        }
     );
 
     orders.erase(order);
@@ -372,6 +439,14 @@ ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
 }
 
 ACTION itamstoredex::receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string state)
+{
+    require_auth(_self);
+
+    name account = get_group_account(owner, owner_group);
+    require_recipient(_self, account);
+}
+
+ACTION itamstoredex::receiptdex(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, string state)
 {
     require_auth(_self);
 

@@ -30,6 +30,7 @@ CONTRACT itamstoredex : contract
         ACTION delwhitelist(name account);
 
         ACTION receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string state);
+        ACTION receiptdex(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, string state);
     private:
         TABLE currency
         {
@@ -121,4 +122,4 @@ CONTRACT itamstoredex : contract
         void set_owner_group(const name& owner, name& owner_group_name, name& owner_group_account);
 };
 
-EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(delwhitelist)(transfer)(setconfig)(receipt) )
+EOSIO_DISPATCH_EX( itamstoredex, (create)(issue)(burn)(transfernft)(modify)(sellorder)(modifyorder)(cancelorder)(addwhitelist)(delwhitelist)(transfer)(setconfig)(receipt)(receiptdex) )
