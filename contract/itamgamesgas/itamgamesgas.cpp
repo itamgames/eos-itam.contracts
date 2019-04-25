@@ -28,10 +28,9 @@ ACTION itamgamesgas::setsettle(string appId, name account)
 
 ACTION itamgamesgas::claimsettle(string appId)
 {
-    require_auth(_self);
-
     settleTable settles(_self, _self.value);
     const auto& settle = settles.require_find(stoull(appId, 0, 10), "settle account not found");
+    require_auth(settle->settleAccount);
 
     if(settle->settleAmount.amount > 0)
     {
