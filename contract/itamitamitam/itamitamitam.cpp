@@ -73,12 +73,14 @@ void itamitamitam::sub_balance(const name& owner, const asset& quantity)
     const auto& account = accounts.find(owner.value);
     eosio_assert(account != accounts.end() && account->balance >= quantity, "overdrawn balance");
 
-    accounts.modify(account, _self, [&](auto &a) {
-        a.balance -= quantity;
-    });
-    
-    if(account->balance.amount == 0)
+    if((account->balance - quantity).amount == 0)
     {
         accounts.erase(account);
-    }   
+    }
+    else
+    {
+        accounts.modify(account, _self, [&](auto &a) {
+            a.balance -= quantity;
+        });
+    }
 }
