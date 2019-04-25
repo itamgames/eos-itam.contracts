@@ -44,7 +44,7 @@ ACTION itamstoredex::issue(string to, name to_group, string nickname, symbol_cod
         *this,
         receipt,
         { { _self, name("active") } },
-        { to, to_group, currency->app_id, itemid, nickname, groupid, item_name, category, options, duration, transferable, string("issue") }
+        { to, to_group, currency->app_id, itemid, nickname, groupid, item_name, category, options, duration, transferable, asset(), string("issue") }
     );
 }
 
@@ -77,7 +77,7 @@ ACTION itamstoredex::modify(string owner, name owner_group, symbol_code symbol_n
         *this,
         receipt,
         { { _self, name("active") } },
-        { owner, owner_group, currency->app_id, itemid, owner_item.nickname, owner_item.group_id, item_name, owner_item.category, options, duration, transferable, string("modify") }
+        { owner, owner_group, currency->app_id, itemid, owner_item.nickname, owner_item.group_id, item_name, owner_item.category, options, duration, transferable, asset(), string("modify") }
     );
 }
 
@@ -163,6 +163,7 @@ ACTION itamstoredex::burn(string owner, name owner_group, symbol_code symbol_nam
                 burning_item.options,
                 burning_item.duration,
                 burning_item.transferable,
+                asset(),
                 string("burn")
             }
         );
@@ -207,7 +208,7 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
 
     SEND_INLINE_ACTION(
         *this,
-        receiptdex,
+        receipt,
         { { _self, name("active") } },
         { 
             owner,
@@ -220,6 +221,8 @@ ACTION itamstoredex::sellorder(string owner, symbol_code symbol_name, string ite
             owner_item.category,
             owner_item.options,
             owner_item.duration,
+            owner_item.transferable,
+            quantity,
             string("make_order")
         }
     );
@@ -246,14 +249,15 @@ ACTION itamstoredex::cancelorder(string owner, symbol_code symbol_name, string i
 
     sub_balance(_self.to_string(), _self, owner_group_account, symbol_name.raw(), itemid);
     add_balance(owner_group_account, owner_group_account, symbol_name, itemid, cancel_item);
-
+    
+    asset payment_quantity = order->quantity;
     orders.erase(order);
 
     const auto& currency = currencies.get(symbol_name.raw(), "invalid symbol");
 
     SEND_INLINE_ACTION(
         *this,
-        receiptdex,
+        receipt,
         { { _self, name("active") } },
         {
             owner,
@@ -266,6 +270,8 @@ ACTION itamstoredex::cancelorder(string owner, symbol_code symbol_name, string i
             cancel_item.category,
             cancel_item.options,
             cancel_item.duration,
+            cancel_item.transferable,
+            payment_quantity,
             string("cancel_order")
         }
     );
@@ -342,7 +348,6 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     
     string nft_memo_data = message.buyer_nickname + string("|") + owner_group_name;
 
-
     account_table accounts(_self, _self.value);
     const auto& account = accounts.require_find(sym.code().raw(), "invalid item");
     item trade_item = get_owner_item(_self.to_string(), account->items, item_id);
@@ -356,7 +361,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 
     SEND_INLINE_ACTION(
         *this,
-        receiptdex,
+        receipt,
         { { _self, name("active") } },
         {
             nft_receiver,
@@ -369,6 +374,8 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
             trade_item.category,
             trade_item.options,
             trade_item.duration,
+            trade_item.transferable,
+            data.quantity,
             string("order_complete")
         }
     );
@@ -420,15 +427,7 @@ ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
     }
 }
 
-ACTION itamstoredex::receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, string state)
-{
-    require_auth(_self);
-
-    name account = get_group_account(owner, owner_group);
-    require_recipient(_self, account);
-}
-
-ACTION itamstoredex::receiptdex(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, string state)
+ACTION itamstoredex::receipt(string owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
 {
     require_auth(_self);
 
