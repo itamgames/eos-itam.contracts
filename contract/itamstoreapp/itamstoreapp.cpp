@@ -104,13 +104,11 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, string owner, name ow
                 uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
                 eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
-                string category = itemId == NULL ? "app" : "item";
-                string transferMemo = "Refund " + category + ", appId: " + to_string(appId) + ", itemId: " + to_string(itemId);
                 action(
                     permission_level { _self, name("active") },
                     name("eosio.token"),
                     name("transfer"),
-                    make_tuple( _self, groupAccount, info->paymentAmount, transferMemo )
+                    make_tuple( _self, groupAccount, info->paymentAmount, owner )
                 ).send();
 
                 if(p.infos[owner].size() == 1)
