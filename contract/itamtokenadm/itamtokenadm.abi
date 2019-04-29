@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 17 18:24:11 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Apr 29 16:10:06 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -79,6 +79,10 @@
                 {
                     "name": "owner",
                     "type": "name"
+                },
+                {
+                    "name": "sym",
+                    "type": "symbol_code"
                 }
             ]
         },
@@ -129,8 +133,8 @@
             "base": "",
             "fields": [
                 {
-                    "name": "owner",
-                    "type": "name"
+                    "name": "sym",
+                    "type": "symbol"
                 },
                 {
                     "name": "lockinfos",
@@ -177,6 +181,10 @@
                 {
                     "name": "owner",
                     "type": "name"
+                },
+                {
+                    "name": "sym",
+                    "type": "symbol_code"
                 }
             ]
         },
@@ -198,10 +206,6 @@
             "name": "refund",
             "base": "",
             "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
                 {
                     "name": "total_refund",
                     "type": "asset"
@@ -258,10 +262,6 @@
             "name": "stake",
             "base": "",
             "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
                 {
                     "name": "balance",
                     "type": "asset"
