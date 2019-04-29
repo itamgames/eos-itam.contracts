@@ -4,8 +4,8 @@
 #include "../include/transferstruct.hpp"
 #include "../include/string.hpp"
 
-using namespace std;
 using namespace eosio;
+using namespace std;
 
 CONTRACT itamitamitam : contract
 {
@@ -45,4 +45,4 @@ CONTRACT itamitamitam : contract
         void sub_balance(const name& owner, const asset& quantity);
 };
 
-EOSIO_DISPATCH_EX( itamitamitam, (transfer)(transferto) )
+ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamitamitam, (transferto), &itamitamitam::transfer )
