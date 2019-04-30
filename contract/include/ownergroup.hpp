@@ -6,13 +6,13 @@ using namespace std;
 
 const char* ITAM_GROUP_ACCOUNT = "itamitamitam";
 
-name get_group_account(string owner, name group_name)
+name get_group_account(name owner, name group_name)
 {
     string group_name_to_string = group_name.to_string();
     
     if(group_name_to_string == "eos")
     {
-        return name(owner);
+        return owner;
     }
 
     eosio_assert(group_name_to_string == "itam", "invalid group name");
