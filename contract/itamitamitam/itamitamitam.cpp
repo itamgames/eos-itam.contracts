@@ -2,7 +2,7 @@
 
 ACTION itamitamitam::transfer(uint64_t from, uint64_t to)
 {
-    transferData data = unpack_action_data<transferData>();
+    transfer_data data = unpack_action_data<transfer_data>();
 
     if(data.from != _self && data.to == _self)
     {
@@ -37,11 +37,11 @@ ACTION itamitamitam::transferto(name from, name to, asset quantity, string memo)
     }
     else
     {
-        name eosio_token("eosio.token");
+        name token_contract = quantity.symbol.code().to_string() == "EOS" ? name("eosio.token") : name("itamtokenadm");
 
         action(
             permission_level { _self , name("active") },
-            quantity.symbol.code().raw() == eosio_token.value ? eosio_token : name("itamtokenadm"),
+            token_contract,
             name("transfer"),
             make_tuple( _self, to, quantity, memo )
         ).send();
