@@ -1,41 +1,51 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Apr 24 18:26:45 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 14 20:43:34 2019",
     "version": "eosio::abi/1.1",
     "structs": [
+        {
+            "name": "account",
+            "base": "",
+            "fields": [
+                {
+                    "name": "app_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "settle_account",
+                    "type": "name"
+                }
+            ]
+        },
         {
             "name": "claimsettle",
             "base": "",
             "fields": [
                 {
-                    "name": "appId",
+                    "name": "app_id",
                     "type": "string"
                 }
             ]
         },
         {
-            "name": "ownergroup",
+            "name": "deloldsettle",
             "base": "",
-            "fields": [
-                {
-                    "name": "groupName",
-                    "type": "name"
-                },
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
+            "fields": []
+        },
+        {
+            "name": "migration",
+            "base": "",
+            "fields": []
         },
         {
             "name": "setsettle",
             "base": "",
             "fields": [
                 {
-                    "name": "appId",
+                    "name": "app_id",
                     "type": "string"
                 },
                 {
-                    "name": "account",
+                    "name": "settle_account",
                     "type": "name"
                 }
             ]
@@ -54,6 +64,16 @@
                 },
                 {
                     "name": "settleAmount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "settlement",
+            "base": "",
+            "fields": [
+                {
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -81,6 +101,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "deloldsettle",
+            "type": "deloldsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "migration",
+            "type": "migration",
+            "ricardian_contract": ""
+        },
+        {
             "name": "setsettle",
             "type": "setsettle",
             "ricardian_contract": ""
@@ -93,8 +123,15 @@
     ],
     "tables": [
         {
-            "name": "ownergroups",
-            "type": "ownergroup",
+            "name": "accounts",
+            "type": "account",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "settlements",
+            "type": "settlement",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

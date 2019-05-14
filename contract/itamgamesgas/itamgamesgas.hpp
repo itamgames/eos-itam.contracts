@@ -1,7 +1,8 @@
 #include <eosiolib/eosio.hpp>
+#include <eosiolib/asset.hpp>
 #include "../include/dispatcher.hpp"
-#include "../include/string.hpp"
 #include "../include/transferstruct.hpp"
+#include "../include/string.hpp"
 
 using namespace eosio;
 
@@ -10,9 +11,11 @@ CONTRACT itamgamesgas : contract
     public:
         using contract::contract;
 
-        ACTION setsettle(string appId, name account);
-        ACTION claimsettle(string appId);
+        ACTION setsettle(string app_id, name settle_account);
+        ACTION claimsettle(string app_id);
         ACTION transfer(uint64_t from, uint64_t to);
+        ACTION migration();
+        ACTION deloldsettle();
     private:
         TABLE settle
         {
@@ -24,19 +27,32 @@ CONTRACT itamgamesgas : contract
         };
         typedef multi_index<name("settles"), settle> settleTable;
 
-        TABLE ownergroup
+        TABLE account
         {
-            name groupName;
-            name account;
+            uint64_t app_id;
+            name settle_account;
 
-            uint64_t primary_key() const { return groupName.value; }
+            uint64_t primary_key() const { return app_id; }
         };
-        typedef multi_index<name("ownergroups"), ownergroup> ownerGroupTable;
+        typedef multi_index<name("accounts"), account> account_table;
 
-        struct memoData
+        TABLE settlement
         {
-            string appId;  
+            asset quantity;
+            
+            uint64_t primary_key() const { return quantity.symbol.code().raw(); }
         };
+        typedef multi_index<name("settlements"), settlement> settlement_table;
+
+        // itamstoredex token
+        struct token
+        {
+            symbol available_symbol;
+            name contract_name;
+
+            uint64_t primary_key() const { return available_symbol.code().raw(); }
+        };
+        typedef multi_index<name("tokens"), token> token_table;
 };
 
-EOSIO_DISPATCH_EX( itamgamesgas, (setsettle)(claimsettle)(transfer) )
+ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesgas, (migration)(deloldsettle)(setsettle)(claimsettle)(transfer) )
