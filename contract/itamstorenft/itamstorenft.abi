@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Apr 30 16:49:53 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 14 19:36:21 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -39,7 +39,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "account",
+                    "name": "owner_account",
                     "type": "name"
                 },
                 {
@@ -85,8 +85,8 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "item_ids",
-                    "type": "string[]"
+                    "name": "item_id",
+                    "type": "string"
                 },
                 {
                     "name": "reason",
@@ -131,6 +131,16 @@
                 {
                     "name": "sequence",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deltest",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
                 }
             ]
         },
@@ -315,8 +325,8 @@
                     "type": "symbol_code"
                 },
                 {
-                    "name": "item_ids",
-                    "type": "string[]"
+                    "name": "item_id",
+                    "type": "string"
                 },
                 {
                     "name": "memo",
@@ -340,6 +350,11 @@
         {
             "name": "create",
             "type": "create",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deltest",
+            "type": "deltest",
             "ricardian_contract": ""
         },
         {

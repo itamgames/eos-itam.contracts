@@ -33,10 +33,22 @@ ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code 
     uint64_t itemid = stoull(item_id, 0, 10);
     uint64_t groupid = stoull(group_id, 0, 10);
 
-    account item { itemid, item_name, groupid, category, duration, options, transferable, to, to_account, nickname };
+    account_table accounts(_self, symbol_name.raw());
+    const auto& account = accounts.find(itemid);
+    eosio_assert(account == accounts.end(), "already item id");
+    accounts.emplace(currency->issuer, [&](auto &a) {
+        a.item_id = itemid;
+        a.item_name = item_name;
+        a.group_id = groupid;
+        a.category = category;
+        a.duration = duration;
+        a.options = options;
+        a.transferable = transferable;
+        a.owner = to;
+        a.owner_account = to_account;
+        a.nickname = nickname;
+    });
     
-    add_balance(symbol_name.raw(), currency->issuer, item);
-
     SEND_INLINE_ACTION(
         *this,
         receipt,
@@ -58,9 +70,9 @@ ACTION itamstorenft::modify(name owner, name owner_group, symbol_code symbol_nam
     const auto& account = accounts.require_find(itemid, "invalid item");
 
     name owner_account = get_group_account(owner, owner_group);
-    eosio_assert(account->owner == owner && account->account == owner_account, "wrong item owner");
+    eosio_assert(account->owner == owner && account->owner_account == owner_account, "wrong item owner");
 
-    accounts.modify(account, same_payer, [&](auto &a) {
+    accounts.modify(account, _self, [&](auto &a) {
         a.item_name = item_name;
         a.options = options;
         a.duration = duration;
@@ -75,7 +87,7 @@ ACTION itamstorenft::modify(name owner, name owner_group, symbol_code symbol_nam
     );
 }
 
-ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name, vector<string> item_ids, string reason)
+ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)
 {
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
@@ -87,77 +99,78 @@ ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name,
     require_auth(author);
 
     currencies.modify(currency, _self, [&](auto &c) {
-        c.supply -= asset(item_ids.size(), symbol(symbol_name, 0));
+        c.supply.amount -= 1;
     });
 
     account_table accounts(_self, symbol_raw);
-    for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
-    {
-        uint64_t item_id = stoull(*iter, 0, 10);
-        const auto& account = accounts.get(item_id, "invalid item");
+    uint64_t itemid = stoull(item_id, 0, 10);
+    const auto& account = accounts.require_find(itemid, "invalid item");
 
-        SEND_INLINE_ACTION(
-            *this,
-            receipt,
-            { { _self, name("active") } },
-            {
-                owner,
-                owner_group,
-                currency->app_id,
-                item_id,
-                account.nickname,
-                account.group_id,
-                account.item_name,
-                account.category,
-                account.options,
-                account.duration,
-                account.transferable,
-                asset(),
-                string("burn")
-            }
-        );
+    SEND_INLINE_ACTION(
+        *this,
+        receipt,
+        { { _self, name("active") } },
+        {
+            owner,
+            owner_group,
+            currency->app_id,
+            itemid,
+            account->nickname,
+            account->group_id,
+            account->item_name,
+            account->category,
+            account->options,
+            account->duration,
+            account->transferable,
+            asset(),
+            string("burn")
+        }
+    );
 
-        sub_balance(owner, owner_account, symbol_raw, item_id);
-    }
+    eosio_assert(account->owner == owner && account->owner_account == owner_account, "wrong item owner");
+    accounts.erase(account);
 }
 
-ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, vector<string> item_ids, string memo)
+ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, string item_id, string memo)
 {
-    name from_account = has_auth(from) ? from : name(ITAM_GROUP_ACCOUNT);
-    require_auth(from_account);
-
-    transfernft_memo nft_memo;
-    parseMemo(&nft_memo, memo, "|", 2);
-    
-    name to_account = get_group_account(to, name(nft_memo.to_group));
-    eosio_assert(is_account(to_account), "to_group_account does not exist");
-
+    eosio_assert(is_account(to), "to account does not exist");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
-    allow_table allows(_self, _self.value);
-    eosio_assert(from == _self || allows.find(from_account.value) != allows.end(), "only allowed accounts can use this action");
+    uint64_t itemid = stoull(item_id, 0, 10);
+    account_table accounts(_self, symbol_name.raw());
+    const auto& from_item = accounts.require_find(itemid, "invalid item id");
     
-    uint64_t symbol_raw = symbol_name.raw();
+    eosio_assert(from_item->transferable, "not transferable item");
+    eosio_assert(from_item->duration == 0 || from_item->duration <= now(), "overdrawn duration");
 
-    account_table accounts(_self, symbol_raw);
-    uint64_t current_sec = now();
-    for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
+    name author;
+    name dex_contract("itamstoredex");
+
+    if(has_auth(dex_contract))
     {
-        uint64_t item_id = stoull(*iter, 0, 10);
-        const auto& account = accounts.require_find(item_id, "invalid item");
+        author = dex_contract;
+    }
+    else
+    {
+        author = has_auth(from) ? from : name(ITAM_GROUP_ACCOUNT);
+        require_auth(author);
 
-        eosio_assert(account->owner == from && account->account == from_account, "wrong item owner");
-        eosio_assert(account->transferable, "not transferable item");
-        eosio_assert(account->duration == 0 || account->duration <= current_sec, "overdrawn duration");
-
-        accounts.modify(account, from_account, [&](auto &a) {
-            a.owner = to;
-            a.account = to_account;
-            a.nickname = nft_memo.nickname;
-        });
+        eosio_assert(from_item->owner == from && from_item->owner_account == author, "wrong item owner");
     }
 
-    require_recipient(from_account, to_account);
+    allow_table allows(_self, _self.value);
+    eosio_assert(allows.find(author.value) != allows.end(), "only allowed accounts can use this action");
+
+    memo_data nft_memo;
+    parseMemo(&nft_memo, memo, "|", 2);
+
+    accounts.modify(from_item, author, [&](auto &a) {
+        a.owner = name(nft_memo.to);
+        a.owner_account = to;
+        a.nickname = nft_memo.nickname;
+    });
+
+    require_recipient(from_item->owner_account, to);
 }
 
 ACTION itamstorenft::addwhitelist(name account)
@@ -186,24 +199,4 @@ ACTION itamstorenft::receipt(name owner, name owner_group, uint64_t app_id, uint
 
     name account = get_group_account(owner, owner_group);
     require_recipient(_self, account);
-}
-
-void itamstorenft::add_balance(const uint64_t symbol_raw, const name& ram_payer, const account& item)
-{
-    account_table accounts(_self, symbol_raw);
-    const auto& account = accounts.find(item.item_id);
-    eosio_assert(account == accounts.end(), "already item id");
-
-    accounts.emplace(ram_payer, [&](auto &a) {
-        a = item;
-    });
-}
-
-void itamstorenft::sub_balance(const name& owner, const name& owner_account, const uint64_t symbol_raw, const uint64_t item_id)
-{
-    account_table accounts(_self, symbol_raw);
-    const auto& account = accounts.require_find(item_id, "invalid item");
-    eosio_assert(account->owner == owner && account->account == owner_account, "wrong item owner");
-
-    accounts.erase(account);
 }

@@ -1,74 +1,14 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Apr 25 16:19:41 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 14 20:38:54 2019",
     "version": "eosio::abi/1.1",
     "structs": [
-        {
-            "name": "account",
-            "base": "",
-            "fields": [
-                {
-                    "name": "balance",
-                    "type": "asset"
-                },
-                {
-                    "name": "items",
-                    "type": "pair_uint64_item[]"
-                }
-            ]
-        },
-        {
-            "name": "addwhitelist",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "allow",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "burn",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
-                    "type": "name"
-                },
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "item_ids",
-                    "type": "string[]"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
-                }
-            ]
-        },
         {
             "name": "cancelorder",
             "base": "",
             "fields": [
                 {
                     "name": "owner",
-                    "type": "string"
+                    "type": "name"
                 },
                 {
                     "name": "symbol_name",
@@ -99,186 +39,26 @@
             ]
         },
         {
-            "name": "create",
+            "name": "deletetoken",
             "base": "",
             "fields": [
                 {
-                    "name": "issuer",
-                    "type": "name"
+                    "name": "symbol_name",
+                    "type": "string"
                 },
+                {
+                    "name": "precision",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
+            "name": "delorder",
+            "base": "",
+            "fields": [
                 {
                     "name": "symbol_name",
                     "type": "symbol_code"
-                },
-                {
-                    "name": "app_id",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "currency",
-            "base": "",
-            "fields": [
-                {
-                    "name": "issuer",
-                    "type": "name"
-                },
-                {
-                    "name": "supply",
-                    "type": "asset"
-                },
-                {
-                    "name": "app_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sequence",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "delwhitelist",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "issue",
-            "base": "",
-            "fields": [
-                {
-                    "name": "to",
-                    "type": "string"
-                },
-                {
-                    "name": "to_group",
-                    "type": "name"
-                },
-                {
-                    "name": "nickname",
-                    "type": "string"
-                },
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "item_id",
-                    "type": "string"
-                },
-                {
-                    "name": "item_name",
-                    "type": "string"
-                },
-                {
-                    "name": "category",
-                    "type": "string"
-                },
-                {
-                    "name": "group_id",
-                    "type": "string"
-                },
-                {
-                    "name": "options",
-                    "type": "string"
-                },
-                {
-                    "name": "duration",
-                    "type": "uint64"
-                },
-                {
-                    "name": "transferable",
-                    "type": "bool"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "item",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "nickname",
-                    "type": "string"
-                },
-                {
-                    "name": "group_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "item_name",
-                    "type": "string"
-                },
-                {
-                    "name": "category",
-                    "type": "string"
-                },
-                {
-                    "name": "options",
-                    "type": "string"
-                },
-                {
-                    "name": "duration",
-                    "type": "uint64"
-                },
-                {
-                    "name": "transferable",
-                    "type": "bool"
-                }
-            ]
-        },
-        {
-            "name": "modify",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
-                    "type": "name"
-                },
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "item_id",
-                    "type": "string"
-                },
-                {
-                    "name": "item_name",
-                    "type": "string"
-                },
-                {
-                    "name": "options",
-                    "type": "string"
-                },
-                {
-                    "name": "duration",
-                    "type": "uint64"
-                },
-                {
-                    "name": "transferable",
-                    "type": "bool"
-                },
-                {
-                    "name": "reason",
-                    "type": "string"
                 }
             ]
         },
@@ -292,14 +72,14 @@
                 },
                 {
                     "name": "owner",
-                    "type": "string"
-                },
-                {
-                    "name": "owner_group",
                     "type": "name"
                 },
                 {
-                    "name": "nickname",
+                    "name": "owner_account",
+                    "type": "name"
+                },
+                {
+                    "name": "owner_nickname",
                     "type": "string"
                 },
                 {
@@ -309,26 +89,12 @@
             ]
         },
         {
-            "name": "pair_uint64_item",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "uint64"
-                },
-                {
-                    "name": "value",
-                    "type": "item"
-                }
-            ]
-        },
-        {
             "name": "receipt",
             "base": "",
             "fields": [
                 {
                     "name": "owner",
-                    "type": "string"
+                    "type": "name"
                 },
                 {
                     "name": "owner_group",
@@ -386,7 +152,7 @@
             "fields": [
                 {
                     "name": "owner",
-                    "type": "string"
+                    "type": "name"
                 },
                 {
                     "name": "symbol_name",
@@ -417,6 +183,38 @@
             ]
         },
         {
+            "name": "settoken",
+            "base": "",
+            "fields": [
+                {
+                    "name": "contract_name",
+                    "type": "name"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "string"
+                },
+                {
+                    "name": "precision",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
+            "name": "token",
+            "base": "",
+            "fields": [
+                {
+                    "name": "available_symbol",
+                    "type": "symbol"
+                },
+                {
+                    "name": "contract_name",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "transfer",
             "base": "",
             "fields": [
@@ -429,69 +227,23 @@
                     "type": "uint64"
                 }
             ]
-        },
-        {
-            "name": "transfernft",
-            "base": "",
-            "fields": [
-                {
-                    "name": "from",
-                    "type": "name"
-                },
-                {
-                    "name": "to",
-                    "type": "string"
-                },
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
-                },
-                {
-                    "name": "item_ids",
-                    "type": "string[]"
-                },
-                {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
         }
     ],
     "types": [],
     "actions": [
-        {
-            "name": "addwhitelist",
-            "type": "addwhitelist",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "burn",
-            "type": "burn",
-            "ricardian_contract": ""
-        },
         {
             "name": "cancelorder",
             "type": "cancelorder",
             "ricardian_contract": ""
         },
         {
-            "name": "create",
-            "type": "create",
+            "name": "deletetoken",
+            "type": "deletetoken",
             "ricardian_contract": ""
         },
         {
-            "name": "delwhitelist",
-            "type": "delwhitelist",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "issue",
-            "type": "issue",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "modify",
-            "type": "modify",
+            "name": "delorder",
+            "type": "delorder",
             "ricardian_contract": ""
         },
         {
@@ -510,31 +262,17 @@
             "ricardian_contract": ""
         },
         {
-            "name": "transfer",
-            "type": "transfer",
+            "name": "settoken",
+            "type": "settoken",
             "ricardian_contract": ""
         },
         {
-            "name": "transfernft",
-            "type": "transfernft",
+            "name": "transfer",
+            "type": "transfer",
             "ricardian_contract": ""
         }
     ],
     "tables": [
-        {
-            "name": "accounts",
-            "type": "account",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "allows",
-            "type": "allow",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
         {
             "name": "configs",
             "type": "config",
@@ -543,15 +281,15 @@
             "key_types": []
         },
         {
-            "name": "currencies",
-            "type": "currency",
+            "name": "orders",
+            "type": "order",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
         },
         {
-            "name": "orders",
-            "type": "order",
+            "name": "tokens",
+            "type": "token",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
