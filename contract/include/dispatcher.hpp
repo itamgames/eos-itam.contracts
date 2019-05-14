@@ -13,13 +13,10 @@ extern "C" { \
     } \
 }
 
-#define ALLOW_TRANSFER_ALL_DISPATCHER( TYPE, MEMBERS, TRANSFER_METHOD ) \
+#define ALLOW_TRANSFER_ALL_DISPATCHER( TYPE, MEMBERS ) \
 extern "C" { \
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
-        if( action == name("transfer").value ) { \
-            execute_action( name(receiver), name(code), TRANSFER_METHOD ); \
-        } \
-        else if ( code == receiver ) { \
+        if ( code == receiver || action == name("transfer").value ) { \
             switch( action ) { \
                 EOSIO_DISPATCH_HELPER( TYPE, MEMBERS ) \
             } \

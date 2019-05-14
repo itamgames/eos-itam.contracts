@@ -1,7 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 
-struct transferData
+struct transfer_data
 {
     eosio::name from;
     eosio::name to;
