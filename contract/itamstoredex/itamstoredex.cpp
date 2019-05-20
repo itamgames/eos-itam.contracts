@@ -177,8 +177,8 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
         owner_group_name = "eos";
         nft_receiver = name(data.from);
     }  
-    
-    string nft_memo = message.buyer_nickname + string("|") + message.owner;
+
+    string nft_memo = message.buyer_nickname + string("|") + nft_receiver.to_string();
 
     account_table accounts(nft_contract, item_symbol.code().raw());
     const auto& trade_item = accounts.get(item_id, "invalid item");
