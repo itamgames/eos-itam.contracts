@@ -21,8 +21,8 @@ CONTRACT itamtokenadm : public contract
         ACTION menualrefund(name owner, symbol_code sym);
         ACTION setlocktype(name lock_type, uint64_t start_timestamp_sec, vector<int32_t> percents);
         ACTION dellocktype(name lock_type);
-        ACTION regblacklist(name owner);
-        ACTION delblacklist(name owner);
+        ACTION regblacklist(name owner, symbol_code symbol);
+        ACTION delblacklist(name owner, symbol_code symbol);
 
     private:
         TABLE account

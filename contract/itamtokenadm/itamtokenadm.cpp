@@ -77,7 +77,7 @@ ACTION itamtokenadm::transfer(name from, name to, asset quantity, string memo)
     require_auth(from);
     eosio_assert(is_account(to), "to account does not exist");
 
-    blacklist_table blacklists(_self, _self.value);
+    blacklist_table blacklists(_self, quantity.symbol.code().raw());
     eosio_assert(blacklists.find(from.value) == blacklists.end(), "blacklist owner");
     
     uint64_t symbol_name = quantity.symbol.code().raw();
@@ -274,22 +274,22 @@ ACTION itamtokenadm::dellocktype(name lock_type)
     locktypes.erase(locktype);
 }
 
-ACTION itamtokenadm::regblacklist(name owner)
+ACTION itamtokenadm::regblacklist(name owner, symbol_code symbol)
 {
     require_auth(_self);
 
-    blacklist_table blacklists(_self, _self.value);
+    blacklist_table blacklists(_self, symbol.raw());
     eosio_assert(blacklists.find(owner.value) == blacklists.end(), "blacklist already exists");
     blacklists.emplace(_self, [&](auto &b) {
         b.owner = owner;
     });
 }
 
-ACTION itamtokenadm::delblacklist(name owner)
+ACTION itamtokenadm::delblacklist(name owner, symbol_code symbol)
 {
     require_auth(_self);
 
-    blacklist_table blacklists(_self, _self.value);
+    blacklist_table blacklists(_self, symbol.raw());
     const auto& blacklist = blacklists.require_find(owner.value, "no blacklist owner");
     blacklists.erase(blacklist);
 }
