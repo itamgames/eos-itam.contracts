@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed May 15 14:33:49 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 24 11:50:45 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -49,16 +49,6 @@
                 {
                     "name": "precision",
                     "type": "uint32"
-                }
-            ]
-        },
-        {
-            "name": "delorder",
-            "base": "",
-            "fields": [
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
                 }
             ]
         },
@@ -239,11 +229,6 @@
         {
             "name": "deletetoken",
             "type": "deletetoken",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "delorder",
-            "type": "delorder",
             "ricardian_contract": ""
         },
         {

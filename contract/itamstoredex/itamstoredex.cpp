@@ -5,10 +5,13 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
     token_table tokens(_self, _self.value);
     const auto& token = tokens.get(quantity.symbol.code().raw(), "invalid token symbol");
     eosio_assert(token.available_symbol.precision() == quantity.symbol.precision(), "invalid precision");
+    #ifdef TEST
+        eosio_assert(quantity.symbol.code().to_string() == "ITT", "test symbol does not exact");
+    #endif
 
     uint64_t itemid = stoull(item_id, 0, 10);
 
-    name nft_contract("itamstorenft");
+    name nft_contract(NFT_CONTRACT);
     account_table accounts(nft_contract, symbol_name.raw());
     const auto& item = accounts.get(itemid, "cannot found item id");
     
@@ -28,7 +31,7 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
         permission_level( _self, name("active") ),
         nft_contract,
         name("transfernft"),
-        make_tuple( owner, _self, symbol_name, item_id, string("|itamstoredex") )
+        make_tuple( owner, _self, symbol_name, item_id, string("|") + _self.to_string() )
     ).send();
 
     currency_table currencies(nft_contract, nft_contract.value);
@@ -65,7 +68,7 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
     require_auth(order->owner_account);
     eosio_assert(order->owner == owner, "different owner");
 
-    name nft_contract("itamstorenft");
+    name nft_contract(NFT_CONTRACT);
 
     account_table accounts(nft_contract, symbol_name.raw());
     const auto& ordered_item = accounts.get(itemid, "cannot found item id");
@@ -141,29 +144,30 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     asset settle_quantity_to_vendor = fees * config.settle_rate / 100;
     asset settle_quantity_to_itam = fees - settle_quantity_to_vendor;
 
-    name nft_contract("itamstorenft");
+    name nft_contract(NFT_CONTRACT);
     currency_table currencies(nft_contract, nft_contract.value);
     const auto& currency = currencies.get(item_symbol.code().raw(), "invalid token symbol");
+    #ifndef TEST
+        if(settle_quantity_to_vendor.amount > 0)
+        {
+            action(
+                permission_level{ _self, name("active") },
+                token.contract_name,
+                name("transfer"),
+                make_tuple( _self, name(CENTRAL_SETTLE_ACCOUNT), settle_quantity_to_vendor, to_string(currency.app_id) )
+            ).send();
+        }
 
-    if(settle_quantity_to_vendor.amount > 0)
-    {
-        action(
-            permission_level{ _self, name("active") },
-            token.contract_name,
-            name("transfer"),
-            make_tuple( _self, name(CENTRAL_SETTLE_ACCOUNT), settle_quantity_to_vendor, to_string(currency.app_id) )
-        ).send();
-    }
-
-    if(settle_quantity_to_itam.amount > 0)
-    {
-        action(
-            permission_level{ _self, name("active") },
-            token.contract_name,
-            name("transfer"),
-            make_tuple( _self, name(ITAM_SETTLE_ACCOUNT), settle_quantity_to_itam, to_string(currency.app_id) )
-        ).send();
-    }
+        if(settle_quantity_to_itam.amount > 0)
+        {
+            action(
+                permission_level{ _self, name("active") },
+                token.contract_name,
+                name("transfer"),
+                make_tuple( _self, name(ITAM_SETTLE_ACCOUNT), settle_quantity_to_itam, to_string(currency.app_id) )
+            ).send();
+        }
+    #endif
 
     string owner_group_name;
     name nft_receiver;

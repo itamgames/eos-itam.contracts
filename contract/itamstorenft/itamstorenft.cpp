@@ -144,7 +144,7 @@ ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, st
     eosio_assert(from_item->duration == 0 || from_item->duration <= now(), "overdrawn duration");
 
     name author;
-    name dex_contract("itamstoredex");
+    name dex_contract(DEX_CONTRACT);
 
     if(has_auth(dex_contract))
     {

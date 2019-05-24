@@ -6,6 +6,12 @@
 using namespace eosio;
 using namespace std;
 
+#ifndef TEST
+    #define DEX_CONTRACT "itamstoredex"
+#else
+    #define DEX_CONTRACT "itamtestsdex"
+#endif
+
 CONTRACT itamstorenft : contract
 {
     public:
@@ -19,12 +25,6 @@ CONTRACT itamstorenft : contract
         ACTION addwhitelist(name account);
         ACTION delwhitelist(name account);
         ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
-
-        ACTION deltest(symbol_code symbol_name)
-        {
-            account_table accounts(_self, symbol_name.raw());
-            for(auto iter = accounts.begin(); iter != accounts.end(); iter = accounts.erase(iter));
-        }
     private:
         TABLE currency
         {
@@ -69,4 +69,4 @@ CONTRACT itamstorenft : contract
         };
 };
 
-EOSIO_DISPATCH( itamstorenft, (deltest)(create)(issue)(modify)(burn)(receipt)(addwhitelist)(delwhitelist)(transfernft) )
+EOSIO_DISPATCH( itamstorenft, (create)(issue)(modify)(burn)(receipt)(addwhitelist)(delwhitelist)(transfernft) )

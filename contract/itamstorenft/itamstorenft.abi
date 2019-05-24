@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 14 19:36:21 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 21 18:28:38 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -131,16 +131,6 @@
                 {
                     "name": "sequence",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "deltest",
-            "base": "",
-            "fields": [
-                {
-                    "name": "symbol_name",
-                    "type": "symbol_code"
                 }
             ]
         },
@@ -350,11 +340,6 @@
         {
             "name": "create",
             "type": "create",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "deltest",
-            "type": "deltest",
             "ricardian_contract": ""
         },
         {

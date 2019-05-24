@@ -9,6 +9,12 @@
 using namespace eosio;
 using namespace std;
 
+#ifndef TEST
+    #define NFT_CONTRACT "itamstorenft"
+#else
+    #define NFT_CONTRACT "itamtestsnft"
+#endif
+
 CONTRACT itamstoredex : contract
 {
     public:
@@ -21,12 +27,6 @@ CONTRACT itamstoredex : contract
         ACTION settoken(name contract_name, string symbol_name, uint32_t precision);
         ACTION deletetoken(string symbol_name, uint32_t precision);
         ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
-
-        ACTION delorder(symbol_code symbol_name)
-        {
-            order_table orders(_self, symbol_name.raw());
-            for(auto iter = orders.begin(); iter != orders.end(); iter = orders.erase(iter));
-        }
 
         ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
     private:
@@ -99,4 +99,4 @@ CONTRACT itamstoredex : contract
         };
 };
 
-ALLOW_TRANSFER_ALL_DISPATCHER( itamstoredex, (delorder)(sellorder)(cancelorder)(setconfig)(receipt)(settoken)(deletetoken)(transfer) )
+ALLOW_TRANSFER_ALL_DISPATCHER( itamstoredex, (sellorder)(cancelorder)(setconfig)(receipt)(settoken)(deletetoken)(transfer) )

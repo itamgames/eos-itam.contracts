@@ -5,8 +5,8 @@
 #include "../include/string.hpp"
 #include "../include/settle.hpp"
 #include "../include/date.hpp"
-#include "../include/dispatcher.hpp"
 #include "../include/ownergroup.hpp"
+#include "../include/dispatcher.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -15,24 +15,62 @@ using namespace nlohmann;
 CONTRACT itamstoreapp : public contract
 {
     public:
-        itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds),
-        configs(_self, _self.value){}
+        #ifndef TEST
+            itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds), configs(_self, _self.value) {}
+        #else
+            using contract::contract;
+        #endif
         
         ACTION registapp(string appId, name owner, asset price, string params);
         ACTION deleteapp(string appId);
-        ACTION refundapp(string appId, string buyer, name buyerGroup);
         ACTION registitems(string params);
         ACTION deleteitems(string params);
         ACTION modifyitem(string appId, string itemId, string itemName, asset price);
-        ACTION refunditem(string appId, string itemId, string buyer, name buyerGroup);
-        ACTION useitem(string appId, string itemId, string memo);
         ACTION transfer(uint64_t from, uint64_t to);
-        ACTION receiptapp(uint64_t appId, name from, string owner, name ownerGroup, asset quantity);
-        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, string owner, name ownerGroup, asset quantity);
-        ACTION defconfirm(uint64_t appId, string owner, name ownerGroup);
-        ACTION menconfirm(string appId, string owner, name ownerGroup);
-        ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
+        ACTION receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity);
+        ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
+        ACTION useitem(string appId, string itemId, string memo);
+        #ifndef TEST
+            // ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
+            // ACTION refundapp(string appId, name owner, name ownerGroup);
+            // ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
+            // ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
+            // ACTION menconfirm(string appId, name owner, name ownerGroup);
+        #endif
     private:
+        #ifndef TEST
+            // void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
+            // void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
+
+            // struct pendingInfo
+            // {
+            //     uint64_t appId;
+            //     uint64_t itemId;
+            //     asset paymentAmount;
+            //     asset settleAmount;
+            //     uint64_t timestamp;
+            // };
+
+            // TABLE pending
+            // {
+            //     name groupAccount;
+            //     map<string, vector<pendingInfo>> infos;
+
+            //     uint64_t primary_key() const { return groupAccount.value; }
+            // };
+            // typedef multi_index<name("pendings"), pending> pendingTable;
+        
+        // TABLE config
+        // {
+        //     name key;
+        //     uint64_t ratio;
+        //     uint64_t refundableDay;
+
+        //     uint64_t primary_key() const { return key.value; }
+        // };
+        // typedef multi_index<name("configs"), config> configTable;
+        // configTable configs;
+        #endif
         TABLE item
         {
             uint64_t id;
@@ -53,46 +91,6 @@ CONTRACT itamstoreapp : public contract
         };
         typedef multi_index<name("apps"), app> appTable;
 
-        struct pendingInfo
-        {
-            uint64_t appId;
-            uint64_t itemId;
-            asset paymentAmount;
-            asset settleAmount;
-            uint64_t timestamp;
-        };
-
-        TABLE pending
-        {
-            name groupAccount;
-            // key: owner
-            map<string, vector<pendingInfo>> infos;
-
-            uint64_t primary_key() const { return groupAccount.value; }
-        };
-        typedef multi_index<name("pendings"), pending> pendingTable;
-
-        TABLE settle
-        {
-            uint64_t appId;
-            name account;
-            asset settleAmount;
-
-            uint64_t primary_key() const { return appId; }
-        };
-        typedef multi_index<name("settles"), settle> settleTable;
-
-        TABLE config
-        {
-            name key;
-            uint64_t ratio;
-            uint64_t refundableDay;
-
-            uint64_t primary_key() const { return key.value; }
-        };
-        typedef multi_index<name("configs"), config> configTable;
-        configTable configs;
-
         struct transferData
         {
             name from;
@@ -109,14 +107,10 @@ CONTRACT itamstoreapp : public contract
             string appId;
             string itemId;
         };
-
-        void confirm(uint64_t appId, const string& owner, name ownerGroup);
-        void refund(uint64_t appId, uint64_t itemId, string owner, name ownerGroup);
 };
 
-#define ITEM_ACTION (registitems)(deleteitems)(modifyitem)(refunditem)(useitem)
-#define APP_ACTION (registapp)(deleteapp)(refundapp)
-#define SETTLE_ACTION (defconfirm)(menconfirm)(setconfig)
-#define BUY_ACTION (transfer)(receiptapp)(receiptitem)
-
-EOSIO_DISPATCH_EX( itamstoreapp, ITEM_ACTION APP_ACTION SETTLE_ACTION BUY_ACTION )
+#ifndef TEST
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
+#else
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )
+#endif
