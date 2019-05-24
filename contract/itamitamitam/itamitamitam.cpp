@@ -9,13 +9,13 @@ ACTION itamitamitam::transfer(uint64_t from, uint64_t to)
         name owner(data.memo);
         add_balance(owner, data.quantity);
     }
-    else if(data.from == _self && data.to == name("itamstoreapp"))
+    else if(data.from == _self && (data.to == name("itamstoreapp") || data.to == name("itamtestsapp")))
     {        
         paymentMemo memo;
         parseMemo(&memo, data.memo, "|", 5);
         sub_balance(name(memo.owner), data.quantity);
     }
-    else if(data.from == _self && data.to == name("itamstoredex"))
+    else if(data.from == _self && (data.to == name("itamstoredex") || data.to == name("itamtestsdex")))
     {
         dexMemo memo;
         parseMemo(&memo, data.memo, "|", 4);
