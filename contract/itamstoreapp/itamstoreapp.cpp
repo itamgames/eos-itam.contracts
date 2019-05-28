@@ -233,174 +233,175 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 #ifndef TEST
-// ACTION itamstoreapp::refundapp(string appId, name owner, name ownerGroup)
-// {
-//     uint64_t appid = stoull(appId, 0, 10);
+ACTION itamstoreapp::refundapp(string appId, name owner, name ownerGroup)
+{
+    uint64_t appid = stoull(appId, 0, 10);
 
-//     appTable apps(_self, _self.value);
-//     const auto& app = apps.get(appid, "Invalid App Id");
+    appTable apps(_self, _self.value);
+    const auto& app = apps.get(appid, "Invalid App Id");
 
-//     refund(appid, NULL, owner, ownerGroup);
-// }
+    refund(appid, NULL, owner, ownerGroup);
+}
 
-// ACTION itamstoreapp::refunditem(string appId, string itemId, name owner, name ownerGroup)
-// {
-//     uint64_t appid = stoull(appId, 0, 10);
-//     uint64_t itemid = stoull(itemId, 0, 10);
+ACTION itamstoreapp::refunditem(string appId, string itemId, name owner, name ownerGroup)
+{
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t itemid = stoull(itemId, 0, 10);
 
-//     itemTable items(_self, appid);
-//     const auto& item = items.get(itemid, "Invalid Item Id");
+    itemTable items(_self, appid);
+    const auto& item = items.get(itemid, "Invalid Item Id");
 
-//     refund(appid, itemid, owner, ownerGroup);
-// }
+    refund(appid, itemid, owner, ownerGroup);
+}
 
-// void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup)
-// {
-//     require_auth(_self);
-//     const auto& config = configs.get(_self.value, "refundable day must be set first");
+void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup)
+{
+    require_auth(_self);
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
 
-//     name groupAccount = get_group_account(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
 
-//     pendingTable pendings(_self, appId);
-//     const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
+    pendingTable pendings(_self, appId);
+    const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
 
-//     string owner_str = owner.to_string();
+    string owner_str = owner.to_string();
+    name eosio_token("eosio.token");
+    pendings.modify(pending, _self, [&](auto &p) {
+        for(auto info = p.infos[owner_str].begin(); info != p.infos[owner_str].end(); info++)
+        {
+            if(info->appId == appId && info->itemId == itemId)
+            {
+                uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+                eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
-//     pendings.modify(pending, _self, [&](auto &p) {
-//         for(auto info = p.infos[owner_str].begin(); info != p.infos[owner_str].end(); info++)
-//         {
-//             if(info->appId == appId && info->itemId == itemId)
-//             {
-//                 uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-//                 eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
+                action(
+                    permission_level { _self, name("active") },
+                    name(eosio_token),
+                    name("transfer"),
+                    make_tuple( _self, groupAccount, info->paymentAmount, owner_str )
+                ).send();
 
-//                 action(
-//                     permission_level { _self, name("active") },
-//                     name(eosio_token),
-//                     name("transfer"),
-//                     make_tuple( _self, groupAccount, info->paymentAmount, owner_str )
-//                 ).send();
+                if(p.infos[owner_str].size() == 1)
+                {
+                    p.infos.erase(owner_str);
+                }
+                else
+                {
+                    p.infos[owner_str].erase(info);
+                }
+                return;
+            }
+        }
 
-//                 if(p.infos[owner_str].size() == 1)
-//                 {
-//                     p.infos.erase(owner_str);
-//                 }
-//                 else
-//                 {
-//                     p.infos[owner_str].erase(info);
-//                 }
-//                 return;
-//             }
-//         }
+        eosio_assert(false, "refund fail");
+    });
+}
 
-//         eosio_assert(false, "refund fail");
-//     });
-// }
+ACTION itamstoreapp::defconfirm(uint64_t appId, name owner, name ownerGroup)
+{
+    confirm(appId, owner, ownerGroup);
+}
 
-// ACTION itamstoreapp::defconfirm(uint64_t appId, name owner, name ownerGroup)
-// {
-//     confirm(appId, owner, ownerGroup);
-// }
+ACTION itamstoreapp::menconfirm(string appId, name owner, name ownerGroup)
+{
+    uint64_t appid = stoull(appId, 0, 10);
 
-// ACTION itamstoreapp::menconfirm(string appId, name owner, name ownerGroup)
-// {
-//     uint64_t appid = stoull(appId, 0, 10);
+    confirm(appid, owner, ownerGroup);
+}
 
-//     confirm(appid, owner, ownerGroup);
-// }
+void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerGroup)
+{
+    require_auth(_self);
 
-// void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerGroup)
-// {
-//     require_auth(_self);
-
-//     const auto& config = configs.get(_self.value, "refundable day must be set first");
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
     
-//     name groupAccount = get_group_account(owner, ownerGroup);
+    name groupAccount = get_group_account(owner, ownerGroup);
 
-//     pendingTable pendings(_self, appId);
-//     const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
+    pendingTable pendings(_self, appId);
+    const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
 
-//     pendings.modify(pending, _self, [&](auto &p) {
-//         string owner_str = owner.to_string();
-//         auto pendingInfosIter = p.infos.find(owner_str);
-//         if(pendingInfosIter == p.infos.end()) return;
+    pendings.modify(pending, _self, [&](auto &p) {
+        string owner_str = owner.to_string();
+        auto pendingInfosIter = p.infos.find(owner_str);
+        if(pendingInfosIter == p.infos.end()) return;
 
-//         vector<pendingInfo>& pendingInfos = pendingInfosIter->second;
-//         uint64_t currentTimestamp = now();
-//         for(auto iter = pendingInfos.begin(); iter != pendingInfos.end();)
-//         {
-//             uint64_t refundableTimestamp = iter->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-//             if(refundableTimestamp < currentTimestamp)
-//             {
-//                 asset settleQuantityToVendor = iter->settleAmount;
-//                 asset settleQuantityToITAM = iter->paymentAmount - settleQuantityToVendor;
+        vector<pendingInfo>& pendingInfos = pendingInfosIter->second;
+        uint64_t currentTimestamp = now();
+        name eosio_token("eosio.token");
+        for(auto iter = pendingInfos.begin(); iter != pendingInfos.end();)
+        {
+            uint64_t refundableTimestamp = iter->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+            if(refundableTimestamp < currentTimestamp)
+            {
+                asset settleQuantityToVendor = iter->settleAmount;
+                asset settleQuantityToITAM = iter->paymentAmount - settleQuantityToVendor;
 
-//                 if(settleQuantityToVendor.amount > 0)
-//                 {
-//                     action(
-//                         permission_level{ _self, name("active") },
-//                         name(eosio_token),
-//                         name("transfer"),
-//                         make_tuple(
-//                             _self,
-//                             name(CENTRAL_SETTLE_ACCOUNT),
-//                             settleQuantityToVendor,
-//                             to_string(appId)
-//                         )
-//                     ).send();
-//                 }
+                if(settleQuantityToVendor.amount > 0)
+                {
+                    action(
+                        permission_level{ _self, name("active") },
+                        name(eosio_token),
+                        name("transfer"),
+                        make_tuple(
+                            _self,
+                            name(CENTRAL_SETTLE_ACCOUNT),
+                            settleQuantityToVendor,
+                            to_string(appId)
+                        )
+                    ).send();
+                }
 
-//                 if(settleQuantityToITAM.amount > 0)
-//                 {
-//                     action(
-//                         permission_level{ _self, name("active") },
-//                         name(eosio_token),
-//                         name("transfer"),
-//                         make_tuple(
-//                             _self,
-//                             name(ITAM_SETTLE_ACCOUNT),
-//                             settleQuantityToITAM,
-//                             to_string(appId)
-//                         )
-//                     ).send();
-//                 }
-//                 iter = pendingInfos.erase(iter);
-//             } else iter++;
-//         }
+                if(settleQuantityToITAM.amount > 0)
+                {
+                    action(
+                        permission_level{ _self, name("active") },
+                        name(eosio_token),
+                        name("transfer"),
+                        make_tuple(
+                            _self,
+                            name(ITAM_SETTLE_ACCOUNT),
+                            settleQuantityToITAM,
+                            to_string(appId)
+                        )
+                    ).send();
+                }
+                iter = pendingInfos.erase(iter);
+            } else iter++;
+        }
 
-//         // delete owner
-//         if(pendingInfos.size() == 0)
-//         {
-//             p.infos.erase(owner_str);
-//         }
-//     });
+        // delete owner
+        if(pendingInfos.size() == 0)
+        {
+            p.infos.erase(owner_str);
+        }
+    });
 
-//     // delete group account row
-//     if(pending->infos.size() == 0)
-//     {
-//         pendings.erase(pending);
-//     }
-// }
+    // delete group account row
+    if(pending->infos.size() == 0)
+    {
+        pendings.erase(pending);
+    }
+}
 
-// ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
-// {
-//     require_auth(_self);
-//     const auto& config = configs.find(_self.value);
+ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
+{
+    require_auth(_self);
+    const auto& config = configs.find(_self.value);
 
-//     if(config == configs.end())
-//     {
-//         configs.emplace(_self, [&](auto& c) {
-//             c.key = _self;
-//             c.ratio = ratio;
-//             c.refundableDay = refundableDay;
-//         });
-//     }
-//     else
-//     {
-//         configs.modify(config, _self, [&](auto& c) {
-//             c.ratio = ratio;
-//             c.refundableDay = refundableDay;
-//         });
-//     }
-// }
+    if(config == configs.end())
+    {
+        configs.emplace(_self, [&](auto& c) {
+            c.key = _self;
+            c.ratio = ratio;
+            c.refundableDay = refundableDay;
+        });
+    }
+    else
+    {
+        configs.modify(config, _self, [&](auto& c) {
+            c.ratio = ratio;
+            c.refundableDay = refundableDay;
+        });
+    }
+}
 #endif

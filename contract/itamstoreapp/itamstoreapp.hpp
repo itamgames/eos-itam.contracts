@@ -31,45 +31,45 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
         ACTION useitem(string appId, string itemId, string memo);
         #ifndef TEST
-            // ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
-            // ACTION refundapp(string appId, name owner, name ownerGroup);
-            // ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
-            // ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
-            // ACTION menconfirm(string appId, name owner, name ownerGroup);
+            ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
+            ACTION refundapp(string appId, name owner, name ownerGroup);
+            ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
+            ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
+            ACTION menconfirm(string appId, name owner, name ownerGroup);
         #endif
     private:
         #ifndef TEST
-            // void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
-            // void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
+            void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
+            void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
 
-            // struct pendingInfo
-            // {
-            //     uint64_t appId;
-            //     uint64_t itemId;
-            //     asset paymentAmount;
-            //     asset settleAmount;
-            //     uint64_t timestamp;
-            // };
+            struct pendingInfo
+            {
+                uint64_t appId;
+                uint64_t itemId;
+                asset paymentAmount;
+                asset settleAmount;
+                uint64_t timestamp;
+            };
 
-            // TABLE pending
-            // {
-            //     name groupAccount;
-            //     map<string, vector<pendingInfo>> infos;
+            TABLE pending
+            {
+                name groupAccount;
+                map<string, vector<pendingInfo>> infos;
 
-            //     uint64_t primary_key() const { return groupAccount.value; }
-            // };
-            // typedef multi_index<name("pendings"), pending> pendingTable;
+                uint64_t primary_key() const { return groupAccount.value; }
+            };
+            typedef multi_index<name("pendings"), pending> pendingTable;
         
-        // TABLE config
-        // {
-        //     name key;
-        //     uint64_t ratio;
-        //     uint64_t refundableDay;
+        TABLE config
+        {
+            name key;
+            uint64_t ratio;
+            uint64_t refundableDay;
 
-        //     uint64_t primary_key() const { return key.value; }
-        // };
-        // typedef multi_index<name("configs"), config> configTable;
-        // configTable configs;
+            uint64_t primary_key() const { return key.value; }
+        };
+        typedef multi_index<name("configs"), config> configTable;
+        configTable configs;
         #endif
         TABLE item
         {
