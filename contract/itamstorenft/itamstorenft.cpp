@@ -17,7 +17,7 @@ ACTION itamstorenft::create(name issuer, symbol_code symbol_name, string app_id)
     });
 }
 
-ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string category, string group_id, string options, uint64_t duration, bool transferable, string reason)
+ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
 {
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
     require_auth(currency->issuer);
@@ -40,7 +40,6 @@ ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code 
         a.item_id = itemid;
         a.item_name = item_name;
         a.group_id = groupid;
-        a.category = category;
         a.duration = duration;
         a.options = options;
         a.transferable = transferable;
@@ -53,7 +52,7 @@ ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code 
         *this,
         receipt,
         { { _self, name("active") } },
-        { to, to_group, currency->app_id, itemid, nickname, groupid, item_name, category, options, duration, transferable, asset(), string("issue") }
+        { to, to_group, currency->app_id, itemid, nickname, groupid, item_name, options, duration, transferable, asset(), string("issue") }
     );
 }
 
@@ -83,7 +82,7 @@ ACTION itamstorenft::modify(name owner, name owner_group, symbol_code symbol_nam
         *this,
         receipt,
         { { _self, name("active") } },
-        { owner, owner_group, currency->app_id, itemid, account->nickname, account->group_id, item_name, account->category, options, duration, transferable, asset(), string("modify") }
+        { owner, owner_group, currency->app_id, itemid, account->nickname, account->group_id, item_name, options, duration, transferable, asset(), string("modify") }
     );
 }
 
@@ -118,7 +117,6 @@ ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name,
             account->nickname,
             account->group_id,
             account->item_name,
-            account->category,
             account->options,
             account->duration,
             account->transferable,
@@ -193,7 +191,7 @@ ACTION itamstorenft::delwhitelist(name account)
     allows.erase(allow);
 }
 
-ACTION itamstorenft::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
+ACTION itamstorenft::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
 {
     require_auth(_self);
 
