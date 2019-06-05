@@ -6,7 +6,7 @@
 using namespace eosio;
 using namespace std;
 
-#ifndef TEST
+#ifndef BETA
     #define DEX_CONTRACT "itamstoredex"
 #else
     #define DEX_CONTRACT "itamtestsdex"
@@ -21,6 +21,7 @@ CONTRACT itamstorenft : contract
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION modify(name owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason);
         ACTION burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason);
+        ACTION burnall(symbol_code symbol);
         ACTION transfernft(name from, name to, symbol_code symbol_name, string item_id, string memo);
         ACTION addwhitelist(name account);
         ACTION delwhitelist(name account);
@@ -31,7 +32,6 @@ CONTRACT itamstorenft : contract
             name issuer;
             asset supply;
             uint64_t app_id;
-            uint64_t sequence;
 
             uint64_t primary_key() const { return supply.symbol.code().raw(); }
         };
@@ -68,4 +68,4 @@ CONTRACT itamstorenft : contract
         };
 };
 
-EOSIO_DISPATCH( itamstorenft, (create)(issue)(modify)(burn)(receipt)(addwhitelist)(delwhitelist)(transfernft) )
+EOSIO_DISPATCH( itamstorenft, (create)(issue)(modify)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )

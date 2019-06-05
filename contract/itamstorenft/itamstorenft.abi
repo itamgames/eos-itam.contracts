@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 09:18:22 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jun  5 15:26:20 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -91,6 +91,16 @@
             ]
         },
         {
+            "name": "burnall",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
             "name": "create",
             "base": "",
             "fields": [
@@ -122,10 +132,6 @@
                 },
                 {
                     "name": "app_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sequence",
                     "type": "uint64"
                 }
             ]
@@ -323,6 +329,11 @@
         {
             "name": "burn",
             "type": "burn",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "burnall",
+            "type": "burnall",
             "ricardian_contract": ""
         },
         {

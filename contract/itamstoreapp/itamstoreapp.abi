@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 24 13:26:43 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 10:28:40 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -17,6 +17,42 @@
                 {
                     "name": "price",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "config",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "name"
+                },
+                {
+                    "name": "ratio",
+                    "type": "uint64"
+                },
+                {
+                    "name": "refundableDay",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "defconfirm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
                 }
             ]
         },
@@ -59,6 +95,24 @@
             ]
         },
         {
+            "name": "menconfirm",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "modifyitem",
             "base": "",
             "fields": [
@@ -77,6 +131,60 @@
                 {
                     "name": "price",
                     "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "pair_string_vector_struct_itamstoreapp__pendingInfo_",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "pendingInfo[]"
+                }
+            ]
+        },
+        {
+            "name": "pending",
+            "base": "",
+            "fields": [
+                {
+                    "name": "groupAccount",
+                    "type": "name"
+                },
+                {
+                    "name": "infos",
+                    "type": "pair_string_vector_struct_itamstoreapp__pendingInfo_[]"
+                }
+            ]
+        },
+        {
+            "name": "pendingInfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "paymentAmount",
+                    "type": "asset"
+                },
+                {
+                    "name": "settleAmount",
+                    "type": "asset"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
                 }
             ]
         },
@@ -141,6 +249,46 @@
             ]
         },
         {
+            "name": "refundapp",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "refunditem",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                },
+                {
+                    "name": "itemId",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerGroup",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "registapp",
             "base": "",
             "fields": [
@@ -169,6 +317,20 @@
                 {
                     "name": "params",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "setconfig",
+            "base": "",
+            "fields": [
+                {
+                    "name": "ratio",
+                    "type": "uint64"
+                },
+                {
+                    "name": "refundableDay",
+                    "type": "uint64"
                 }
             ]
         },
@@ -208,6 +370,11 @@
     "types": [],
     "actions": [
         {
+            "name": "defconfirm",
+            "type": "defconfirm",
+            "ricardian_contract": ""
+        },
+        {
             "name": "deleteapp",
             "type": "deleteapp",
             "ricardian_contract": ""
@@ -215,6 +382,11 @@
         {
             "name": "deleteitems",
             "type": "deleteitems",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "menconfirm",
+            "type": "menconfirm",
             "ricardian_contract": ""
         },
         {
@@ -233,6 +405,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "refundapp",
+            "type": "refundapp",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "refunditem",
+            "type": "refunditem",
+            "ricardian_contract": ""
+        },
+        {
             "name": "registapp",
             "type": "registapp",
             "ricardian_contract": ""
@@ -240,6 +422,11 @@
         {
             "name": "registitems",
             "type": "registitems",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setconfig",
+            "type": "setconfig",
             "ricardian_contract": ""
         },
         {
@@ -262,8 +449,22 @@
             "key_types": []
         },
         {
+            "name": "configs",
+            "type": "config",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "items",
             "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "pendings",
+            "type": "pending",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

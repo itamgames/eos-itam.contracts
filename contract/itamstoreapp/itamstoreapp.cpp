@@ -141,7 +141,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     name ownerGroup = name(memo.ownerGroup);
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(groupAccount == data.from, "different owner group");
-#ifndef TEST
+#ifndef BETA
     pendingTable pendings(_self, appId);
     const auto& pending = pendings.find(groupAccount.value);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
@@ -158,7 +158,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             { { _self, name("active") } },
             { appId, data.from, owner, ownerGroup, data.quantity }
         );
-        #ifndef TEST
+        #ifndef BETA
             if(pending != pendings.end())
             {
                 map<string, vector<pendingInfo>> infos = pending->infos;
@@ -190,7 +190,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
         );
     }
     else eosio_assert(false, "invalid category");
-    #ifndef TEST
+    #ifndef BETA
         uint64_t currentTimestamp = now();
         pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
 
@@ -232,7 +232,7 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_auth(_self);
     require_recipient(_self, from);
 }
-#ifndef TEST
+#ifndef BETA
 ACTION itamstoreapp::refundapp(string appId, name owner, name ownerGroup)
 {
     uint64_t appid = stoull(appId, 0, 10);

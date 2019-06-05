@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 24 11:50:45 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jun  5 15:28:27 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -137,6 +137,16 @@
             ]
         },
         {
+            "name": "resetorders",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                }
+            ]
+        },
+        {
             "name": "sellorder",
             "base": "",
             "fields": [
@@ -234,6 +244,11 @@
         {
             "name": "receipt",
             "type": "receipt",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "resetorders",
+            "type": "resetorders",
             "ricardian_contract": ""
         },
         {

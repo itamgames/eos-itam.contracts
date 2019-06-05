@@ -5,7 +5,7 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
     token_table tokens(_self, _self.value);
     const auto& token = tokens.get(quantity.symbol.code().raw(), "invalid token symbol");
     eosio_assert(token.available_symbol.precision() == quantity.symbol.precision(), "invalid precision");
-    #ifdef TEST
+    #ifdef BETA
         eosio_assert(quantity.symbol.code().to_string() == "ITT", "test symbol does not exact");
     #endif
 
@@ -108,6 +108,13 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
     orders.erase(order);
 }
 
+ACTION itamstoredex::resetorders(symbol_code symbol_name)
+{
+    require_auth(_self);
+    order_table orders(_self, symbol_name.raw());
+    for(auto order = orders.begin(); order != orders.end(); order = orders.erase(order));
+}
+
 ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 {
     eosio_assert(_code != _self, "self cannot call transfer action");
@@ -147,7 +154,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     name nft_contract(NFT_CONTRACT);
     currency_table currencies(nft_contract, nft_contract.value);
     const auto& currency = currencies.get(item_symbol.code().raw(), "invalid token symbol");
-    #ifndef TEST
+    #ifndef BETA
         if(settle_quantity_to_vendor.amount > 0)
         {
             action(

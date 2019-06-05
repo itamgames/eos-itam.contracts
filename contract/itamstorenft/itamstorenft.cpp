@@ -92,11 +92,7 @@ ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name,
 
     uint64_t symbol_raw = symbol_name.raw();
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
-
-    name owner_account = get_group_account(owner, owner_group);
-    name author = has_auth(owner_account) ? owner_account : currency->issuer;
-    require_auth(author);
-
+    require_auth(currency->issuer);
     currencies.modify(currency, _self, [&](auto &c) {
         c.supply.amount -= 1;
     });
@@ -125,8 +121,20 @@ ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name,
         }
     );
 
+    name owner_account = get_group_account(owner, owner_group);
     eosio_assert(account->owner == owner && account->owner_account == owner_account, "wrong item owner");
     accounts.erase(account);
+}
+
+ACTION itamstorenft::burnall(symbol_code symbol)
+{
+    const auto& currency = currencies.require_find(symbol.raw(), "Invalid symbol");
+    require_auth(currency->issuer);
+    currencies.modify(currency, _self, [&](auto &c) {
+        c.supply.amount = 0;
+    });
+    account_table accounts(_self, symbol.raw());
+    for(auto account = accounts.begin(); account != accounts.end(); account = accounts.erase(account));
 }
 
 ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, string item_id, string memo)
