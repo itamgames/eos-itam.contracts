@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 24 13:19:53 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jun 10 17:17:35 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -157,7 +157,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "achievementList",
+                    "name": "delimitedAchievements",
                     "type": "string"
                 }
             ]
@@ -171,7 +171,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "boardList",
+                    "name": "delimitedLeaderboards",
                     "type": "string"
                 }
             ]

@@ -1,35 +1,26 @@
 #include "itamstoreapp.hpp"
 
-ACTION itamstoreapp::registitems(string params)
+ACTION itamstoreapp::registitems(string appId, string delimitedItems)
 {
     require_auth(_self);
 
-    auto parsedParams = json::parse(params);
-    
-    auto iter = parsedParams.find("appId");
-    if(iter == parsedParams.end()) return;
-    
-    string appid = *iter;
-    uint64_t appId = stoull(appid, 0, 10);
+    vector<string> parsedItems;
+    split(parsedItems, delimitedItems, "|");
 
-    iter = parsedParams.find("items");
-    if(iter == parsedParams.end()) return;
-    auto registItems = *iter;
-    
-    itemTable items(_self, appId);
+    const uint32_t itemParamSize = 4;
+    eosio_assert(parsedItems.size() % itemParamSize == 0, "invalid params");
+
+    uint64_t appid = stoull(appId, 0, 10);
+    itemTable items(_self, appid);
     for(auto item = items.begin(); item != items.end(); item = items.erase(item));
 
-    for(int i = 0; i < registItems.size(); i++)
+    for(int i = 0; i < parsedItems.size(); i += itemParamSize)
     {
-        vector<string> itemAsset;
-        split(itemAsset, registItems[i]["price"], " ");
-
         items.emplace(_self, [&](auto &item) {
-            string itemId = registItems[i]["itemId"];
-            item.id = stoull(itemId, 0, 10);
-            item.itemName = registItems[i]["itemName"];
-            item.price.amount = stoull(replaceAll(itemAsset[0], ".", ""), 0, 10);
-            item.price.symbol = symbol(itemAsset[1], 4);
+            item.id = stoull(parsedItems[i], 0, 10);
+            item.itemName = parsedItems[i + 1];
+            item.price.amount = stoull(replaceAll(parsedItems[i + 2], ".", ""), 0, 10);
+            item.price.symbol = symbol(parsedItems[i + 3], 4);
         });
     }
 }
@@ -42,29 +33,12 @@ ACTION itamstoreapp::modifyitem(string appId, string itemId, string itemName, as
     uint64_t itemid = stoull(itemId, 0, 10);
 
     itemTable items(_self, appid);
-    const auto& item = items.require_find(itemid, "Invalid item id");
+    const auto& item = items.require_find(itemid, "invalid item id");
 
     items.modify(item, _self, [&](auto& i){
         i.itemName = itemName;
         i.price = price;
     });
-}
-
-ACTION itamstoreapp::deleteitems(string params)
-{
-    require_auth(_self);
-    auto parsedParams = json::parse(params);
-
-    uint64_t appId = stoull(string(parsedParams["appId"]), 0, 10);
-    auto deleteItems = parsedParams["items"];
-
-    itemTable items(_self, appId);
-
-    for(int i = 0; i < deleteItems.size(); i++)
-    {
-        auto item = items.require_find(stoull(string(deleteItems[i]["itemId"]), 0, 10), "Invalid item id");
-        items.erase(item);
-    }
 }
 
 ACTION itamstoreapp::useitem(string appId, string itemId, string memo)
@@ -78,20 +52,12 @@ ACTION itamstoreapp::useitem(string appId, string itemId, string memo)
     items.get(itemid, "invalid item");
 }
 
-ACTION itamstoreapp::registapp(string appId, name owner, asset price, string params)
+ACTION itamstoreapp::registapp(string appId, name owner, asset price)
 {
     require_auth(_self);
 
     uint64_t appid = stoull(appId, 0, 10);
-
-    SEND_INLINE_ACTION(
-        *this,
-        registitems,
-        { { _self, name("active") } },
-        { params }
-    );
-
-    if(price.amount == 0) return;
+    eosio_assert(price.amount > 0, "amount must be positive.");
 
     appTable apps(_self, _self.value);
     const auto& app = apps.find(appid);
@@ -158,30 +124,30 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             { { _self, name("active") } },
             { appId, data.from, owner, ownerGroup, data.quantity }
         );
-        #ifndef BETA
-            if(pending != pendings.end())
-            {
-                map<string, vector<pendingInfo>> infos = pending->infos;
-                vector<pendingInfo> ownerPendings = infos[memo.owner];
+#ifndef BETA
+        if(pending != pendings.end())
+        {
+            map<string, vector<pendingInfo>> infos = pending->infos;
+            vector<pendingInfo> ownerPendings = infos[memo.owner];
 
-                for(auto iter = ownerPendings.begin(); iter != ownerPendings.end(); iter++)
+            for(auto iter = ownerPendings.begin(); iter != ownerPendings.end(); iter++)
+            {
+                if(iter->appId == appId && iter->itemId == 0)
                 {
-                    if(iter->appId == appId && iter->itemId == 0)
-                    {
-                        eosio_assert(false, "Already purchased account");
-                    }
+                    eosio_assert(false, "Already purchased account");
                 }
             }
-        #endif
+        }
+#endif
     }
     else if(memo.category == "item")
     {
         itemId = stoull(memo.itemId, 0, 10);
 
         itemTable items(_self, appId);
-        const auto& item = items.get(itemId, "Invalid item id");
+        const auto& item = items.get(itemId, "invalid item id");
 
-        eosio_assert(data.quantity == item.price, "Invalid purchase value");
+        eosio_assert(data.quantity == item.price, "invalid purchase value");
         SEND_INLINE_ACTION(
             *this,
             receiptitem,
@@ -190,35 +156,35 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
         );
     }
     else eosio_assert(false, "invalid category");
-    #ifndef BETA
-        uint64_t currentTimestamp = now();
-        pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
+#ifndef BETA
+    uint64_t currentTimestamp = now();
+    pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
 
-        if(pending == pendings.end())
-        {
-            pendings.emplace(_self, [&](auto &p) {
-                p.groupAccount = groupAccount;
-                p.infos[memo.owner].push_back(info);
-            });
-        }
-        else
-        {
-            pendings.modify(pending, _self, [&](auto &p) {
-                p.infos[memo.owner].push_back(info);
-            });
-        }
+    if(pending == pendings.end())
+    {
+        pendings.emplace(_self, [&](auto &p) {
+            p.groupAccount = groupAccount;
+            p.infos[memo.owner].push_back(info);
+        });
+    }
+    else
+    {
+        pendings.modify(pending, _self, [&](auto &p) {
+            p.infos[memo.owner].push_back(info);
+        });
+    }
         
-        transaction tx;
-        tx.actions.emplace_back(
-            permission_level(_self, name("active")),
-            _self,
-            name("defconfirm"),
-            make_tuple(appId, memo.owner, ownerGroup)
-        );
+    transaction tx;
+    tx.actions.emplace_back(
+        permission_level(_self, name("active")),
+        _self,
+        name("defconfirm"),
+        make_tuple(appId, memo.owner, ownerGroup)
+    );
         
-        tx.delay_sec = (config.refundableDay * SECONDS_OF_DAY) + 1;
-        tx.send(now(), _self);
-    #endif
+    tx.delay_sec = (config.refundableDay * SECONDS_OF_DAY) + 1;
+    tx.send(now(), _self);
+#endif
 }
 
 ACTION itamstoreapp::receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity)
@@ -232,6 +198,7 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_auth(_self);
     require_recipient(_self, from);
 }
+
 #ifndef BETA
 ACTION itamstoreapp::refundapp(string appId, name owner, name ownerGroup)
 {

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 28 10:28:40 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jun 10 17:16:14 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -62,16 +62,6 @@
             "fields": [
                 {
                     "name": "appId",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "deleteitems",
-            "base": "",
-            "fields": [
-                {
-                    "name": "params",
                     "type": "string"
                 }
             ]
@@ -303,10 +293,6 @@
                 {
                     "name": "price",
                     "type": "asset"
-                },
-                {
-                    "name": "params",
-                    "type": "string"
                 }
             ]
         },
@@ -315,7 +301,11 @@
             "base": "",
             "fields": [
                 {
-                    "name": "params",
+                    "name": "appId",
+                    "type": "string"
+                },
+                {
+                    "name": "delimitedItems",
                     "type": "string"
                 }
             ]
@@ -377,11 +367,6 @@
         {
             "name": "deleteapp",
             "type": "deleteapp",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "deleteitems",
-            "type": "deleteitems",
             "ricardian_contract": ""
         },
         {

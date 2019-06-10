@@ -1,7 +1,6 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../include/json.hpp"
 #include "../include/string.hpp"
 #include "../include/settle.hpp"
 #include "../include/date.hpp"
@@ -10,7 +9,6 @@
 
 using namespace eosio;
 using namespace std;
-using namespace nlohmann;
 
 CONTRACT itamstoreapp : public contract
 {
@@ -21,44 +19,43 @@ CONTRACT itamstoreapp : public contract
             using contract::contract;
         #endif
         
-        ACTION registapp(string appId, name owner, asset price, string params);
+        ACTION registapp(string appId, name owner, asset price);
         ACTION deleteapp(string appId);
-        ACTION registitems(string params);
-        ACTION deleteitems(string params);
+        ACTION registitems(string appId, string delimitedItems);
         ACTION modifyitem(string appId, string itemId, string itemName, asset price);
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
         ACTION useitem(string appId, string itemId, string memo);
-        #ifndef BETA
-            ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
-            ACTION refundapp(string appId, name owner, name ownerGroup);
-            ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
-            ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
-            ACTION menconfirm(string appId, name owner, name ownerGroup);
-        #endif
+#ifndef BETA
+        ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
+        ACTION refundapp(string appId, name owner, name ownerGroup);
+        ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
+        ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
+        ACTION menconfirm(string appId, name owner, name ownerGroup);
+#endif
     private:
-        #ifndef BETA
-            void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
-            void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
+#ifndef BETA
+        void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
+        void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
 
-            struct pendingInfo
-            {
-                uint64_t appId;
-                uint64_t itemId;
-                asset paymentAmount;
-                asset settleAmount;
-                uint64_t timestamp;
-            };
+        struct pendingInfo
+        {
+            uint64_t appId;
+            uint64_t itemId;
+            asset paymentAmount;
+            asset settleAmount;
+            uint64_t timestamp;
+        };
 
-            TABLE pending
-            {
-                name groupAccount;
-                map<string, vector<pendingInfo>> infos;
+        TABLE pending
+        {
+            name groupAccount;
+            map<string, vector<pendingInfo>> infos;
 
-                uint64_t primary_key() const { return groupAccount.value; }
-            };
-            typedef multi_index<name("pendings"), pending> pendingTable;
+            uint64_t primary_key() const { return groupAccount.value; }
+        };
+        typedef multi_index<name("pendings"), pending> pendingTable;
         
         TABLE config
         {
@@ -70,7 +67,7 @@ CONTRACT itamstoreapp : public contract
         };
         typedef multi_index<name("configs"), config> configTable;
         configTable configs;
-        #endif
+#endif
         TABLE item
         {
             uint64_t id;
@@ -110,7 +107,7 @@ CONTRACT itamstoreapp : public contract
 };
 
 #ifndef BETA
-    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
 #else
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )
 #endif

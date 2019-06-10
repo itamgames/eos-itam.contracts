@@ -1,20 +1,23 @@
 #include "itamstoreran.hpp"
 
-ACTION itamstoreran::registboard(string appId, string boardList)
+ACTION itamstoreran::registboard(string appId, string delimitedLeaderboards)
 {
     require_auth(_self);
+
+    const uint32_t leaderboardParamSize = 2;
+    vector<string> parsedLeaderboards;
+    split(parsedLeaderboards, delimitedLeaderboards, "|");
+    eosio_assert(parsedLeaderboards.size() % leaderboardParamSize == 0, "invalid leaderboards");
+
     uint64_t appid = stoull(appId, 0, 10);
+    leaderboardTable leaderboards(_self, appid);
+    for(auto iter = leaderboards.begin(); iter != leaderboards.end(); iter = leaderboards.erase(iter));
 
-    leaderboardTable boards(_self, appid);
-    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
-
-    auto parsedBoardList = json::parse(boardList);
-
-    for(int i = 0; i < parsedBoardList.size(); i++)
+    for(int i = 0; i < parsedLeaderboards.size(); i += leaderboardParamSize)
     {
-        boards.emplace(_self, [&](auto &b) {
-            b.id = stoull(string(parsedBoardList[i]["id"]), 0, 10);
-            b.name = parsedBoardList[i]["name"];
+        leaderboards.emplace(_self, [&](auto& b) {
+            b.id = stoull(parsedLeaderboards[i], 0, 10);
+            b.name = parsedLeaderboards[i + 1];
         });
     }
 }
@@ -42,22 +45,24 @@ ACTION itamstoreran::rank(string appId, string boardId, string ranks, string per
     leaderboardTable(_self, appid).get(boardid, "invalid board id");
 }
 
-ACTION itamstoreran::regachieve(string appId, string achievementList)
+ACTION itamstoreran::regachieve(string appId, string delimitedAchievements)
 {
     require_auth(_self);
+
+    const uint32_t achievementParamSize = 2;
+    vector<string> parsedAchievements;
+    split(parsedAchievements, delimitedAchievements, "|");
 
     uint64_t appid = stoull(appId, 0, 10);
 
     achievementTable achievements(_self, appid);
-    for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
+    for(auto achievement = achievements.begin(); achievement != achievements.end(); achievement = achievements.erase(achievement));
 
-    auto parsedAchievements = json::parse(achievementList);
-
-    for(int i = 0; i < parsedAchievements.size(); i++)
+    for(int i = 0; i < parsedAchievements.size(); i += achievementParamSize)
     {
         achievements.emplace(_self, [&](auto &a) {
-            a.id = stoull(string(parsedAchievements[i]["id"]), 0, 10);
-            a.name = parsedAchievements[i]["name"];
+            a.id = stoull(parsedAchievements[i], 0, 10);
+            a.name = parsedAchievements[i + 1];
         });
     }
 }

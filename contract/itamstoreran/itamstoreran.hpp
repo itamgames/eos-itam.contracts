@@ -1,12 +1,11 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
-#include "../include/json.hpp"
 #include "../include/dispatcher.hpp"
 #include "../include/ownergroup.hpp"
+#include "../include/string.hpp"
 
 using namespace eosio;
 using namespace std;
-using namespace nlohmann;
 
 CONTRACT itamstoreran : public contract
 {
@@ -14,10 +13,10 @@ CONTRACT itamstoreran : public contract
         using contract::contract;
 
         ACTION delservice(string appId);
-        ACTION registboard(string appId, string boardList);
+        ACTION registboard(string appId, string delimitedLeaderboards);
         ACTION score(string appId, string boardId, string score, name owner, name ownerGroup, string nickname, string data);
         ACTION rank(string appId, string boardId, string ranks, string period);
-        ACTION regachieve(string appId, string achievementList);
+        ACTION regachieve(string appId, string delimitedAchievements);
         ACTION acquisition(string appId, string achieveId, name owner, name ownerGroup, string data);
         ACTION cnlachieve(string appId, string achieveId, name owner, name ownerGroup, string reason);
         ACTION history(string appId, name owner, name ownerGroup, string data);
@@ -38,7 +37,7 @@ CONTRACT itamstoreran : public contract
         {
             uint64_t id;
             string name;
-
+            
             uint64_t primary_key() const { return id; }
         };
         typedef multi_index<name("achievements"), achievement> achievementTable;
