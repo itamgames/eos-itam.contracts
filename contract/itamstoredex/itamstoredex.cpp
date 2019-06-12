@@ -49,7 +49,6 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
             item.nickname,
             item.group_id,
             item.item_name,
-            item.category,
             item.options,
             item.duration,
             item.transferable,
@@ -65,7 +64,7 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
     order_table orders(_self, symbol_name.raw());
     const auto& order = orders.require_find(itemid, "not exists item id");
 
-    require_auth(order->owner_account);
+    eosio_assert(has_auth(order->owner_account) || has_auth(_self), "missing required authority");
     eosio_assert(order->owner == owner, "different owner");
 
     name nft_contract(NFT_CONTRACT);
@@ -96,7 +95,6 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
             order->owner_nickname,
             ordered_item.group_id,
             ordered_item.item_name,
-            ordered_item.category,
             ordered_item.options,
             ordered_item.duration,
             ordered_item.transferable,
@@ -106,6 +104,18 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
     );
 
     orders.erase(order);
+}
+
+ACTION itamstoredex::deleteorders(symbol_code symbol_name, vector<string> item_ids)
+{
+    require_auth(_self);
+    order_table orders(_self, symbol_name.raw());
+    for(auto iter = item_ids.begin(); iter != item_ids.end(); iter++)
+    {
+        uint64_t item_id = stoull(*iter, 0, 10);
+        const auto& order = orders.require_find(item_id, "invalid item id");
+        orders.erase(order);
+    }
 }
 
 ACTION itamstoredex::resetorders(symbol_code symbol_name)
@@ -119,7 +129,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 {
     eosio_assert(_code != _self, "self cannot call transfer action");
     transfer_data data = unpack_action_data<transfer_data>();
-    if (data.from == _self || data.to != _self || data.from == name("itamgamesgas")) return;
+    if (data.from == _self || data.to != _self || data.from == name("itamgamesgas") || data.from == name("itamtestgmsv")) return;
 
     transfer_memo message;
     parseMemo(&message, data.memo, "|", 4);
@@ -213,7 +223,6 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
             message.buyer_nickname,
             trade_item.group_id,
             trade_item.item_name,
-            trade_item.category,
             trade_item.options,
             trade_item.duration,
             trade_item.transferable,
@@ -249,7 +258,7 @@ ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
     }
 }
 
-ACTION itamstoredex::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
+ACTION itamstoredex::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
 {
     require_auth(_self);
 

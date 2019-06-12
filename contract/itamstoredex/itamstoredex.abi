@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jun  5 15:28:27 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Jun 12 11:20:29 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -35,6 +35,20 @@
                 {
                     "name": "settle_rate",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deleteorders",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "item_ids",
+                    "type": "string[]"
                 }
             ]
         },
@@ -108,10 +122,6 @@
                 },
                 {
                     "name": "item_name",
-                    "type": "string"
-                },
-                {
-                    "name": "category",
                     "type": "string"
                 },
                 {
@@ -234,6 +244,11 @@
         {
             "name": "cancelorder",
             "type": "cancelorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deleteorders",
+            "type": "deleteorders",
             "ricardian_contract": ""
         },
         {

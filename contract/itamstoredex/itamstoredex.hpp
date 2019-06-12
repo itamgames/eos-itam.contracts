@@ -22,6 +22,7 @@ CONTRACT itamstoredex : contract
 
         ACTION sellorder(name owner, symbol_code symbol_name, string item_id, asset quantity);
         ACTION cancelorder(name owner, symbol_code symbol_name, string item_id);
+        ACTION deleteorders(symbol_code symbol_name, vector<string> item_ids);
         ACTION resetorders(symbol_code symbol_name);
         ACTION transfer(uint64_t from, uint64_t to);
 
@@ -29,7 +30,7 @@ CONTRACT itamstoredex : contract
         ACTION deletetoken(string symbol_name, uint32_t precision);
         ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
 
-        ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string category, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
+        ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
     private:
         TABLE order
         {
@@ -79,7 +80,6 @@ CONTRACT itamstoredex : contract
             uint64_t item_id;
             string item_name;
             uint64_t group_id;
-            string category;
             uint64_t duration;
             string options;
             bool transferable;
@@ -100,4 +100,4 @@ CONTRACT itamstoredex : contract
         };
 };
 
-ALLOW_TRANSFER_ALL_DISPATCHER( itamstoredex, (sellorder)(cancelorder)(resetorders)(setconfig)(receipt)(settoken)(deletetoken)(transfer) )
+ALLOW_TRANSFER_ALL_DISPATCHER( itamstoredex, (sellorder)(deleteorders)(cancelorder)(resetorders)(setconfig)(receipt)(settoken)(deletetoken)(transfer) )
