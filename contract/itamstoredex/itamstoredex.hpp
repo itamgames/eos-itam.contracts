@@ -91,6 +91,29 @@ CONTRACT itamstoredex : contract
         };
         typedef multi_index<name("accounts"), account> account_table;
 
+        ///////////////////////// old nft table (no use) /////////////////////////
+        struct item
+        {
+            string owner;
+            string nickname;
+            uint64_t group_id;
+            string item_name;
+            string category;
+            string options;
+            uint64_t duration;
+            bool transferable;
+        };
+
+        TABLE oldaccount
+        {
+            asset balance;
+            map<uint64_t, item> items;
+
+            uint64_t primary_key() const { return balance.symbol.code().raw(); }
+        };
+        typedef multi_index<name("accounts"), oldaccount> old_account_table;
+        /////////////////////////////////////////////////////////////////////////
+
         struct transfer_memo
         {
             string buyer_nickname;
