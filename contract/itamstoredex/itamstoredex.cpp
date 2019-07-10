@@ -158,8 +158,17 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
         make_tuple(_self, order->owner_account, order->quantity - fees, order->owner.to_string())
     ).send();
 
-    asset settle_quantity_to_vendor = fees * config.settle_rate / 100;
-    asset settle_quantity_to_itam = fees - settle_quantity_to_vendor;
+    asset settle_quantity_to_vendor, settle_quantity_to_itam;
+
+    // 10 == 0.0010
+    if(fees.amount < 10) {
+        settle_quantity_to_vendor.amount = 0;
+        settle_quantity_to_itam = fees;
+    }
+    else {
+        settle_quantity_to_vendor = fees * config.settle_rate / 100;
+        settle_quantity_to_itam = fees - settle_quantity_to_vendor;
+    }
 
     name nft_contract(NFT_CONTRACT);
     currency_table currencies(nft_contract, nft_contract.value);
