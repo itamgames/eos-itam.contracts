@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue May 21 18:22:03 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jul 18 14:36:08 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -12,6 +12,20 @@
                 },
                 {
                     "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "modbalance",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
                     "type": "asset"
                 }
             ]
@@ -55,6 +69,11 @@
     ],
     "types": [],
     "actions": [
+        {
+            "name": "modbalance",
+            "type": "modbalance",
+            "ricardian_contract": ""
+        },
         {
             "name": "transfer",
             "type": "transfer",

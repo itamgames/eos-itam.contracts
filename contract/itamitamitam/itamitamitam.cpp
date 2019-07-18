@@ -1,19 +1,35 @@
 #include "itamitamitam.hpp"
 
+ACTION itamitamitam::modbalance(name owner, asset quantity)
+{
+    require_auth(_self);
+    accountTable accounts(_self, quantity.symbol.code().raw());
+    const auto& account = accounts.find(owner.value);
+    
+    if(account == accounts.end())
+    {
+        accounts.emplace(_self, [&](auto &a) {
+            a.owner = owner;
+            a.balance = quantity;
+        });  
+    }
+    else
+    {
+        accounts.modify(account, _self, [&](auto &a) {
+            a.balance += quantity;
+        });   
+    }
+}
+
 ACTION itamitamitam::transfer(uint64_t from, uint64_t to)
 {
     transfer_data data = unpack_action_data<transfer_data>();
+    if(data.from.to_string() == "itamgamespay") return;
 
     if(data.from != _self && data.to == _self)
     {
         name owner(data.memo);
         add_balance(owner, data.quantity);
-    }
-    else if(data.from == _self && (data.to == name("itamstoreapp") || data.to == name("itamtestsapp")))
-    {        
-        paymentMemo memo;
-        parseMemo(&memo, data.memo, "|", 5);
-        sub_balance(name(memo.owner), data.quantity);
     }
     else if(data.from == _self && (data.to == name("itamstoredex") || data.to == name("itamtestsdex")))
     {

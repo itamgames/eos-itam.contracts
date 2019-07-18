@@ -12,6 +12,7 @@ CONTRACT itamitamitam : contract
     public:
         using contract::contract;
 
+        ACTION modbalance(name owner, asset quantity);
         ACTION transfer(uint64_t from, uint64_t to);
         ACTION transferto(name from, name to, asset quantity, string memo);
     private:
@@ -45,4 +46,4 @@ CONTRACT itamitamitam : contract
         void sub_balance(const name& owner, const asset& quantity);
 };
 
-ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamitamitam, (transferto), &itamitamitam::transfer )
+ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamitamitam, (transferto)(modbalance), &itamitamitam::transfer )
