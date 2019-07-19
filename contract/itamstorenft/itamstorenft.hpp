@@ -65,6 +65,7 @@ CONTRACT itamstorenft : contract
         {
             string nickname;
             string to;
+            string transfer_state;
         };
 };
 

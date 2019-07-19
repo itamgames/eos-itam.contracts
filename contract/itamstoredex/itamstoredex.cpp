@@ -77,7 +77,7 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
         permission_level( _self, name("active") ),
         nft_contract,
         name("transfernft"),
-        make_tuple( _self, order->owner_account, symbol_name, item_id, order->owner_nickname + string("|") + owner.to_string() )
+        make_tuple( _self, order->owner_account, symbol_name, item_id, order->owner_nickname + string("|") + owner.to_string() + "|cancel" )
     ).send();
 
     currency_table currencies(nft_contract, nft_contract.value);
@@ -208,7 +208,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
         nft_receiver = name(data.from);
     }  
 
-    string nft_memo = message.buyer_nickname + string("|") + nft_receiver.to_string();
+    string nft_memo = message.buyer_nickname + string("|") + nft_receiver.to_string() + string("|complete");
 
     account_table accounts(nft_contract, item_symbol.code().raw());
     const auto& trade_item = accounts.get(item_id, "invalid item");
@@ -234,7 +234,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
             trade_item.item_name,
             trade_item.options,
             trade_item.duration,
-            trade_item.transferable,
+            false,
             data.quantity,
             string("order_complete")
         }
