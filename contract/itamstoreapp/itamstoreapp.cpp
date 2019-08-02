@@ -318,7 +318,9 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerG
     name groupAccount = get_group_account(owner, ownerGroup);
 
     pendingTable pendings(_self, appId);
-    const auto& pending = pendings.require_find(groupAccount.value, "invalid owner group");
+    const auto& pending = pendings.find(groupAccount.value);
+
+    if(pending == pendings.end()) return;
 
     pendings.modify(pending, _self, [&](auto &p) {
         string owner_str = owner.to_string();
