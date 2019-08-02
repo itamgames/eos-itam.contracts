@@ -30,6 +30,7 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
         ACTION useitem(string appId, string itemId, string memo);
+        ACTION migration(string appId);
         #ifndef BETA
             ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
             ACTION refundapp(string appId, name owner, name ownerGroup);
@@ -51,6 +52,16 @@ CONTRACT itamstoreapp : public contract
                 uint64_t timestamp;
             };
 
+            TABLE payment
+            {
+                name owner;
+                vector<pendingInfo> progress;
+
+                uint64_t primary_key() const { return owner.value; }
+            };
+            typedef multi_index<name("payments"), payment> paymentTable;
+
+            // to be delete
             TABLE pending
             {
                 name groupAccount;

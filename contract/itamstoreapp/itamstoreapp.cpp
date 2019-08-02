@@ -318,7 +318,7 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerG
     name groupAccount = get_group_account(owner, ownerGroup);
 
     pendingTable pendings(_self, appId);
-    const auto& pending = pendings.find(groupAccount.value);
+    const auto& pending = pendings.find(owner.value);
 
     if(pending == pendings.end()) return;
 
@@ -382,6 +382,43 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerG
     if(pending->infos.size() == 0)
     {
         pendings.erase(pending);
+    }
+}
+
+ACTION itamstoreapp::migration(string appId)
+{
+    require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
+
+    pendingTable pendings(_self, appid);
+    paymentTable payments(_self, appid);
+    for(auto iter = pendings.begin(); iter != pendings.end();) 
+    {
+        map<string, vector<pendingInfo>> infos = iter->infos;
+        for(auto mapInfo = infos.begin(); mapInfo != infos.end(); mapInfo++)
+        {
+            name owner(mapInfo->first);
+            const auto& pay = payments.find(owner.value);
+            
+            for(auto vectorInfo = mapInfo->second.begin(); vectorInfo != mapInfo->second.end(); vectorInfo++)
+            {
+                if(pay == payments.end())
+                {
+                    payments.emplace(_self, [&](auto& p) {
+                        p.owner = owner;
+                        p.progress.push_back(*vectorInfo);
+                    });
+                }
+                else
+                {
+                    payments.modify(pay, _self, [&](auto& p) {
+                        p.progress.push_back(*vectorInfo);
+                    });
+                }
+            }
+        }
+
+        iter = pendings.erase(iter);
     }
 }
 

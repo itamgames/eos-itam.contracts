@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Aug  2 17:43:25 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Aug  2 18:39:38 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -113,6 +113,16 @@
             ]
         },
         {
+            "name": "migration",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "modifyitem",
             "base": "",
             "fields": [
@@ -144,6 +154,20 @@
                 },
                 {
                     "name": "value",
+                    "type": "pendingInfo[]"
+                }
+            ]
+        },
+        {
+            "name": "payment",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "progress",
                     "type": "pendingInfo[]"
                 }
             ]
@@ -390,6 +414,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "migration",
+            "type": "migration",
+            "ricardian_contract": ""
+        },
+        {
             "name": "modifyitem",
             "type": "modifyitem",
             "ricardian_contract": ""
@@ -458,6 +487,13 @@
         {
             "name": "items",
             "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "payments",
+            "type": "payment",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
