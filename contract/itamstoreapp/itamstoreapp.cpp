@@ -373,47 +373,6 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner)
     }
 }
 
-ACTION itamstoreapp::migration(string appId)
-{
-    require_auth(_self);
-    uint64_t appid = stoull(appId, 0, 10);
-
-    pendingTable pendings(_self, appid);
-    paymentTable payments(_self, appid);
-    for(auto iter = pendings.begin(); iter != pendings.end();) 
-    {
-        map<string, vector<pendingInfo>> infos = iter->infos;
-        name ownerGroup(iter->groupAccount == name("itamitamitam") ? "itam" : "eos");
-        for(auto mapInfo = infos.begin(); mapInfo != infos.end(); mapInfo++)
-        {
-            name owner(mapInfo->first);
-            
-            for(auto vectorInfo = mapInfo->second.begin(); vectorInfo != mapInfo->second.end(); vectorInfo++)
-            {
-                const auto& pay = payments.find(owner.value);
-                paymentInfo info {vectorInfo->itemId, vectorInfo->paymentAmount, vectorInfo->settleAmount, vectorInfo->timestamp};
-
-                if(pay == payments.end())
-                {
-                    payments.emplace(_self, [&](auto& p) {
-                        p.owner = owner;
-                        p.ownerGroup = ownerGroup;
-                        p.progress.push_back(info);
-                    });
-                }
-                else
-                {
-                    payments.modify(pay, _self, [&](auto& p) {
-                        p.progress.push_back(info);
-                    });
-                }
-            }
-        }
-
-        iter = pendings.erase(iter);
-    }
-}
-
 ACTION itamstoreapp::setconfig(uint64_t ratio, uint64_t refundableDay)
 {
     require_auth(_self);

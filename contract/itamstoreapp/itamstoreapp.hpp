@@ -30,7 +30,6 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
         ACTION useitem(string appId, string itemId, string memo);
-        ACTION migration(string appId);
         #ifndef BETA
             ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
             ACTION refundapp(string appId, name owner);
@@ -61,25 +60,6 @@ CONTRACT itamstoreapp : public contract
             };
             typedef multi_index<name("payments"), payment> paymentTable;
 
-            struct pendingInfo
-            {
-                uint64_t appId;
-                uint64_t itemId;
-                asset paymentAmount;
-                asset settleAmount;
-                uint64_t timestamp;
-            };
-
-            // to be delete
-            TABLE pending
-            {
-                name groupAccount;
-                map<string, vector<pendingInfo>> infos;
-
-                uint64_t primary_key() const { return groupAccount.value; }
-            };
-            typedef multi_index<name("pendings"), pending> pendingTable;
-        
         TABLE config
         {
             name key;
@@ -130,7 +110,7 @@ CONTRACT itamstoreapp : public contract
 };
 
 #ifndef BETA
-    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig)(migration), &itamstoreapp::transfer )
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
 #else
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )
 #endif

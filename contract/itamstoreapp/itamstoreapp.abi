@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Aug  5 15:25:28 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Aug  5 16:38:53 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -105,16 +105,6 @@
             ]
         },
         {
-            "name": "migration",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                }
-            ]
-        },
-        {
             "name": "modifyitem",
             "base": "",
             "fields": [
@@ -133,20 +123,6 @@
                 {
                     "name": "price",
                     "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "pair_string_vector_struct_itamstoreapp__pendingInfo_",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "string"
-                },
-                {
-                    "name": "value",
-                    "type": "pendingInfo[]"
                 }
             ]
         },
@@ -172,46 +148,6 @@
             "name": "paymentInfo",
             "base": "",
             "fields": [
-                {
-                    "name": "itemId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "paymentAmount",
-                    "type": "asset"
-                },
-                {
-                    "name": "settleAmount",
-                    "type": "asset"
-                },
-                {
-                    "name": "timestamp",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "pending",
-            "base": "",
-            "fields": [
-                {
-                    "name": "groupAccount",
-                    "type": "name"
-                },
-                {
-                    "name": "infos",
-                    "type": "pair_string_vector_struct_itamstoreapp__pendingInfo_[]"
-                }
-            ]
-        },
-        {
-            "name": "pendingInfo",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
                 {
                     "name": "itemId",
                     "type": "uint64"
@@ -424,11 +360,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "migration",
-            "type": "migration",
-            "ricardian_contract": ""
-        },
-        {
             "name": "modifyitem",
             "type": "modifyitem",
             "ricardian_contract": ""
@@ -504,13 +435,6 @@
         {
             "name": "payments",
             "type": "payment",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "pendings",
-            "type": "pending",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
