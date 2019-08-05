@@ -33,19 +33,18 @@ CONTRACT itamstoreapp : public contract
         ACTION migration(string appId);
         #ifndef BETA
             ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
-            ACTION refundapp(string appId, name owner, name ownerGroup);
-            ACTION refunditem(string appId, string itemId, name owner, name ownerGroup);
-            ACTION defconfirm(uint64_t appId, name owner, name ownerGroup);
-            ACTION menconfirm(string appId, name owner, name ownerGroup);
+            ACTION refundapp(string appId, name owner);
+            ACTION refunditem(string appId, string itemId, name owner);
+            ACTION defconfirm(uint64_t appId, name owner);
+            ACTION menconfirm(string appId, name owner);
         #endif
     private:
         #ifndef BETA
-            void confirm(uint64_t appId, const name& owner, const name& ownerGroup);
-            void refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup);
+            void confirm(uint64_t appId, const name& owner);
+            void refund(uint64_t appId, uint64_t itemId, const name& owner);
 
-            struct pendingInfo
+            struct paymentInfo
             {
-                uint64_t appId;
                 uint64_t itemId;
                 asset paymentAmount;
                 asset settleAmount;
@@ -55,11 +54,21 @@ CONTRACT itamstoreapp : public contract
             TABLE payment
             {
                 name owner;
-                vector<pendingInfo> progress;
+                name ownerGroup;
+                vector<paymentInfo> progress;
 
                 uint64_t primary_key() const { return owner.value; }
             };
             typedef multi_index<name("payments"), payment> paymentTable;
+
+            struct pendingInfo
+            {
+                uint64_t appId;
+                uint64_t itemId;
+                asset paymentAmount;
+                asset settleAmount;
+                uint64_t timestamp;
+            };
 
             // to be delete
             TABLE pending
@@ -121,7 +130,7 @@ CONTRACT itamstoreapp : public contract
 };
 
 #ifndef BETA
-    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig)(migration), &itamstoreapp::transfer )
 #else
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )
 #endif

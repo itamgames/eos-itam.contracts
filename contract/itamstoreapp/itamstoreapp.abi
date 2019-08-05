@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Aug  2 18:39:38 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Aug  5 15:25:28 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -48,10 +48,6 @@
                 },
                 {
                     "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "ownerGroup",
                     "type": "name"
                 }
             ]
@@ -104,10 +100,6 @@
                 },
                 {
                     "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "ownerGroup",
                     "type": "name"
                 }
             ]
@@ -167,8 +159,34 @@
                     "type": "name"
                 },
                 {
+                    "name": "ownerGroup",
+                    "type": "name"
+                },
+                {
                     "name": "progress",
-                    "type": "pendingInfo[]"
+                    "type": "paymentInfo[]"
+                }
+            ]
+        },
+        {
+            "name": "paymentInfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "itemId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "paymentAmount",
+                    "type": "asset"
+                },
+                {
+                    "name": "settleAmount",
+                    "type": "asset"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
                 }
             ]
         },
@@ -283,10 +301,6 @@
                 {
                     "name": "owner",
                     "type": "name"
-                },
-                {
-                    "name": "ownerGroup",
-                    "type": "name"
                 }
             ]
         },
@@ -304,10 +318,6 @@
                 },
                 {
                     "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "ownerGroup",
                     "type": "name"
                 }
             ]

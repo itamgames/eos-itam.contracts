@@ -142,8 +142,8 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
     name groupAccount = get_group_account(owner, ownerGroup);
     eosio_assert(groupAccount == data.from, "different owner group");
 #ifndef BETA
-    pendingTable pendings(_self, appId);
-    const auto& pending = pendings.find(groupAccount.value);
+    paymentTable payments(_self, appId);
+    const auto& payment = payments.find(owner.value);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
 #endif
     if(memo.category == "app")
@@ -159,14 +159,13 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             { appId, data.from, owner, ownerGroup, data.quantity }
         );
         #ifndef BETA
-            if(pending != pendings.end())
+            if(payment != payments.end())
             {
-                map<string, vector<pendingInfo>> infos = pending->infos;
-                vector<pendingInfo> ownerPendings = infos[memo.owner];
+                const vector<paymentInfo>& progress = payment->progress;
 
-                for(auto iter = ownerPendings.begin(); iter != ownerPendings.end(); iter++)
+                for(auto iter = progress.begin(); iter != progress.end(); iter++)
                 {
-                    if(iter->appId == appId && iter->itemId == 0)
+                    if(iter->itemId == 0)
                     {
                         eosio_assert(false, "Already purchased account");
                     }
@@ -190,21 +189,23 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
         );
     }
     else eosio_assert(false, "invalid category");
+
     #ifndef BETA
         uint64_t currentTimestamp = now();
-        pendingInfo info{ appId, itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
+        paymentInfo info{ itemId, data.quantity, data.quantity * config.ratio / 100, currentTimestamp };
 
-        if(pending == pendings.end())
+        if(payment == payments.end())
         {
-            pendings.emplace(_self, [&](auto &p) {
-                p.groupAccount = groupAccount;
-                p.infos[memo.owner].push_back(info);
+            payments.emplace(_self, [&](auto &p) {
+                p.owner = owner;
+                p.ownerGroup = ownerGroup;
+                p.progress.push_back(info);
             });
         }
         else
         {
-            pendings.modify(pending, _self, [&](auto &p) {
-                p.infos[memo.owner].push_back(info);
+            payments.modify(payment, _self, [&](auto &p) {
+                p.progress.push_back(info);
             });
         }
         
@@ -213,7 +214,7 @@ ACTION itamstoreapp::transfer(uint64_t from, uint64_t to)
             permission_level(_self, name("active")),
             _self,
             name("defconfirm"),
-            make_tuple(appId, memo.owner, ownerGroup)
+            make_tuple(appId, memo.owner)
         );
         
         tx.delay_sec = (config.refundableDay * SECONDS_OF_DAY) + 1;
@@ -233,17 +234,17 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 #ifndef BETA
-ACTION itamstoreapp::refundapp(string appId, name owner, name ownerGroup)
+ACTION itamstoreapp::refundapp(string appId, name owner)
 {
     uint64_t appid = stoull(appId, 0, 10);
 
     appTable apps(_self, _self.value);
     const auto& app = apps.get(appid, "Invalid App Id");
 
-    refund(appid, NULL, owner, ownerGroup);
+    refund(appid, NULL, owner);
 }
 
-ACTION itamstoreapp::refunditem(string appId, string itemId, name owner, name ownerGroup)
+ACTION itamstoreapp::refunditem(string appId, string itemId, name owner)
 {
     uint64_t appid = stoull(appId, 0, 10);
     uint64_t itemid = stoull(itemId, 0, 10);
@@ -251,98 +252,88 @@ ACTION itamstoreapp::refunditem(string appId, string itemId, name owner, name ow
     itemTable items(_self, appid);
     const auto& item = items.get(itemid, "Invalid Item Id");
 
-    refund(appid, itemid, owner, ownerGroup);
+    refund(appid, itemid, owner);
 }
 
-void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner, const name& ownerGroup)
+void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner)
 {
     require_auth(_self);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
 
-    name groupAccount = get_group_account(owner, ownerGroup);
+    paymentTable payments(_self, appId);
+    const auto& payment = payments.require_find(owner.value, "payment not found");
 
-    pendingTable pendings(_self, appId);
-    const auto& pending = pendings.require_find(groupAccount.value, "owner group not found");
+    name eosAccount = get_group_account(owner, payment->ownerGroup);
 
-    string owner_str = owner.to_string();
-    name eosio_token("eosio.token");
-    pendings.modify(pending, _self, [&](auto &p) {
-        for(auto info = p.infos[owner_str].begin(); info != p.infos[owner_str].end(); info++)
+    payments.modify(payment, _self, [&](auto &p) {
+        vector<paymentInfo>& progress = p.progress;
+        for(auto info = progress.begin(); info != progress.end(); info++)
         {
-            if(info->appId == appId && info->itemId == itemId)
+            if(info->itemId == itemId)
             {
                 uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
                 eosio_assert(refundableTimestamp >= now(), "refundable day has passed");
 
                 action(
                     permission_level { _self, name("active") },
-                    name(eosio_token),
+                    name("eosio.token"),
                     name("transfer"),
-                    make_tuple( _self, groupAccount, info->paymentAmount, owner_str )
+                    make_tuple( _self, eosAccount, info->paymentAmount, owner.to_string() )
                 ).send();
 
-                if(p.infos[owner_str].size() == 1)
-                {
-                    p.infos.erase(owner_str);
-                }
-                else
-                {
-                    p.infos[owner_str].erase(info);
-                }
+                progress.erase(info);
                 return;
             }
         }
 
-        eosio_assert(false, "refund fail");
+        eosio_assert(false, "refund failed");
     });
+
+    if(payment->progress.size() == 0)
+    {
+        payments.erase(payment);
+    }
 }
 
-ACTION itamstoreapp::defconfirm(uint64_t appId, name owner, name ownerGroup)
+ACTION itamstoreapp::defconfirm(uint64_t appId, name owner)
 {
-    confirm(appId, owner, ownerGroup);
+    confirm(appId, owner);
 }
 
-ACTION itamstoreapp::menconfirm(string appId, name owner, name ownerGroup)
+ACTION itamstoreapp::menconfirm(string appId, name owner)
 {
     uint64_t appid = stoull(appId, 0, 10);
 
-    confirm(appid, owner, ownerGroup);
+    confirm(appid, owner);
 }
 
-void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerGroup)
+void itamstoreapp::confirm(uint64_t appId, const name& owner)
 {
     require_auth(_self);
 
-    const auto& config = configs.get(_self.value, "refundable day must be set first");
-    
-    name groupAccount = get_group_account(owner, ownerGroup);
+    paymentTable payments(_self, appId);
+    const auto& payment = payments.find(owner.value);
+    if(payment == payments.end()) return;
 
-    pendingTable pendings(_self, appId);
-    const auto& pending = pendings.find(owner.value);
-
-    if(pending == pendings.end()) return;
-
-    pendings.modify(pending, _self, [&](auto &p) {
-        string owner_str = owner.to_string();
-        auto pendingInfosIter = p.infos.find(owner_str);
-        if(pendingInfosIter == p.infos.end()) return;
-
-        vector<pendingInfo>& pendingInfos = pendingInfosIter->second;
+    payments.modify(payment, _self, [&](auto &p) {
         uint64_t currentTimestamp = now();
-        name eosio_token("eosio.token");
-        for(auto iter = pendingInfos.begin(); iter != pendingInfos.end();)
+        const auto& config = configs.get(_self.value, "refundable day must be set first");
+
+        vector<paymentInfo>& progress = p.progress;
+
+        for(auto pending = progress.begin(); pending != progress.end();)
         {
-            uint64_t refundableTimestamp = iter->timestamp + (config.refundableDay * SECONDS_OF_DAY);
+            uint64_t refundableTimestamp = pending->timestamp + (config.refundableDay * SECONDS_OF_DAY);
             if(refundableTimestamp < currentTimestamp)
             {
-                asset settleQuantityToVendor = iter->settleAmount;
-                asset settleQuantityToITAM = iter->paymentAmount - settleQuantityToVendor;
+                asset settleQuantityToVendor = pending->settleAmount;
+                asset settleQuantityToITAM = pending->paymentAmount - settleQuantityToVendor;
 
                 if(settleQuantityToVendor.amount > 0)
                 {
                     action(
                         permission_level{ _self, name("active") },
-                        name(eosio_token),
+                        name("eosio.token"),
                         name("transfer"),
                         make_tuple(
                             _self,
@@ -357,7 +348,7 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerG
                 {
                     action(
                         permission_level{ _self, name("active") },
-                        name(eosio_token),
+                        name("eosio.token"),
                         name("transfer"),
                         make_tuple(
                             _self,
@@ -367,21 +358,18 @@ void itamstoreapp::confirm(uint64_t appId, const name& owner, const name& ownerG
                         )
                     ).send();
                 }
-                iter = pendingInfos.erase(iter);
-            } else iter++;
-        }
-
-        // delete owner
-        if(pendingInfos.size() == 0)
-        {
-            p.infos.erase(owner_str);
+                pending = progress.erase(pending);
+            }
+            else
+            {
+                pending++;
+            }
         }
     });
 
-    // delete group account row
-    if(pending->infos.size() == 0)
+    if(payment->progress.size() == 0)
     {
-        pendings.erase(pending);
+        payments.erase(payment);
     }
 }
 
@@ -395,24 +383,28 @@ ACTION itamstoreapp::migration(string appId)
     for(auto iter = pendings.begin(); iter != pendings.end();) 
     {
         map<string, vector<pendingInfo>> infos = iter->infos;
+        name ownerGroup(iter->groupAccount == name("itamitamitam") ? "itam" : "eos");
         for(auto mapInfo = infos.begin(); mapInfo != infos.end(); mapInfo++)
         {
             name owner(mapInfo->first);
-            const auto& pay = payments.find(owner.value);
             
             for(auto vectorInfo = mapInfo->second.begin(); vectorInfo != mapInfo->second.end(); vectorInfo++)
             {
+                const auto& pay = payments.find(owner.value);
+                paymentInfo info {vectorInfo->itemId, vectorInfo->paymentAmount, vectorInfo->settleAmount, vectorInfo->timestamp};
+
                 if(pay == payments.end())
                 {
                     payments.emplace(_self, [&](auto& p) {
                         p.owner = owner;
-                        p.progress.push_back(*vectorInfo);
+                        p.ownerGroup = ownerGroup;
+                        p.progress.push_back(info);
                     });
                 }
                 else
                 {
                     payments.modify(pay, _self, [&](auto& p) {
-                        p.progress.push_back(*vectorInfo);
+                        p.progress.push_back(info);
                     });
                 }
             }
