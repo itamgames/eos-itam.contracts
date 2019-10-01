@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Aug  5 16:38:53 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Oct  1 09:48:40 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -35,6 +35,16 @@
                 {
                     "name": "refundableDay",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "confirmall",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "string"
                 }
             ]
         },
@@ -87,20 +97,6 @@
                 {
                     "name": "price",
                     "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "menconfirm",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
                 }
             ]
         },
@@ -340,6 +336,11 @@
     "types": [],
     "actions": [
         {
+            "name": "confirmall",
+            "type": "confirmall",
+            "ricardian_contract": ""
+        },
+        {
             "name": "defconfirm",
             "type": "defconfirm",
             "ricardian_contract": ""
@@ -352,11 +353,6 @@
         {
             "name": "deleteitems",
             "type": "deleteitems",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "menconfirm",
-            "type": "menconfirm",
             "ricardian_contract": ""
         },
         {

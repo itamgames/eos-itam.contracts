@@ -297,79 +297,99 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner)
 
 ACTION itamstoreapp::defconfirm(uint64_t appId, name owner)
 {
-    confirm(appId, owner);
-}
-
-ACTION itamstoreapp::menconfirm(string appId, name owner)
-{
-    uint64_t appid = stoull(appId, 0, 10);
-
-    confirm(appid, owner);
-}
-
-void itamstoreapp::confirm(uint64_t appId, const name& owner)
-{
     require_auth(_self);
 
     paymentTable payments(_self, appId);
     const auto& payment = payments.find(owner.value);
     if(payment == payments.end()) return;
 
-    payments.modify(payment, _self, [&](auto &p) {
-        uint64_t currentTimestamp = now();
-        const auto& config = configs.get(_self.value, "refundable day must be set first");
+    uint64_t currentTimestamp = now();
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
 
-        vector<paymentInfo>& progress = p.progress;
-
-        for(auto pending = progress.begin(); pending != progress.end();)
-        {
-            uint64_t refundableTimestamp = pending->timestamp + (config.refundableDay * SECONDS_OF_DAY);
-            if(refundableTimestamp < currentTimestamp)
-            {
-                asset settleQuantityToVendor = pending->settleAmount;
-                asset settleQuantityToITAM = pending->paymentAmount - settleQuantityToVendor;
-
-                if(settleQuantityToVendor.amount > 0)
-                {
-                    action(
-                        permission_level{ _self, name("active") },
-                        name("eosio.token"),
-                        name("transfer"),
-                        make_tuple(
-                            _self,
-                            name(CENTRAL_SETTLE_ACCOUNT),
-                            settleQuantityToVendor,
-                            to_string(appId)
-                        )
-                    ).send();
-                }
-
-                if(settleQuantityToITAM.amount > 0)
-                {
-                    action(
-                        permission_level{ _self, name("active") },
-                        name("eosio.token"),
-                        name("transfer"),
-                        make_tuple(
-                            _self,
-                            name(ITAM_SETTLE_ACCOUNT),
-                            settleQuantityToITAM,
-                            to_string(appId)
-                        )
-                    ).send();
-                }
-                pending = progress.erase(pending);
-            }
-            else
-            {
-                pending++;
-            }
-        }
+    payments.modify(payment, _self, [&](auto& p) {
+        confirm(appId, p, currentTimestamp, config.refundableDay);
     });
 
     if(payment->progress.size() == 0)
     {
         payments.erase(payment);
+    }
+}
+
+ACTION itamstoreapp::confirmall(string appId)
+{
+    require_auth(_self);
+    uint64_t appid = stoull(appId, 0, 10);
+
+    uint64_t currentTimestamp = now();
+    const auto& config = configs.get(_self.value, "refundable day must be set first");
+    uint64_t refundableDay = config.refundableDay;
+
+    paymentTable payments(_self, appid);
+    for(auto payment = payments.begin(); payment != payments.end();)
+    {
+        payments.modify(payment, _self, [&](auto &p) {
+            confirm(appid, p, currentTimestamp, refundableDay);
+        });
+
+        if(payment->progress.size() == 0)
+        {
+            payment = payments.erase(payment);
+        }
+        else
+        {
+            payment++;
+        }
+    }
+}
+
+void itamstoreapp::confirm(uint64_t appId, payment& p, uint64_t currentTimestamp, uint64_t refundableDay)
+{
+    vector<paymentInfo>& progress = p.progress;
+    for(auto pending = progress.begin(); pending != progress.end();)
+    {
+        uint64_t refundableTimestamp = pending->timestamp + (refundableDay * SECONDS_OF_DAY);
+        if(refundableTimestamp < currentTimestamp)
+        {
+            asset settleQuantityToVendor = pending->settleAmount;
+            asset settleQuantityToITAM = pending->paymentAmount - settleQuantityToVendor;
+
+            if(settleQuantityToVendor.amount > 0)
+            {
+                action(
+                    permission_level{ _self, name("active") },
+                    name("eosio.token"),
+                    name("transfer"),
+                    make_tuple(
+                        _self,
+                        name(CENTRAL_SETTLE_ACCOUNT),
+                        settleQuantityToVendor,
+                        to_string(appId)
+                    )
+                ).send();
+            }
+
+            if(settleQuantityToITAM.amount > 0)
+            {
+                action(
+                    permission_level{ _self, name("active") },
+                    name("eosio.token"),
+                    name("transfer"),
+                    make_tuple(
+                        _self,
+                        name(ITAM_SETTLE_ACCOUNT),
+                        settleQuantityToITAM,
+                        to_string(appId)
+                    )
+                ).send();
+            }
+            
+            pending = progress.erase(pending);
+        }
+        else
+        {
+            pending++;
+        }
     }
 }
 

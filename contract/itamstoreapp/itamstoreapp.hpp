@@ -35,13 +35,10 @@ CONTRACT itamstoreapp : public contract
             ACTION refundapp(string appId, name owner);
             ACTION refunditem(string appId, string itemId, name owner);
             ACTION defconfirm(uint64_t appId, name owner);
-            ACTION menconfirm(string appId, name owner);
+            ACTION confirmall(string appId);
         #endif
     private:
         #ifndef BETA
-            void confirm(uint64_t appId, const name& owner);
-            void refund(uint64_t appId, uint64_t itemId, const name& owner);
-
             struct paymentInfo
             {
                 uint64_t itemId;
@@ -70,6 +67,9 @@ CONTRACT itamstoreapp : public contract
         };
         typedef multi_index<name("configs"), config> configTable;
         configTable configs;
+
+        void confirm(uint64_t appId, payment& p, uint64_t currentTimestamp, uint64_t refundableDay);
+        void refund(uint64_t appId, uint64_t itemId, const name& owner);
         #endif
         TABLE item
         {
@@ -110,7 +110,7 @@ CONTRACT itamstoreapp : public contract
 };
 
 #ifndef BETA
-    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(menconfirm)(setconfig), &itamstoreapp::transfer )
+    ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(confirmall)(setconfig), &itamstoreapp::transfer )
 #else
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )
 #endif
