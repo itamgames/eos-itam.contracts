@@ -20,11 +20,13 @@ CONTRACT itamstorenft : contract
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION modify(name owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason);
+        ACTION changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group);
         ACTION burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason);
         ACTION burnall(symbol_code symbol);
         ACTION transfernft(name from, name to, symbol_code symbol_name, string item_id, string memo);
         ACTION addwhitelist(name account);
         ACTION delwhitelist(name account);
+        ACTION changegroup(symbol_code symbol_name, string item_id, string group_id);
         ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
     private:
         TABLE currency
@@ -69,4 +71,4 @@ CONTRACT itamstorenft : contract
         };
 };
 
-EOSIO_DISPATCH( itamstorenft, (create)(issue)(modify)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )
+EOSIO_DISPATCH( itamstorenft, (create)(issue)(modify)(changegroup)(changeowner)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )

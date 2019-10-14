@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jul 18 18:11:21 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct 14 15:36:20 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -97,6 +97,28 @@
                 {
                     "name": "symbol",
                     "type": "symbol_code"
+                }
+            ]
+        },
+        {
+            "name": "changeowner",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "item_id",
+                    "type": "string"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "owner_group",
+                    "type": "name"
                 }
             ]
         },
@@ -239,6 +261,24 @@
             ]
         },
         {
+            "name": "modifygroup",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "item_id",
+                    "type": "string"
+                },
+                {
+                    "name": "group_id",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "receipt",
             "base": "",
             "fields": [
@@ -337,6 +377,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "changeowner",
+            "type": "changeowner",
+            "ricardian_contract": ""
+        },
+        {
             "name": "create",
             "type": "create",
             "ricardian_contract": ""
@@ -354,6 +399,11 @@
         {
             "name": "modify",
             "type": "modify",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "modifygroup",
+            "type": "modifygroup",
             "ricardian_contract": ""
         },
         {

@@ -86,6 +86,34 @@ ACTION itamstorenft::modify(name owner, name owner_group, symbol_code symbol_nam
     );
 }
 
+ACTION itamstorenft::changegroup(symbol_code symbol_name, string item_id, string group_id)
+{
+    require_auth(_self);
+
+    uint64_t itemid = stoull(item_id, 0, 10);
+    uint64_t groupid = stoull(group_id, 0, 10);
+
+    account_table accounts(_self, symbol_name.raw());
+    const auto& account = accounts.require_find(itemid, "invalid item");
+
+    accounts.modify(account, _self, [&](auto& a) {
+        a.group_id = groupid;
+    });
+}
+
+ACTION itamstorenft::changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group)
+{
+    require_auth(_self);
+
+    account_table accounts(_self, symbol_name.raw());
+    const auto& account = accounts.require_find(stoull(item_id, 0, 10), "invalid item");
+
+    accounts.modify(account, _self, [&](auto &a) {
+        a.owner = owner;
+        a.owner_account = get_group_account(owner, owner_group);
+    });
+}
+
 ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)
 {
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
