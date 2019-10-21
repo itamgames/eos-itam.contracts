@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct 21 13:53:18 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct 21 15:17:59 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -27,16 +27,6 @@
             ]
         },
         {
-            "name": "deloldsettle",
-            "base": "",
-            "fields": []
-        },
-        {
-            "name": "migration",
-            "base": "",
-            "fields": []
-        },
-        {
             "name": "setsettle",
             "base": "",
             "fields": [
@@ -47,24 +37,6 @@
                 {
                     "name": "settle_account",
                     "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "settle",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "settleAccount",
-                    "type": "name"
-                },
-                {
-                    "name": "settleAmount",
-                    "type": "asset"
                 }
             ]
         },
@@ -101,16 +73,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "deloldsettle",
-            "type": "deloldsettle",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "migration",
-            "type": "migration",
-            "ricardian_contract": ""
-        },
-        {
             "name": "setsettle",
             "type": "setsettle",
             "ricardian_contract": ""
@@ -132,13 +94,6 @@
         {
             "name": "settlements",
             "type": "settlement",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "settles",
-            "type": "settle",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

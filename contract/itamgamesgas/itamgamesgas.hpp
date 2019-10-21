@@ -14,19 +14,7 @@ CONTRACT itamgamesgas : contract
         ACTION setsettle(string app_id, name settle_account);
         ACTION claimsettle(string app_id);
         ACTION transfer(uint64_t from, uint64_t to);
-        ACTION migration();
-        ACTION deloldsettle();
     private:
-        TABLE settle
-        {
-            uint64_t appId;
-            name settleAccount;
-            asset settleAmount;
-
-            uint64_t primary_key() const { return appId; }
-        };
-        typedef multi_index<name("settles"), settle> settleTable;
-
         TABLE account
         {
             uint64_t app_id;
@@ -55,4 +43,4 @@ CONTRACT itamgamesgas : contract
         typedef multi_index<name("tokens"), token> token_table;
 };
 
-ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesgas, (migration)(deloldsettle)(setsettle)(claimsettle)(transfer) )
+ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesgas, (setsettle)(claimsettle)(transfer) )

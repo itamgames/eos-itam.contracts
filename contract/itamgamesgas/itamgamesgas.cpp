@@ -1,32 +1,5 @@
 #include "itamgamesgas.hpp"
 
-ACTION itamgamesgas::migration()
-{
-    require_auth(_self);
-    
-    settleTable settles(_self, _self.value);
-    account_table accounts(_self, _self.value);
-    for(auto settle = settles.begin(); settle != settles.end(); settle++)
-    {
-        accounts.emplace(_self, [&](auto &a) {
-            a.app_id = settle->appId;
-            a.settle_account = settle->settleAccount;
-        });
-
-        settlement_table settlements(_self, settle->appId);
-        settlements.emplace(_self, [&](auto &s) {
-            s.quantity = settle->settleAmount;
-        });
-    }
-}
-
-ACTION itamgamesgas::deloldsettle()
-{
-    require_auth(_self);
-    settleTable settles(_self, _self.value);
-    for(auto settle = settles.begin(); settle != settles.end(); settle = settles.erase(settle));
-}
-
 ACTION itamgamesgas::setsettle(string app_id, name settle_account)
 {
     require_auth(_self);
@@ -67,7 +40,7 @@ ACTION itamgamesgas::claimsettle(string app_id)
     settlement_table settlements(_self, appid);
     for(auto settle = settlements.begin(); settle != settlements.end(); settle++)
     {
-        settlements.modify(settle, settle_account, [&](auto &s) {
+        settlements.modify(settle, _self, [&](auto &s) {
             if(s.quantity.amount > 0)
             {
                 const auto& token = tokens.get(s.quantity.symbol.code().raw(), "invalid token contract");
