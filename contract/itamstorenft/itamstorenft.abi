@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct 14 15:39:02 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Oct 17 13:40:15 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -137,6 +137,10 @@
                 {
                     "name": "owner_group",
                     "type": "name"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
                 }
             ]
         },

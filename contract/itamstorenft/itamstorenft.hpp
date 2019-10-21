@@ -20,7 +20,7 @@ CONTRACT itamstorenft : contract
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION modify(name owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason);
-        ACTION changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group);
+        ACTION changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group, string nickname);
         ACTION burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason);
         ACTION burnall(symbol_code symbol);
         ACTION transfernft(name from, name to, symbol_code symbol_name, string item_id, string memo);

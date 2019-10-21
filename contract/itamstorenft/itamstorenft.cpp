@@ -101,7 +101,7 @@ ACTION itamstorenft::changegroup(symbol_code symbol_name, string item_id, string
     });
 }
 
-ACTION itamstorenft::changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group)
+ACTION itamstorenft::changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group, string nickname)
 {
     require_auth(_self);
 
@@ -111,6 +111,7 @@ ACTION itamstorenft::changeowner(symbol_code symbol_name, string item_id, name o
     accounts.modify(account, _self, [&](auto &a) {
         a.owner = owner;
         a.owner_account = get_group_account(owner, owner_group);
+        a.nickname = nickname;
     });
 }
 
