@@ -78,6 +78,8 @@ ACTION itamgamesgas::claimsettle(string app_id)
                     transfer_action,
                     make_tuple( _self, settle_account, s.quantity, string("ITAM Store settlement") )
                 ).send();
+
+                s.quantity.amount = 0;
             }
         });
     }
