@@ -53,12 +53,12 @@ ACTION itamgamesgas::setsettle(string app_id, name settle_account)
 
 ACTION itamgamesgas::claimsettle(string app_id)
 {
+    require_auth(_self);
     uint64_t appid = stoull(app_id, 0, 10);
 
     account_table accounts(_self, _self.value);
     const auto& account = accounts.get(appid, "invaid app id");
     name settle_account = account.settle_account;
-    require_auth(settle_account);
 
     name dex_contract("itamstoredex");
     token_table tokens(dex_contract, dex_contract.value);
