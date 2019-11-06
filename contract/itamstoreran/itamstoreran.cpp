@@ -3,19 +3,29 @@
 ACTION itamstoreran::registboard(string appId, string boardList)
 {
     require_auth(_self);
-    uint64_t appid = stoull(appId, 0, 10);
-
-    leaderboardTable boards(_self, appid);
-    for(auto iter = boards.begin(); iter != boards.end(); iter = boards.erase(iter));
-
     auto parsedBoardList = json::parse(boardList);
+
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t leader_board_id = 0;
+    leaderboardTable leaderBoards(_self, appid);
 
     for(int i = 0; i < parsedBoardList.size(); i++)
     {
-        boards.emplace(_self, [&](auto &b) {
-            b.id = stoull(string(parsedBoardList[i]["id"]), 0, 10);
-            b.name = parsedBoardList[i]["name"];
-        });
+        leader_board_id = stoull(string(parsedBoardList[i]["id"]), 0, 10);
+        const auto& leaderBoard = leaderBoards.find(leader_board_id);
+        if(leaderBoard == leaderBoards.end())
+        {
+            leaderBoards.emplace(_self, [&](auto& b) {
+                b.id = leader_board_id;
+                b.name = parsedBoardList[i]["name"];
+            });
+        }
+        else
+        {
+            leaderBoards.modify(leaderBoard, _self, [&](auto& b) {
+                b.name = parsedBoardList[i]["name"];
+            });
+        }
     }
 }
 
@@ -45,20 +55,29 @@ ACTION itamstoreran::rank(string appId, string boardId, string ranks, string per
 ACTION itamstoreran::regachieve(string appId, string achievementList)
 {
     require_auth(_self);
-
-    uint64_t appid = stoull(appId, 0, 10);
-
-    achievementTable achievements(_self, appid);
-    for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
-
     auto parsedAchievements = json::parse(achievementList);
+    
+    uint64_t appid = stoull(appId, 0, 10);
+    uint64_t achievement_id = 0;
+    achievementTable achievements(_self, appid);
 
     for(int i = 0; i < parsedAchievements.size(); i++)
     {
-        achievements.emplace(_self, [&](auto &a) {
-            a.id = stoull(string(parsedAchievements[i]["id"]), 0, 10);
-            a.name = parsedAchievements[i]["name"];
-        });
+        achievement_id = stoull(string(parsedAchievements[i]["id"]), 0, 10);
+        const auto& achievement = achievements.find(achievement_id);
+        if(achievement == achievements.end())
+        {
+            achievements.emplace(_self, [&](auto& a) {
+                a.id = stoull(string(parsedAchievements[i]["id"]), 0, 10);
+                a.name = parsedAchievements[i]["name"];
+            });
+        }
+        else
+        {
+            achievements.modify(achievement, _self, [&](auto& a) {
+                a.name = parsedAchievements[i]["name"];
+            });
+        }
     }
 }
 
