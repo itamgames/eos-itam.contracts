@@ -1,5 +1,21 @@
 #include "itamstorenft.hpp"
 
+ACTION itamstorenft::nfthistory(name owner, name owner_group, symbol_code symbol_name, string action, string reason)
+{
+    require_auth(_self);
+    currencies.get(symbol_name.raw(), "invalid symbol");
+}
+
+ACTION itamstorenft::activate(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
+{
+    _issue(to, to_group, nickname, symbol_name, item_id, item_name, group_id, options, duration, transferable, reason);
+}
+
+ACTION itamstorenft::deactivate(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)
+{
+    _burn(owner, owner_group, symbol_name, item_id, reason);
+}
+
 ACTION itamstorenft::create(name issuer, symbol_code symbol_name, string app_id)
 {
     require_auth(_self);
@@ -19,8 +35,13 @@ ACTION itamstorenft::create(name issuer, symbol_code symbol_name, string app_id)
 
 ACTION itamstorenft::issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
 {
+    _issue(to, to_group, nickname, symbol_name, item_id, item_name, group_id, options, duration, transferable, reason);
+}
+
+void itamstorenft::_issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
+{
+    require_auth(_self);
     const auto& currency = currencies.require_find(symbol_name.raw(), "invalid symbol");
-    require_auth(currency->issuer);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     currencies.modify(currency, _self, [&](auto &c) {
@@ -117,11 +138,16 @@ ACTION itamstorenft::changeowner(symbol_code symbol_name, string item_id, name o
 
 ACTION itamstorenft::burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)
 {
+    _burn(owner, owner_group, symbol_name, item_id, reason);
+}
+
+void itamstorenft::_burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)
+{
+    require_auth(_self);
     eosio_assert(reason.size() <= 256, "reason has more than 256 bytes");
 
     uint64_t symbol_raw = symbol_name.raw();
     const auto& currency = currencies.require_find(symbol_raw, "Invalid symbol");
-    require_auth(currency->issuer);
     currencies.modify(currency, _self, [&](auto &c) {
         c.supply.amount -= 1;
     });

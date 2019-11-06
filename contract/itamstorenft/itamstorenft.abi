@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Oct 17 13:40:15 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Nov  6 15:22:55 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -40,6 +40,56 @@
                 },
                 {
                     "name": "nickname",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "activate",
+            "base": "",
+            "fields": [
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "to_group",
+                    "type": "name"
+                },
+                {
+                    "name": "nickname",
+                    "type": "string"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "item_id",
+                    "type": "string"
+                },
+                {
+                    "name": "item_name",
+                    "type": "string"
+                },
+                {
+                    "name": "group_id",
+                    "type": "string"
+                },
+                {
+                    "name": "options",
+                    "type": "string"
+                },
+                {
+                    "name": "duration",
+                    "type": "uint64"
+                },
+                {
+                    "name": "transferable",
+                    "type": "bool"
+                },
+                {
+                    "name": "reason",
                     "type": "string"
                 }
             ]
@@ -181,6 +231,32 @@
             ]
         },
         {
+            "name": "deactivate",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "owner_group",
+                    "type": "name"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "item_id",
+                    "type": "string"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "delwhitelist",
             "base": "",
             "fields": [
@@ -283,6 +359,32 @@
             ]
         },
         {
+            "name": "nfthistory",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "owner_group",
+                    "type": "name"
+                },
+                {
+                    "name": "symbol_name",
+                    "type": "symbol_code"
+                },
+                {
+                    "name": "action",
+                    "type": "string"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "receipt",
             "base": "",
             "fields": [
@@ -366,6 +468,11 @@
     "types": [],
     "actions": [
         {
+            "name": "activate",
+            "type": "activate",
+            "ricardian_contract": ""
+        },
+        {
             "name": "addwhitelist",
             "type": "addwhitelist",
             "ricardian_contract": ""
@@ -396,6 +503,11 @@
             "ricardian_contract": ""
         },
         {
+            "name": "deactivate",
+            "type": "deactivate",
+            "ricardian_contract": ""
+        },
+        {
             "name": "delwhitelist",
             "type": "delwhitelist",
             "ricardian_contract": ""
@@ -408,6 +520,11 @@
         {
             "name": "modify",
             "type": "modify",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "nfthistory",
+            "type": "nfthistory",
             "ricardian_contract": ""
         },
         {
