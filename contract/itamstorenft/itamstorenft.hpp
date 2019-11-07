@@ -17,7 +17,7 @@ CONTRACT itamstorenft : contract
     public:
         itamstorenft(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds), currencies(_self, _self.value) {}
         
-        ACTION nfthistory(name owner, name owner_group, symbol_code symbol_name, string action, string reason);
+        ACTION nft(name owner, name owner_group, symbol_code symbol_name, string action, string reason);
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION activate(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
@@ -76,4 +76,4 @@ CONTRACT itamstorenft : contract
         };
 };
 
-EOSIO_DISPATCH( itamstorenft, (nfthistory)(create)(issue)(modify)(changegroup)(changeowner)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )
+EOSIO_DISPATCH( itamstorenft, (nft)(create)(issue)(modify)(changegroup)(changeowner)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )

@@ -1,6 +1,6 @@
 #include "itamstorenft.hpp"
 
-ACTION itamstorenft::nfthistory(name owner, name owner_group, symbol_code symbol_name, string action, string reason)
+ACTION itamstorenft::nft(name owner, name owner_group, symbol_code symbol_name, string action, string reason)
 {
     require_auth(_self);
     currencies.get(symbol_name.raw(), "invalid symbol");

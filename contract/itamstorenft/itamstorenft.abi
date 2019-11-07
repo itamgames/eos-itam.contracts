@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Nov  6 15:22:55 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov  7 09:55:10 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -359,7 +359,7 @@
             ]
         },
         {
-            "name": "nfthistory",
+            "name": "nft",
             "base": "",
             "fields": [
                 {
@@ -523,8 +523,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "nfthistory",
-            "type": "nfthistory",
+            "name": "nft",
+            "type": "nft",
             "ricardian_contract": ""
         },
         {
