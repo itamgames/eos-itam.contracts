@@ -17,10 +17,10 @@ CONTRACT itamstorenft : contract
     public:
         itamstorenft(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds), currencies(_self, _self.value) {}
         
-        ACTION nft(name owner, name owner_group, symbol_code symbol_name, string action, string reason);
+        ACTION nft(name owner, name owner_group, string game_user_id, symbol_code symbol_name, string action, string reason);
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
-        ACTION activate(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
+        ACTION activate(name to, name to_group, string game_user_id, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
         ACTION modify(name owner, name owner_group, symbol_code symbol_name, string item_id, string item_name, string options, uint64_t duration, bool transferable, string reason);
         ACTION changeowner(symbol_code symbol_name, string item_id, name owner, name owner_group, string nickname);
         ACTION burn(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason);

@@ -1,14 +1,14 @@
 #include "itamstorenft.hpp"
 
-ACTION itamstorenft::nft(name owner, name owner_group, symbol_code symbol_name, string action, string reason)
+ACTION itamstorenft::nft(name owner, name owner_group, string game_user_id, symbol_code symbol_name, string action, string reason)
 {
     require_auth(_self);
     currencies.get(symbol_name.raw(), "invalid symbol");
 }
 
-ACTION itamstorenft::activate(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
+ACTION itamstorenft::activate(name owner, name owner_group, string game_user_id, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason)
 {
-    _issue(to, to_group, nickname, symbol_name, item_id, item_name, group_id, options, duration, transferable, reason);
+    _issue(owner, owner_group, nickname, symbol_name, item_id, item_name, group_id, options, duration, transferable, reason);
 }
 
 ACTION itamstorenft::deactivate(name owner, name owner_group, symbol_code symbol_name, string item_id, string reason)

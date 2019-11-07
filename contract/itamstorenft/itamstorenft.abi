@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov  7 09:55:10 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Nov  7 10:53:12 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -55,6 +55,10 @@
                 {
                     "name": "to_group",
                     "type": "name"
+                },
+                {
+                    "name": "game_user_id",
+                    "type": "string"
                 },
                 {
                     "name": "nickname",
@@ -369,6 +373,10 @@
                 {
                     "name": "owner_group",
                     "type": "name"
+                },
+                {
+                    "name": "game_user_id",
+                    "type": "string"
                 },
                 {
                     "name": "symbol_name",
