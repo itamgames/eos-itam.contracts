@@ -8,6 +8,10 @@ ACTION itamstoreran::registboard(string appId, string boardList)
     uint64_t appid = stoull(appId, 0, 10);
     uint64_t leader_board_id = 0;
     leaderboardTable leaderBoards(_self, appid);
+    
+    #ifdef BETA
+        for(auto iter = leaderBoards.begin(); iter != leaderBoards.end(); iter = leaderBoards.erase(iter));
+    #endif
 
     for(int i = 0; i < parsedBoardList.size(); i++)
     {
@@ -60,6 +64,10 @@ ACTION itamstoreran::regachieve(string appId, string achievementList)
     uint64_t appid = stoull(appId, 0, 10);
     uint64_t achievement_id = 0;
     achievementTable achievements(_self, appid);
+
+    #ifdef BETA
+        for(auto iter = achievements.begin(); iter != achievements.end(); iter = achievements.erase(iter));
+    #endif
 
     for(int i = 0; i < parsedAchievements.size(); i++)
     {
