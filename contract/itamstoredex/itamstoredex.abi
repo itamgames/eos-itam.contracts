@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jul 18 18:16:12 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 16 07:53:52 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -204,6 +204,14 @@
                 },
                 {
                     "name": "payment_quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "settle_quantity_to_vendor",
+                    "type": "asset"
+                },
+                {
+                    "name": "settle_quantity_to_itam",
                     "type": "asset"
                 },
                 {

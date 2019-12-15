@@ -37,6 +37,7 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
     currency_table currencies(nft_contract, nft_contract.value);
     const auto& currency = currencies.get(symbol_name.raw(), "invalid nft symbol");
 
+    asset default_asset(0, symbol("EOS", 4));
     SEND_INLINE_ACTION(
         *this,
         receipt,
@@ -53,6 +54,8 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
             item.duration,
             item.transferable,
             quantity,
+            default_asset,
+            default_asset,
             string("make_order")
         }
     );
@@ -83,6 +86,7 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
     currency_table currencies(nft_contract, nft_contract.value);
     const auto& currency = currencies.get(symbol_name.raw(), "invalid nft symbol");
 
+    asset default_asset(0, symbol("EOS", 4));
     SEND_INLINE_ACTION(
         *this,
         receipt,
@@ -99,6 +103,8 @@ ACTION itamstoredex::cancelorder(name owner, symbol_code symbol_name, string ite
             ordered_item.duration,
             ordered_item.transferable,
             order->quantity,
+            default_asset,
+            default_asset,
             string("cancel_order")
         }
     );
@@ -236,6 +242,8 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
             trade_item.duration,
             false,
             data.quantity,
+            settle_quantity_to_vendor,
+            settle_quantity_to_itam,
             string("order_complete")
         }
     );
@@ -267,7 +275,8 @@ ACTION itamstoredex::setconfig(uint64_t fees_rate, uint64_t settle_rate)
     }
 }
 
-ACTION itamstoredex::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state)
+ACTION itamstoredex::receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options,
+                             uint64_t duration, bool transferable, asset payment_quantity, asset settle_quantity_to_vendor, asset settle_quantity_to_itam, string state)
 {
     require_auth(_self);
 

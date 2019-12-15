@@ -30,7 +30,9 @@ CONTRACT itamstoredex : contract
         ACTION deletetoken(string symbol_name, uint32_t precision);
         ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
 
-        ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name, string options, uint64_t duration, bool transferable, asset payment_quantity, string state);
+        ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name,
+                        string options, uint64_t duration, bool transferable, asset payment_quantity, asset settle_quantity_to_vendor,
+                        asset settle_quantity_to_itam, string state);
     private:
         TABLE order
         {
