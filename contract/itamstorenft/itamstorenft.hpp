@@ -6,17 +6,19 @@
 using namespace eosio;
 using namespace std;
 
-#ifndef BETA
+#ifdef PROD
     #define DEX_CONTRACT "itamstoredex"
-#else
+#elif defined(PROD_BETA) || defined(DEV_BETA)
     #define DEX_CONTRACT "itamtestsdex"
+#else
+    #define DEX_CONTRACT "itamgamesdex"
 #endif
 
 CONTRACT itamstorenft : contract
 {
     public:
         itamstorenft(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds), currencies(_self, _self.value) {}
-        
+
         ACTION nft(name owner, name owner_group, string game_user_id, symbol_code symbol_name, string action, string reason);
         ACTION create(name issuer, symbol_code symbol_name, string app_id);
         ACTION issue(name to, name to_group, string nickname, symbol_code symbol_name, string item_id, string item_name, string group_id, string options, uint64_t duration, bool transferable, string reason);
