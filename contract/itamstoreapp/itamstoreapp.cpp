@@ -234,17 +234,17 @@ ACTION itamstoreapp::receiptitem(uint64_t appId, uint64_t itemId, string itemNam
     require_recipient(_self, from);
 }
 #ifndef BETA
-ACTION itamstoreapp::refundapp(string appId, name owner)
+ACTION itamstoreapp::refundapp(string appId, name owner, uint64_t paymentTimestamp)
 {
     uint64_t appid = stoull(appId, 0, 10);
 
     appTable apps(_self, _self.value);
     const auto& app = apps.get(appid, "Invalid App Id");
 
-    refund(appid, NULL, owner);
+    refund(appid, NULL, owner, paymentTimestamp);
 }
 
-ACTION itamstoreapp::refunditem(string appId, string itemId, name owner)
+ACTION itamstoreapp::refunditem(string appId, string itemId, name owner, uint64_t paymentTimestamp)
 {
     uint64_t appid = stoull(appId, 0, 10);
     uint64_t itemid = stoull(itemId, 0, 10);
@@ -252,10 +252,10 @@ ACTION itamstoreapp::refunditem(string appId, string itemId, name owner)
     itemTable items(_self, appid);
     const auto& item = items.get(itemid, "Invalid Item Id");
 
-    refund(appid, itemid, owner);
+    refund(appid, itemid, owner, paymentTimestamp);
 }
 
-void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner)
+void itamstoreapp::refund(const uint64_t appId, const uint64_t itemId, const name& owner, const uint64_t paymentTimestamp)
 {
     require_auth(_self);
     const auto& config = configs.get(_self.value, "refundable day must be set first");
@@ -269,7 +269,7 @@ void itamstoreapp::refund(uint64_t appId, uint64_t itemId, const name& owner)
         vector<paymentInfo>& progress = p.progress;
         for(auto info = progress.begin(); info != progress.end(); info++)
         {
-            if(info->itemId == itemId)
+            if(info->itemId == itemId && (paymentTimestamp == 0 || paymentTimestamp == info->timestamp))
             {
                 uint64_t refundableTimestamp = info->timestamp + (config.refundableDay * SECONDS_OF_DAY);
                 eosio_assert(refundableTimestamp >= now(), "refundable day has passed");

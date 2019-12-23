@@ -32,8 +32,8 @@ CONTRACT itamstoreapp : public contract
         ACTION useitem(string appId, string itemId, string memo);
         #ifndef BETA
             ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
-            ACTION refundapp(string appId, name owner);
-            ACTION refunditem(string appId, string itemId, name owner);
+            ACTION refundapp(string appId, name owner, uint64_t paymentTimestamp);
+            ACTION refunditem(string appId, string itemId, name owner, uint64_t paymentTimestamp);
             ACTION defconfirm(uint64_t appId, name owner);
             ACTION confirmall(string appId);
         #endif
@@ -69,7 +69,7 @@ CONTRACT itamstoreapp : public contract
         configTable configs;
 
         void confirm(uint64_t appId, payment& p, uint64_t currentTimestamp, uint64_t refundableDay);
-        void refund(uint64_t appId, uint64_t itemId, const name& owner);
+        void refund(const uint64_t appId, const uint64_t itemId, const name& owner, const uint64_t paymentTimestamp);
         #endif
         TABLE item
         {
