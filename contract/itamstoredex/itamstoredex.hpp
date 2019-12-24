@@ -5,6 +5,7 @@
 #include "../include/ownergroup.hpp"
 #include "../include/transferstruct.hpp"
 #include "../include/settle.hpp"
+#include "../include/accounts.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -22,7 +23,7 @@ CONTRACT itamstoredex : contract
 
         ACTION settoken(name contract_name, string symbol_name, uint32_t precision);
         ACTION deletetoken(string symbol_name, uint32_t precision);
-        ACTION setconfig(uint64_t fees_rate, uint64_t settle_rate);
+        ACTION setconfig(name symbol_name, uint64_t fees_rate, uint64_t settle_rate);
 
         ACTION receipt(name owner, name owner_group, uint64_t app_id, uint64_t item_id, string nickname, uint64_t group_id, string item_name,
                         string options, uint64_t duration, bool transferable, asset payment_quantity, asset settle_quantity_to_vendor,
