@@ -135,7 +135,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
 {
     eosio_assert(_code != _self, "self cannot call transfer action");
     transfer_data data = unpack_action_data<transfer_data>();
-    if (data.from == _self || data.to != _self || data.from == name("itamgamesgas") || data.from == name("itamtestgmsv")) return;
+    if (data.from == _self || data.to != _self || data.from == name(GAS_CONTRACT)) return;
 
     transfer_memo message;
     parseMemo(&message, data.memo, "|", 4);
@@ -151,8 +151,12 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     const auto& order = orders.require_find(item_id, "item not found in orders");
     eosio_assert(order->quantity == data.quantity, "wrong quantity");
     
+    name nft_contract(NFT_CONTRACT);
+    currency_table currencies(nft_contract, nft_contract.value);
+    const auto& currency = currencies.get(item_symbol.code().raw(), "invalid item symbol");
+    
     config_table configs(_self, _self.value);
-    const auto& config = configs.get(_self.value, "config must be set");
+    const auto& config = configs.get(currency.app_id , "config must be set");
 
     asset fees = order->quantity * config.fees_rate / 100;
 

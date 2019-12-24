@@ -9,12 +9,6 @@
 using namespace eosio;
 using namespace std;
 
-#ifndef BETA
-    #define NFT_CONTRACT "itamstorenft"
-#else
-    #define NFT_CONTRACT "itamtestsnft"
-#endif
-
 CONTRACT itamstoredex : contract
 {
     public:

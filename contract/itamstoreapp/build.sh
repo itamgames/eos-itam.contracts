@@ -14,4 +14,4 @@ else
     exit 1
 fi
 
-eosio-cpp -abigen -D="$COMPILE_OPTION" itamstorenft.cpp -o itamstorenft.wasm
+eosio-cpp -abigen -D="$COMPILE_OPTION" itamstoreapp.cpp -o itamstoreapp.wasm

@@ -24,14 +24,14 @@ ACTION itamitamitam::modbalance(name owner, asset quantity)
 ACTION itamitamitam::transfer(uint64_t from, uint64_t to)
 {
     transfer_data data = unpack_action_data<transfer_data>();
-    if(data.from.to_string() == "itamgamespay") return;
+    if(data.from.to_string() == PAY_CONTRACT) return;
 
     if(data.from != _self && data.to == _self)
     {
         name owner(data.memo);
         add_balance(owner, data.quantity);
     }
-    else if(data.from == _self && (data.to == name("itamstoredex") || data.to == name("itamtestsdex")))
+    else if(data.from == _self && (data.to == name(DEX_CONTRACT) || data.to == name(DEX_CONTRACT_BETA)))
     {
         dexMemo memo;
         parseMemo(&memo, data.memo, "|", 4);
@@ -53,7 +53,7 @@ ACTION itamitamitam::transferto(name from, name to, asset quantity, string memo)
     }
     else
     {
-        name token_contract = quantity.symbol.code().to_string() == "EOS" ? name("eosio.token") : name("itamtokenadm");
+        name token_contract = quantity.symbol.code().to_string() == "EOS" ? name("eosio.token") : name(TOKEN_CONTRACT);
 
         action(
             permission_level { _self , name("active") },

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Dec 23 14:20:39 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 24 10:16:53 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -17,48 +17,6 @@
                 {
                     "name": "price",
                     "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "config",
-            "base": "",
-            "fields": [
-                {
-                    "name": "key",
-                    "type": "name"
-                },
-                {
-                    "name": "ratio",
-                    "type": "uint64"
-                },
-                {
-                    "name": "refundableDay",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "confirmall",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "defconfirm",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
                 }
             ]
         },
@@ -123,46 +81,6 @@
             ]
         },
         {
-            "name": "payment",
-            "base": "",
-            "fields": [
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "ownerGroup",
-                    "type": "name"
-                },
-                {
-                    "name": "progress",
-                    "type": "paymentInfo[]"
-                }
-            ]
-        },
-        {
-            "name": "paymentInfo",
-            "base": "",
-            "fields": [
-                {
-                    "name": "itemId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "paymentAmount",
-                    "type": "asset"
-                },
-                {
-                    "name": "settleAmount",
-                    "type": "asset"
-                },
-                {
-                    "name": "timestamp",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "receiptapp",
             "base": "",
             "fields": [
@@ -223,46 +141,6 @@
             ]
         },
         {
-            "name": "refundapp",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "paymentTimestamp",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "refunditem",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "string"
-                },
-                {
-                    "name": "itemId",
-                    "type": "string"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "paymentTimestamp",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
             "name": "registapp",
             "base": "",
             "fields": [
@@ -291,20 +169,6 @@
                 {
                     "name": "params",
                     "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "setconfig",
-            "base": "",
-            "fields": [
-                {
-                    "name": "ratio",
-                    "type": "uint64"
-                },
-                {
-                    "name": "refundableDay",
-                    "type": "uint64"
                 }
             ]
         },
@@ -344,16 +208,6 @@
     "types": [],
     "actions": [
         {
-            "name": "confirmall",
-            "type": "confirmall",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "defconfirm",
-            "type": "defconfirm",
-            "ricardian_contract": ""
-        },
-        {
             "name": "deleteapp",
             "type": "deleteapp",
             "ricardian_contract": ""
@@ -379,16 +233,6 @@
             "ricardian_contract": ""
         },
         {
-            "name": "refundapp",
-            "type": "refundapp",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "refunditem",
-            "type": "refunditem",
-            "ricardian_contract": ""
-        },
-        {
             "name": "registapp",
             "type": "registapp",
             "ricardian_contract": ""
@@ -396,11 +240,6 @@
         {
             "name": "registitems",
             "type": "registitems",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "setconfig",
-            "type": "setconfig",
             "ricardian_contract": ""
         },
         {
@@ -423,22 +262,8 @@
             "key_types": []
         },
         {
-            "name": "configs",
-            "type": "config",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
             "name": "items",
             "type": "item",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "payments",
-            "type": "payment",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

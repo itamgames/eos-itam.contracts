@@ -6,14 +6,6 @@
 using namespace eosio;
 using namespace std;
 
-#ifdef PROD
-    #define DEX_CONTRACT "itamstoredex"
-#elif defined(PROD_BETA) || defined(DEV_BETA)
-    #define DEX_CONTRACT "itamtestsdex"
-#else
-    #define DEX_CONTRACT "itamgamesdex"
-#endif
-
 CONTRACT itamstorenft : contract
 {
     public:
@@ -78,4 +70,4 @@ CONTRACT itamstorenft : contract
         };
 };
 
-EOSIO_DISPATCH( itamstorenft, (nft)(create)(issue)(modify)(changegroup)(changeowner)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )
+EOSIO_DISPATCH( itamstorenft, (nft)(activate)(deactivate)(create)(issue)(modify)(changegroup)(changeowner)(burn)(burnall)(receipt)(addwhitelist)(delwhitelist)(transfernft) )

@@ -33,7 +33,7 @@ ACTION itamgamesgas::claimsettle(string app_id)
     const auto& account = accounts.get(appid, "invaid app id");
     name settle_account = account.settle_account;
 
-    name dex_contract("itamstoredex");
+    name dex_contract(DEX_CONTRACT);
     token_table tokens(dex_contract, dex_contract.value);
     name transfer_action("transfer");
     
@@ -52,16 +52,28 @@ ACTION itamgamesgas::claimsettle(string app_id)
                     make_tuple( _self, settle_account, s.quantity, string("ITAM Store settlement") )
                 ).send();
 
+                SEND_INLINE_ACTION(
+                    *this,
+                    receiptstle,
+                    { { _self, name("active") } },
+                    { app_id, settle_account, s.quantity }
+                );
+
                 s.quantity.amount = 0;
             }
         });
     }
 }
 
+ACTION itamgamesgas::receiptstle(string app_id, name settle_account, asset quantity)
+{
+    require_auth(_self);
+}
+
 ACTION itamgamesgas::transfer(uint64_t from, uint64_t to)
 {
     transfer_data data = unpack_action_data<transfer_data>();
-    name dex_contract("itamstoredex");
+    name dex_contract(DEX_CONTRACT);
 
     if(data.from == dex_contract)
     {
@@ -69,7 +81,7 @@ ACTION itamgamesgas::transfer(uint64_t from, uint64_t to)
         const auto& token = tokens.get(data.quantity.symbol.code().raw(), "invalid token symbol");
         eosio_assert(token.contract_name == _code, "wrong token contract");
     }
-    else if(data.from != name("itamstoreapp"))
+    else if(data.from != name(APP_CONTRACT))
     {
         return;
     }

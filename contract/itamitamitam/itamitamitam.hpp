@@ -3,6 +3,7 @@
 #include "../include/dispatcher.hpp"
 #include "../include/transferstruct.hpp"
 #include "../include/string.hpp"
+#include "../include/accounts.hpp"
 
 using namespace eosio;
 using namespace std;

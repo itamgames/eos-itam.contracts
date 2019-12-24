@@ -7,6 +7,7 @@
 #include "../include/date.hpp"
 #include "../include/ownergroup.hpp"
 #include "../include/dispatcher.hpp"
+#include "../include/accounts.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -15,7 +16,7 @@ using namespace nlohmann;
 CONTRACT itamstoreapp : public contract
 {
     public:
-        #ifndef BETA
+        #if defined(MAINNET) || defined(TESTNET)
             itamstoreapp(name receiver, name code, datastream<const char*> ds) : contract(receiver, code, ds), configs(_self, _self.value) {}
         #else
             using contract::contract;
@@ -30,7 +31,7 @@ CONTRACT itamstoreapp : public contract
         ACTION receiptapp(uint64_t appId, name from, name owner, name ownerGroup, asset quantity);
         ACTION receiptitem(uint64_t appId, uint64_t itemId, string itemName, name from, name owner, name ownerGroup, asset quantity);
         ACTION useitem(string appId, string itemId, string memo);
-        #ifndef BETA
+        #if defined(MAINNET) || defined(TESTNET)
             ACTION setconfig(uint64_t ratio, uint64_t refundableDay);
             ACTION refundapp(string appId, name owner, uint64_t paymentTimestamp);
             ACTION refunditem(string appId, string itemId, name owner, uint64_t paymentTimestamp);
@@ -38,7 +39,7 @@ CONTRACT itamstoreapp : public contract
             ACTION confirmall(string appId);
         #endif
     private:
-        #ifndef BETA
+        #if defined(MAINNET) || defined(TESTNET)
             struct paymentInfo
             {
                 uint64_t itemId;
@@ -109,7 +110,7 @@ CONTRACT itamstoreapp : public contract
         };
 };
 
-#ifndef BETA
+#if defined(MAINNET) || defined(TESTNET)
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem)(refundapp)(refunditem)(defconfirm)(confirmall)(setconfig), &itamstoreapp::transfer )
 #else
     ALLOW_TRANSFER_ITAM_EOS_DISPATCHER( itamstoreapp, (registitems)(deleteitems)(modifyitem)(useitem)(registapp)(deleteapp)(transfer)(receiptapp)(receiptitem), &itamstoreapp::transfer )

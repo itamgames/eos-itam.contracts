@@ -9,7 +9,7 @@ ACTION itamstoreran::registboard(string appId, string boardList)
     uint64_t leader_board_id = 0;
     leaderboardTable leaderBoards(_self, appid);
     
-    #ifdef BETA
+    #if defined(MAINNET) || defined(TESTNET)
         for(auto iter = leaderBoards.begin(); iter != leaderBoards.end(); iter = leaderBoards.erase(iter));
     #endif
 

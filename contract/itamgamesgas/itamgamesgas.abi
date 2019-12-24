@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Oct 21 15:17:59 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Dec 20 15:23:21 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -23,6 +23,24 @@
                 {
                     "name": "app_id",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "receiptstle",
+            "base": "",
+            "fields": [
+                {
+                    "name": "app_id",
+                    "type": "string"
+                },
+                {
+                    "name": "settle_account",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
                 }
             ]
         },
@@ -70,6 +88,11 @@
         {
             "name": "claimsettle",
             "type": "claimsettle",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "receiptstle",
+            "type": "receiptstle",
             "ricardian_contract": ""
         },
         {

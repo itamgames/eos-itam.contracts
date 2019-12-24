@@ -3,6 +3,7 @@
 #include "../include/dispatcher.hpp"
 #include "../include/transferstruct.hpp"
 #include "../include/string.hpp"
+#include "../include/accounts.hpp"
 
 using namespace eosio;
 
@@ -13,6 +14,7 @@ CONTRACT itamgamesgas : contract
 
         ACTION setsettle(string app_id, name settle_account);
         ACTION claimsettle(string app_id);
+        ACTION receiptstle(string app_id, name settle_account, asset quantity);
         ACTION transfer(uint64_t from, uint64_t to);
     private:
         TABLE account
