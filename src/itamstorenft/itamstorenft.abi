@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jan  6 14:31:49 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Jan  6 15:15:01 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -376,6 +376,10 @@
                 },
                 {
                     "name": "game_user_id",
+                    "type": "string"
+                },
+                {
+                    "name": "item_id",
                     "type": "string"
                 },
                 {

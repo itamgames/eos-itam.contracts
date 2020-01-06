@@ -1,6 +1,6 @@
 #include "itamstorenft.hpp"
 
-ACTION itamstorenft::nft(name owner, name owner_group, string game_user_id, symbol_code symbol_name, string action, string reason)
+ACTION itamstorenft::nft(name owner, name owner_group, string game_user_id, string item_id, symbol_code symbol_name, string action, string reason)
 {
     require_auth(_self);
     currencies.get(symbol_name.raw(), "invalid symbol");
@@ -222,7 +222,7 @@ ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, st
     allow_table allows(_self, _self.value);
     eosio_assert(allows.find(author.value) != allows.end(), "only allowed accounts can use this action");
 
-    if(symbol_name.to_string() != "DARKT")
+    if(from == dex_contract && symbol_name.to_string() != "DARKT")
     {
         accounts.erase(from_item);
     }
