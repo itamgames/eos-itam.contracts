@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 24 15:20:39 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 24 16:15:59 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -25,8 +25,8 @@
             "base": "",
             "fields": [
                 {
-                    "name": "key",
-                    "type": "name"
+                    "name": "nft_symbol",
+                    "type": "symbol"
                 },
                 {
                     "name": "fees_rate",
@@ -258,7 +258,7 @@
             "fields": [
                 {
                     "name": "symbol_name",
-                    "type": "name"
+                    "type": "string"
                 },
                 {
                     "name": "fees_rate",

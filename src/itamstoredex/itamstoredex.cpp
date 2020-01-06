@@ -5,6 +5,8 @@ ACTION itamstoredex::sellorder(name owner, symbol_code symbol_name, string item_
     token_table tokens(_self, _self.value);
     const auto& token = tokens.get(quantity.symbol.code().raw(), "invalid token symbol");
     eosio_assert(token.available_symbol.precision() == quantity.symbol.precision(), "invalid precision");
+    eosio_assert(quantity.amount > 0, "quantity must be positive");
+
     #if defined(MAINNET_BETA) || defined(TESTNET_BETA)
         eosio_assert(quantity.symbol.code().to_string() == "ITT", "test symbol does not exact");
     #endif
@@ -156,7 +158,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     const auto& currency = currencies.get(item_symbol.code().raw(), "invalid item symbol");
     
     config_table configs(_self, _self.value);
-    const auto& config = configs.get(name(message.symbol_name).value, "config must be set");
+    const auto& config = configs.get(item_symbol.code().raw(), "config must be set");
 
     asset fees = order->quantity * config.fees_rate / 100;
 
@@ -180,7 +182,7 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
         settle_quantity_to_itam = fees - settle_quantity_to_vendor;
     }
 
-    #if defined(MAINNET_BETA) || defined(TESTNET_BETA)
+    #if defined(MAINNET) || defined(TESTNET)
         if(settle_quantity_to_vendor.amount > 0)
         {
             action(
@@ -252,17 +254,19 @@ ACTION itamstoredex::transfer(uint64_t from, uint64_t to)
     orders.erase(order);
 }
 
-ACTION itamstoredex::setconfig(name symbol_name, uint64_t fees_rate, uint64_t settle_rate)
+ACTION itamstoredex::setconfig(string symbol_name, uint64_t fees_rate, uint64_t settle_rate)
 {
     require_auth(_self);
 
+    symbol nft_symbol(symbol_name, 0);
+
     config_table configs(_self, _self.value);
-    const auto& config = configs.find(symbol_name.value);
+    const auto& config = configs.find(nft_symbol.code().raw());
 
     if(config == configs.end())
     {
         configs.emplace(_self, [&](auto &c) {
-            c.key = symbol_name;
+            c.nft_symbol = nft_symbol;
             c.fees_rate = fees_rate;
             c.settle_rate = settle_rate;
         });
