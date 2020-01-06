@@ -222,15 +222,22 @@ ACTION itamstorenft::transfernft(name from, name to, symbol_code symbol_name, st
     allow_table allows(_self, _self.value);
     eosio_assert(allows.find(author.value) != allows.end(), "only allowed accounts can use this action");
 
-    memo_data nft_memo;
-    parseMemo(&nft_memo, memo, "|", 3);
+    if(symbol_name.to_string() != "DARKT")
+    {
+        accounts.erase(from_item);
+    }
+    else
+    {
+        memo_data nft_memo;
+        parseMemo(&nft_memo, memo, "|", 3);
 
-    accounts.modify(from_item, author, [&](auto &a) {
-        a.owner = name(nft_memo.to);
-        a.owner_account = to;
-        a.nickname = nft_memo.nickname;
-        a.transferable = nft_memo.transfer_state != string("complete");;
-    });
+        accounts.modify(from_item, author, [&](auto &a) {
+            a.owner = name(nft_memo.to);
+            a.owner_account = to;
+            a.nickname = nft_memo.nickname;
+            a.transferable = nft_memo.transfer_state != string("complete");
+        });
+    }
 
     require_recipient(from_item->owner_account, to);
 }

@@ -2,6 +2,7 @@
 #include <eosiolib/asset.hpp>
 #include "../include/string.hpp"
 #include "../include/ownergroup.hpp"
+#include "../include/accounts.hpp"
 
 using namespace eosio;
 using namespace std;
