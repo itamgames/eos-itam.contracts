@@ -14,4 +14,4 @@ else
     exit 1
 fi
 
-eosio-cpp -abigen -D="$COMPILE_OPTION" itamgamesacc.cpp -o itamgamesacc.wasm
+eosio-cpp -abigen -D="$COMPILE_OPTION" itamgamesrec.cpp -o itamgamesrec.wasm

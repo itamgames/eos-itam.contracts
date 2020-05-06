@@ -5,7 +5,7 @@
 using namespace eosio;
 using namespace std;
 
-CONTRACT itamgamesacc : contract
+CONTRACT itamgamesrec : contract
 {
     public:
         using contract::contract;
@@ -20,4 +20,4 @@ CONTRACT itamgamesacc : contract
         ACTION order(uint64_t appId, uint64_t nftId, string from, string to, uint64_t timestamp);
 };
 
-ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesacc, (achievement)(leaderboard)(history)(nft)(createorder)(modifyorder)(deleteorder)(order) )
+ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesrec, (achievement)(leaderboard)(history)(nft)(createorder)(modifyorder)(deleteorder)(order) )
