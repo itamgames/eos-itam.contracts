@@ -10,12 +10,22 @@ ACTION itamgamesrec::leaderboard(uint64_t appId, uint64_t leaderboardId, string 
     require_auth(_self);
 }
 
-ACTION itamgamesrec::history(uint64_t appId, string gameAccount, string json, uint64_t nonce)
+ACTION itamgamesrec::gamehistory(uint64_t appId, string gameAccount, string json, uint64_t nonce)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::nft(uint64_t appId, uint64_t nftId, string gameAccount, string json, string state, uint64_t nonce)
+ACTION itamgamesrec::createnft(uint64_t appId, uint64_t nftId, string nftName, string gameAccount, string json, uint64_t nonce)
+{
+    require_auth(_self);
+}
+
+ACTION itamgamesrec::modifynft(uint64_t appId, uint64_t nftId, string nftName, string gameAccount, string json, uint64_t nonce)
+{
+    require_auth(_self);
+}
+
+ACTION itamgamesrec::deletenft(uint64_t appId, uint64_t nftId, string gameAccount, string json, uint64_t nonce)
 {
     require_auth(_self);
 }

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 15 12:23:13 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 15 13:25:12 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -20,6 +20,36 @@
                 },
                 {
                     "name": "data",
+                    "type": "string"
+                },
+                {
+                    "name": "nonce",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "createnft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nftId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nftName",
+                    "type": "string"
+                },
+                {
+                    "name": "gameAccount",
+                    "type": "string"
+                },
+                {
+                    "name": "json",
                     "type": "string"
                 },
                 {
@@ -55,6 +85,32 @@
             ]
         },
         {
+            "name": "deletenft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nftId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "gameAccount",
+                    "type": "string"
+                },
+                {
+                    "name": "json",
+                    "type": "string"
+                },
+                {
+                    "name": "nonce",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "deleteorder",
             "base": "",
             "fields": [
@@ -77,7 +133,7 @@
             ]
         },
         {
-            "name": "history",
+            "name": "gamehistory",
             "base": "",
             "fields": [
                 {
@@ -125,6 +181,36 @@
             ]
         },
         {
+            "name": "modifynft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nftId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nftName",
+                    "type": "string"
+                },
+                {
+                    "name": "gameAccount",
+                    "type": "string"
+                },
+                {
+                    "name": "json",
+                    "type": "string"
+                },
+                {
+                    "name": "nonce",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "modifyorder",
             "base": "",
             "fields": [
@@ -138,36 +224,6 @@
                 },
                 {
                     "name": "price",
-                    "type": "string"
-                },
-                {
-                    "name": "nonce",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "nft",
-            "base": "",
-            "fields": [
-                {
-                    "name": "appId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "nftId",
-                    "type": "uint64"
-                },
-                {
-                    "name": "gameAccount",
-                    "type": "string"
-                },
-                {
-                    "name": "json",
-                    "type": "string"
-                },
-                {
-                    "name": "state",
                     "type": "string"
                 },
                 {
@@ -211,8 +267,18 @@
             "ricardian_contract": ""
         },
         {
+            "name": "createnft",
+            "type": "createnft",
+            "ricardian_contract": ""
+        },
+        {
             "name": "createorder",
             "type": "createorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deletenft",
+            "type": "deletenft",
             "ricardian_contract": ""
         },
         {
@@ -221,8 +287,8 @@
             "ricardian_contract": ""
         },
         {
-            "name": "history",
-            "type": "history",
+            "name": "gamehistory",
+            "type": "gamehistory",
             "ricardian_contract": ""
         },
         {
@@ -231,13 +297,13 @@
             "ricardian_contract": ""
         },
         {
-            "name": "modifyorder",
-            "type": "modifyorder",
+            "name": "modifynft",
+            "type": "modifynft",
             "ricardian_contract": ""
         },
         {
-            "name": "nft",
-            "type": "nft",
+            "name": "modifyorder",
+            "type": "modifyorder",
             "ricardian_contract": ""
         },
         {
