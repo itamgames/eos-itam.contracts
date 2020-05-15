@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed May  6 14:32:14 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri May 15 12:23:13 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -15,7 +15,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "gameAccount",
                     "type": "string"
                 },
                 {
@@ -23,7 +23,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -41,7 +41,7 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "gameAccount",
                     "type": "string"
                 },
                 {
@@ -49,7 +49,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -67,11 +67,11 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "gameAccount",
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -85,15 +85,15 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "gameAccount",
                     "type": "string"
                 },
                 {
-                    "name": "data",
+                    "name": "json",
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -111,15 +111,15 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "user",
+                    "name": "gameAccount",
                     "type": "string"
                 },
                 {
-                    "name": "data",
+                    "name": "json",
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -141,7 +141,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -159,7 +159,11 @@
                     "type": "uint64"
                 },
                 {
-                    "name": "data",
+                    "name": "gameAccount",
+                    "type": "string"
+                },
+                {
+                    "name": "json",
                     "type": "string"
                 },
                 {
@@ -167,7 +171,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
@@ -193,7 +197,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "timestamp",
+                    "name": "nonce",
                     "type": "uint64"
                 }
             ]
