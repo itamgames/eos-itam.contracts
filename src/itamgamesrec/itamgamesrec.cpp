@@ -15,12 +15,12 @@ ACTION itamgamesrec::gamehistory(uint64_t appId, string gameAccount, string json
     require_auth(_self);
 }
 
-ACTION itamgamesrec::createnft(uint64_t appId, uint64_t nftId, string nftName, string gameAccount, string json, uint64_t nonce)
+ACTION itamgamesrec::createnft(uint64_t appId, uint64_t nftId, string gameAccount, string json, uint64_t nonce)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::modifynft(uint64_t appId, uint64_t nftId, string nftName, string gameAccount, string json, uint64_t nonce)
+ACTION itamgamesrec::modifynft(uint64_t appId, uint64_t nftId, string gameAccount, string json, uint64_t nonce)
 {
     require_auth(_self);
 }

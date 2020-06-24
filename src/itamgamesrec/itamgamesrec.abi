@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jun 25 07:55:59 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jun 25 08:03:34 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -39,10 +39,6 @@
                 {
                     "name": "nftId",
                     "type": "uint64"
-                },
-                {
-                    "name": "nftName",
-                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -191,10 +187,6 @@
                 {
                     "name": "nftId",
                     "type": "uint64"
-                },
-                {
-                    "name": "nftName",
-                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
