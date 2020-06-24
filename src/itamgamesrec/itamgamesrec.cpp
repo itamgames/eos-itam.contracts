@@ -35,7 +35,7 @@ ACTION itamgamesrec::createorder(uint64_t appId, uint64_t nftId, string gameAcco
     require_auth(_self);
 }
 
-ACTION itamgamesrec::modifyorder(uint64_t appId, uint64_t nftId, string price, uint64_t nonce)
+ACTION itamgamesrec::modifyorder(uint64_t appId, uint64_t nftId, string gameAccount, string price, uint64_t nonce)
 {
     require_auth(_self);
 }
