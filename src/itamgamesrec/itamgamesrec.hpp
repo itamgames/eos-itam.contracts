@@ -19,7 +19,7 @@ CONTRACT itamgamesrec : contract
         ACTION createorder(uint64_t appId, uint64_t nftId, string gameAccount, string price, uint64_t nonce);
         ACTION modifyorder(uint64_t appId, uint64_t nftId, string price, uint64_t nonce);
         ACTION deleteorder(uint64_t appId, uint64_t nftId, string gameAccount, uint64_t nonce);
-        ACTION order(uint64_t appId, uint64_t nftId, string from, string to, uint64_t nonce);
+        ACTION order(uint64_t appId, uint64_t nftId, string from, string to, string price, uint64_t nonce);
 };
 
 ALLOW_TRANSFER_ALL_DISPATCHER( itamgamesrec, (achievement)(leaderboard)(gamehistory)(createnft)(modifynft)(deletenft)(createorder)(modifyorder)(deleteorder)(order) )

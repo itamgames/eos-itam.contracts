@@ -45,7 +45,7 @@ ACTION itamgamesrec::deleteorder(uint64_t appId, uint64_t nftId, string gameAcco
     require_auth(_self);
 }
 
-ACTION itamgamesrec::order(uint64_t appId, uint64_t nftId, string from, string to, uint64_t nonce)
+ACTION itamgamesrec::order(uint64_t appId, uint64_t nftId, string from, string to, string price, uint64_t nonce)
 {
     require_auth(_self);
 }
