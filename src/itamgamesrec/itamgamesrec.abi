@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jun 25 08:14:23 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jun 28 01:48:17 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -24,7 +24,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -54,7 +54,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -84,7 +84,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -114,7 +114,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -139,8 +139,12 @@
                     "type": "string"
                 },
                 {
+                    "name": "price",
+                    "type": "string"
+                },
+                {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -166,7 +170,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -196,7 +200,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -226,7 +230,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -256,7 +260,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
@@ -290,7 +294,7 @@
                 },
                 {
                     "name": "nonce",
-                    "type": "uint64"
+                    "type": "string"
                 },
                 {
                     "name": "timestamp",
