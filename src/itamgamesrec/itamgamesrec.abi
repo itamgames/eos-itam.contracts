@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Jun 28 01:48:17 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Dec 23 13:51:20 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -37,11 +37,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -67,11 +71,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -97,7 +105,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -127,11 +143,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -149,6 +169,32 @@
                 {
                     "name": "timestamp",
                     "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "digitalasset",
+            "base": "",
+            "fields": [
+                {
+                    "name": "appId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "digitalAssetId",
+                    "type": "uint64"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "image",
+                    "type": "string"
                 }
             ]
         },
@@ -213,11 +259,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -243,11 +293,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -273,11 +327,15 @@
             "base": "",
             "fields": [
                 {
+                    "name": "uuid",
+                    "type": "string"
+                },
+                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
-                    "name": "nftId",
+                    "name": "digitalAssetId",
                     "type": "uint64"
                 },
                 {
@@ -328,6 +386,11 @@
         {
             "name": "deleteorder",
             "type": "deleteorder",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "digitalasset",
+            "type": "digitalasset",
             "ricardian_contract": ""
         },
         {
