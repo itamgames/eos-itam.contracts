@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Wed Dec 23 13:51:20 2020",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Dec 24 12:35:30 2020",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -37,16 +37,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -71,16 +71,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -105,16 +105,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "nftId",
@@ -143,16 +143,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -259,16 +259,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -293,16 +293,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "gameAccount",
@@ -327,16 +327,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "uuid",
-                    "type": "string"
-                },
-                {
                     "name": "appId",
                     "type": "uint64"
                 },
                 {
                     "name": "digitalAssetId",
                     "type": "uint64"
+                },
+                {
+                    "name": "uuid",
+                    "type": "string"
                 },
                 {
                     "name": "from",

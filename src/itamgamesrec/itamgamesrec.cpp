@@ -20,37 +20,37 @@ ACTION itamgamesrec::digitalasset(uint64_t appId, uint64_t digitalAssetId, strin
     require_auth(_self);
 }
 
-ACTION itamgamesrec::createnft(string uuid, uint64_t appId, uint64_t digitalAssetId, string gameAccount, string json, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::createnft(uint64_t appId, uint64_t digitalAssetId, string uuid, string gameAccount, string json, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::modifynft(string uuid, uint64_t appId, uint64_t digitalAssetId, string gameAccount, string json, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::modifynft(uint64_t appId, uint64_t digitalAssetId, string uuid, string gameAccount, string json, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::deletenft(string uuid, uint64_t appId, uint64_t digitalAssetId, uint64_t nftId, string gameAccount, string json, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::deletenft(uint64_t appId, uint64_t digitalAssetId, string uuid, uint64_t nftId, string gameAccount, string json, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::createorder(string uuid, uint64_t appId, uint64_t digitalAssetId, string gameAccount, string price, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::createorder(uint64_t appId, uint64_t digitalAssetId, string uuid, string gameAccount, string price, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::modifyorder(string uuid, uint64_t appId, uint64_t digitalAssetId, string gameAccount, string price, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::modifyorder(uint64_t appId, uint64_t digitalAssetId, string uuid, string gameAccount, string price, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::deleteorder(string uuid, uint64_t appId, uint64_t digitalAssetId, string gameAccount, string price, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::deleteorder(uint64_t appId, uint64_t digitalAssetId, string uuid, string gameAccount, string price, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
 
-ACTION itamgamesrec::order(string uuid, uint64_t appId, uint64_t digitalAssetId, string from, string to, string price, string nonce, uint64_t timestamp)
+ACTION itamgamesrec::order(uint64_t appId, uint64_t digitalAssetId, string uuid, string from, string to, string price, string nonce, uint64_t timestamp)
 {
     require_auth(_self);
 }
